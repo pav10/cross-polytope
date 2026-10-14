@@ -1,4 +1,5 @@
-"""Regenerate data/strata.json (39 strata) and cross-check the classical 6 clean types."""
+"""Regenerate data/strata.json (39 strata) and cross-check the classical 6 clean types.
+Usage: python3 scripts/make_strata.py [out.json]   (default: data/strata.json)"""
 import sys, json, time, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from cp4.strata import enumerate_strata
@@ -15,4 +16,6 @@ assert len(C) == 6 and sum(s['n_superlattices_in_orbit'] for s in C) == 54
 for s in S:
     print(f"  id={s['id']:2d} p={s['p']:2d} orbit={s['n_superlattices_in_orbit']:4d} "
           f"|stab|={s['stabilizer_order']:3d} cand={len(s['candidates']):3d} forced={len(s['forced']):2d}")
-json.dump(S, open(os.path.join(os.path.dirname(__file__), '..', 'data', 'strata.json'), 'w'))
+out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), '..', 'data', 'strata.json')
+with open(out, 'w') as f:
+    json.dump(S, f)
