@@ -2,7 +2,7 @@
 Usage (from the campaign root):  python3 verify/run_all.py [--skip-slow]
 Exit code 0 iff all gates pass.  Long runs (Stage A stratum 11, Stage B1 on zeta's S) are checked
 from their saved outputs in results/ if present, never rerun here."""
-import subprocess, sys, os, json, hashlib, time, pickle
+import subprocess, sys, os, json, time, pickle, tempfile
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, os.path.join(ROOT, 'src'))
 os.chdir(ROOT)
@@ -30,10 +30,12 @@ def g0():
     return 'three PASS lines (HNFs/test sets/counterexample+KKT)'
 
 def g1():
-    h = hashlib.sha256(open('data/strata.json', 'rb').read()).hexdigest()
-    run(['scripts/make_strata.py'])
-    h2 = hashlib.sha256(open('data/strata.json', 'rb').read()).hexdigest()
-    assert h == h2, 'data/strata.json changed on regeneration (ids no longer stable!)'
+    # regenerate into a temp dir; the committed file is only read, never rewritten
+    with tempfile.TemporaryDirectory() as d:
+        out = os.path.join(d, 'strata.json')
+        run(['scripts/make_strata.py', out])
+        new = open(out, 'rb').read()
+    assert new == open('data/strata.json', 'rb').read(), 'data/strata.json changed on regeneration (ids no longer stable!)'
     return '39 strata / 1040; clean 6 / 54; file reproduced byte-for-byte'
 
 def g2():
