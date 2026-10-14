@@ -24,7 +24,7 @@ If the request needs any other command (for example `scripts/stageA_run.py` or `
 
 - Do not create, modify, move, or delete any file. That rules out output redirection to files, `sed -i`, `git checkout` or `git restore`, formatters, and package installs.
 - If a command cannot start because something is missing (for example scipy or sympy), report the exact error. Do not install anything.
-- After each run, run `git status --short` and report every file the run changed. Gate G1 regenerates `data/strata.json` in place, so a modified `data/strata.json` after a G1 failure means the canonical file was overwritten: say so prominently and do not restore it.
+- After each run, run `git status --short` and report every file the run changed. The approved commands should leave the tree unchanged, so any modified tracked file (above all under `data/`) is a problem: say so prominently and do not restore it.
 
 ## Report
 
