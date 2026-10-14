@@ -94,5 +94,6 @@ if '--skip-slow' not in sys.argv:
     gate('G5 Stage B2 zeta eliminant', g5)
 gate('G6a Stage B1 zeta witness path', lambda: (run(['scripts/stageB_witness_zeta.py']).strip().endswith('WITNESS OK') or (_ for _ in ()).throw(AssertionError('witness'))) and 'zeta datum survives all prunes')
 gate('G6 Stage B1 zeta face datum', g6)
+gate('G7a merged-search zeta witness path', lambda: (run(['scripts/merged_witness_zeta.py']).strip().endswith('WITNESS OK') or (_ for _ in ()).throw(AssertionError('merged witness'))) and 'zeta labels survive all merged-search prunes')
 print('ALL PASS' if ok_all else 'SOME GATES FAILED')
 sys.exit(0 if ok_all else 1)

@@ -35,7 +35,9 @@ src/cp4/strata.py     HNFs, Lee criterion, 39 strata, stabilisers, candidate poi
 src/cp4/contacts.py   Stage A (contact sets S; Lemma A.1 / Cor A.2)
 src/cp4/faces.py      Stage B1 (face data, LP pruning, ambient-orbit reduction, affine families)
 src/cp4/critical.py   Stage B2 (eliminant of critical values of det on an affine family)
-scripts/              make_strata, zeta_frame, stageA_run, stageB_faces_zeta, stageB_critical_zeta, classify_catalog
+src/cp4/merged.py     merged Stage A + B1 search prototype (PLAN §4; infeasible frame-first, DEAD_ENDS B13)
+scripts/              make_strata, zeta_frame, stageA_run, stageB_faces_zeta, stageB_critical_zeta, classify_catalog,
+                      probe_A6_frame_facets, merged_run (--estimate K = Knuth tree-size estimate), merged_witness_zeta
 data/                 strata.json, zeta.json, audit_certificate.json, wolff test sets, catalog
 results/              outputs + logs of runs
 verify/               verify_audit.py (external), run_all.py (regression gates)
@@ -58,6 +60,8 @@ Dependencies: python3, numpy, scipy (HiGHS via linprog), sympy ≥ 1.12. Recomme
   see DEAD_ENDS A1–A4 before using any of them).
 
 ## Where we are (14 Oct 2026)
-Gates G0–G3, G5 pass. Stage A is too weak on mid-size strata (≥ 7 000 contact sets in stratum 11 and growing);
-Stage B1 costs ~5 nodes/s with an unknown, large tree per S. **Next work = PLAN §2 decision rule and §3
-remedies (merged search §4), measured on stratum 11 before any full run.**
+Gates G0–G3, G5, G6a, G7a pass. Stage A is too weak on mid-size strata (≥ 9 800 contact sets in stratum 11
+and growing); Stage B1 costs ~5 nodes/s with an unknown, large tree per S. The PLAN §2 decision rule has been
+run: option 4(a) kills nothing (DEAD_ENDS B12) and the frame-first merged search is ~60–1 000× Stage A's tree on
+stratum 0 (Knuth median–mean; DEAD_ENDS B13). **Next work: undecided — B1 remedies on ζ's S (PLAN §3, finishes G6) or a merged search
+that defers sign branching; Knuth-estimate any new search before building it.**
