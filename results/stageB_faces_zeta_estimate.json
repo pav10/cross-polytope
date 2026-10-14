@@ -13,5 +13,35 @@
   "determine": true,
   "seed": 1,
   "backend": "highspy"
+ },
+ {
+  "probes": 300,
+  "nodes_mean": 10849.233333333334,
+  "nodes_median": 309.5,
+  "nodes_max": 494087.0,
+  "leaves_mean": 0.0,
+  "depth_mean": 5.083333333333333,
+  "seconds": 76.4859733581543,
+  "s_per_node": 0.04191012291059102,
+  "signvecs": "facet",
+  "dynamic": true,
+  "determine": true,
+  "seed": 1,
+  "backend": "highspy"
+ },
+ {
+  "probes": 300,
+  "nodes_mean": 557718.76,
+  "nodes_median": 3329.0,
+  "nodes_max": 58796189.0,
+  "leaves_mean": 0.0,
+  "depth_mean": 4.156666666666666,
+  "seconds": 45.60867118835449,
+  "s_per_node": 0.029482019124835557,
+  "signvecs": "all",
+  "dynamic": false,
+  "determine": true,
+  "seed": 1,
+  "backend": "highspy"
  }
 ]
