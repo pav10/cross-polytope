@@ -75,10 +75,9 @@ def g5():
     assert '64*D**3 - 1920*D**2 + 13584*D - 26011' in out and '<-- zeta' in out, out
     return 'eliminant contains the zeta cubic; root 4*D* recovered'
 
-def g6():
-    f = 'results/stageB_faces_zeta.pkl'
+def g6(f='results/stageB_faces_zeta.pkl'):
     if not os.path.exists(f):
-        return 'SKIPPED (results/stageB_faces_zeta.pkl absent)'
+        return f'SKIPPED ({f} absent)'
     R = pickle.load(open(f, 'rb'))
     if not R['stats'].get('complete') and not R['zeta_hits']:
         return f"INCOMPLETE run ({R['stats']['nodes']} nodes, {R['stats']['seconds']:.0f}s) - rerun longer"
@@ -93,6 +92,7 @@ gate('G4 Stage A stratum 11 contains zeta', g4)
 if '--skip-slow' not in sys.argv:
     gate('G5 Stage B2 zeta eliminant', g5)
 gate('G6a Stage B1 zeta witness path', lambda: (run(['scripts/stageB_witness_zeta.py']).strip().endswith('WITNESS OK') or (_ for _ in ()).throw(AssertionError('witness'))) and 'zeta datum survives all prunes')
+gate('G6f Stage B1 facet-only pass contains zeta', lambda: g6('results/stageB_faces_zeta_facet.pkl'))
 gate('G6 Stage B1 zeta face datum', g6)
 gate('G7a merged-search zeta witness path', lambda: (run(['scripts/merged_witness_zeta.py']).strip().endswith('WITNESS OK') or (_ for _ in ()).throw(AssertionError('merged witness'))) and 'zeta labels survive all merged-search prunes')
 print('ALL PASS' if ok_all else 'SOME GATES FAILED')
