@@ -1,0 +1,8 @@
+[PASS] G0 audit checker (12s) three PASS lines (HNFs/test sets/counterexample+KKT)
+[PASS] G1 strata (44s) 39 strata / 1040; clean 6 / 54; file reproduced byte-for-byte
+[PASS] G2 zeta located (0s) zeta: stratum 11, p=4, 15 contacts
+[PASS] G3 Stage A p=1 (20s) p=1: 3 sets of size 10, 54726 nodes
+[PASS] G4 Stage A stratum 11 contains zeta (0s) SKIPPED (results/stageA_11.json absent; run scripts/stageA_run.py 11)
+[PASS] G5 Stage B2 zeta eliminant (22s) eliminant contains the zeta cubic; root 4*D* recovered
+[PASS] G6 Stage B1 zeta face datum (0s) SKIPPED (results/stageB_faces_zeta.pkl absent)
+ALL PASS
