@@ -1,0 +1,17 @@
+[
+ {
+  "probes": 300,
+  "nodes_mean": 35143.85,
+  "nodes_median": 187.0,
+  "nodes_max": 4970647.0,
+  "leaves_mean": 0.0,
+  "depth_mean": 4.8966666666666665,
+  "seconds": 14.982435941696167,
+  "s_per_node": 0.008469438606766808,
+  "signvecs": "facet",
+  "dynamic": false,
+  "determine": true,
+  "seed": 1,
+  "backend": "highspy"
+ }
+]
