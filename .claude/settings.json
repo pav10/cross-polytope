@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "opusplan",
+  "effortLevel": "high",
+  "permissions": {
+    "allow": [
+      "Bash(python3 verify/run_all.py)",
+      "Bash(python3 verify/run_all.py --skip-slow)",
+      "Bash(python3 verify/verify_audit.py --output /dev/null)",
+      "Bash(python3 scripts/stageB_critical_zeta.py)",
+      "Bash(python3 scripts/stageB_witness_zeta.py)",
+      "WebFetch(domain:docs.sympy.org)",
+      "WebFetch(domain:docs.scipy.org)",
+      "WebFetch(domain:numpy.org)",
+      "WebFetch(domain:ergo-code.github.io)",
+      "WebFetch(domain:msolve.lip6.fr)",
+      "WebFetch(domain:slurm.schedmd.com)"
+    ],
+    "deny": [
+      "Edit(/data/audit_certificate.json)",
+      "Edit(/docs/audit_note.tex)",
+      "Edit(/verify/verify_audit.py)"
+    ]
+  }
+}

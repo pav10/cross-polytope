@@ -24,6 +24,9 @@ Owner: Pavlo Yatsyna (Charles University). Everything except the finite computat
   failures in `docs/DEAD_ENDS.md` with the measured reason.
 * Do not edit `data/audit_certificate.json`, `docs/audit_note.tex`, `verify/verify_audit.py` (read-only, external).
 
+## Claude Code workflow
+* Use Plan Mode before new features, significant design tradeoffs, and bugs that survive the first attempted fix.
+
 ## Layout
 ```
 src/cp4/exact.py      exact det/inv/rref/nullspace/solve_affine
