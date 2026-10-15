@@ -28,7 +28,9 @@ occurs only on leaves of Λ_ζ (stratum 11). Leaves violating this go to Stage C
 | G4 Stage A, stratum 11 contains ζ's S | ζ's canonical S ∈ output | see STATUS §4 |
 | G5 Stage B2 on ζ's face datum | eliminant contains `64D³−1920D²+13584D−26011` with root `4·D*` | **passed** (21 s, sympy grevlex+FGLM); other factors `D−6`, `D³+62D²+8D+200` — no root in `[8/3, 4D*)` |
 | G6a B1 witness | ζ's datum survives every prune contact by contact | **passed** |
-| G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | incomplete (STATUS §4) |
+| G6f Stage B1 facet-only pass on ζ's S | ζ's face datum among the facet-only leaves | **passed** (65 148 nodes, 23 min; 6 leaves, all dim 3) |
+| G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | not run yet: ~10–40 h, `scripts/slurm_stageB_zeta.sbatch` (resumable) |
+| G7a merged-search witness | ζ's labels (15 in, 53 out) survive every prune of `src/cp4/merged.py`; leaf dim A = 3 | **passed** (4 s) |
 
 ## 2. Stage A — contact sets (`src/cp4/contacts.py`, `scripts/stageA_run.py <sid>`)
 
@@ -56,6 +58,11 @@ before running all 39 strata. Options, in order of expected value:
 
 Decision rule: try 4(a) (≤ 1 day); re-measure stratum 11 (target < 2 000 sets). Otherwise implement
 the merged search of §4.
+
+*Outcome (14 Oct 2026):* **4(a) fails.** In its sound form (one closed facet `uᵢ ∈ {±1}⁴` per frame row,
+330 patterns mod the ambient group) it kills **0** of the 200 Stage-A sets of stratum 0 and **0** of 931
+of stratum 11 (`scripts/probe_A6_frame_facets.py`; DEAD_ENDS B12). The merged search of §4 was prototyped
+next; in its frame-first form it is infeasible too (§4; DEAD_ENDS B13). Next step: undecided.
 
 ## 3. Stage B — face data and critical values
 
@@ -92,6 +99,19 @@ Remedies:
   some `s_cj = 0` have more equations ⇒ smaller A; enumerate them too (they are needed), but a
   facet-only pass gives the fastest complete picture for the dominant case.
 
+*Measured on ζ's S (15 Oct 2026; Knuth estimates, 300 probes, `results/stageB_faces_zeta_estimate.json`):*
+the original dynamic order spends ~116 LPs per node on closure ranges; a **static order** needs ~35 and
+gives a tree of similar size (5.6·10⁵ vs 6.2·10⁵ nodes, medians ~3·10³), so it is ~2× cheaper overall.
+**highspy** (`src/cp4/lp.py`) gives identical verdicts on 3 011 recorded LPs at 0.66 vs 2.06 ms/LP
+(`scripts/check_lp_backend.py`). **Determine-then-check** is implemented (`determine=True`) but never fired
+on ζ's S (no branch reached rank 16). A norm-range lookahead (min/max of `‖cX‖₁` over the cell for undecided
+contacts) cut the tree only 2–3× at 1.5–2.5× the cost per node — no net gain (DEAD_ENDS B14). The
+**facet-only pass is complete**: 65 148 nodes, 1 404 s, 6 leaves (all dim A = 3), ζ's datum among them (G6f);
+an interrupted and resumed run gives the identical leaf set. The **full run** (zeros allowed) is ≈ 12 nodes/s at
+the top of the tree; expected 10–40 h ⇒ cluster (`scripts/slurm_stageB_zeta.sbatch`, chained `--resume`).
+Campaign-wide (10⁴ sets S per stratum) B1 remains far too slow; a structurally better enumeration is needed
+(e.g. column sign patterns = covectors of the contact arrangement in ℝ⁴, instead of row-by-row branching).
+
 **B2** (`src/cp4/critical.py`, `scripts/stageB_critical_zeta.py`): `f = det(x0 + Σ t_k N_k)`
 (degree 4, `d = dim A ≤ 6` variables); eliminant of `{∂f/∂t_k = 0, D − f = 0}` by sympy grevlex +
 FGLM → lex; exact real roots in the window. *Measured:* d = 3 in 21 s. For d = 5, 6 sympy will be too
@@ -114,11 +134,24 @@ candidate is "excluded" ⇔ the constraint `F(c) > 2` is imposed later via its o
 sign vector with `Σ s_j(cX)_j > 2`). Hull closure (A3) and quadruple dets (A2) still prune combinatorially.
 This removes the Stage A / B1 duplication (every S is re-realised in B1 anyway).
 
+*Prototype (14 Oct 2026, `src/cp4/merged.py`, `scripts/merged_run.py`):* labels `in(s)` / lazy `out` per
+candidate; root frame pattern reduced mod (stratum stabiliser × ambient group) — 927 roots (stratum 0),
+10 511 (stratum 11); exact frame-sign filter; A2, A3, A5, strict-slack LP; determine-then-check at rank 16;
+exclusion test at full leaves; Knuth estimator. ζ witness passes (G7a). *Measured* (Knuth, 200 probes,
+`results/merged_{0,11}_estimate.json`): stratum 0 ≈ 5.3·10⁷ nodes (median 3.4·10⁶) against Stage A's
+54 726; stratum 11 ≈ 4.2·10⁸ (median 1.8·10⁷), ≈ 4.8·10⁵ leaves; ~240 nodes/s, 85 % of the time in LPs.
+**Infeasible as designed.** Reason: branching on the frame signs first replays Stage A's combinatorial
+tree once per frame pattern, and partial face data are rarely LP-infeasible at shallow depth (the B1
+depth-14 effect), so the LP prune cannot pay for the replication. A revival must defer sign branching
+until S is (nearly) fixed and be Knuth-estimated before it is built. The full stratum-0 gate (G7) was not
+added: at this cost it would take more than a day.
+
 ## 5. Order of work (recommended)
 
 1. `python3 verify/run_all.py` (≤ 2 min). Read the result lines in STATUS §4.
 2. Finish G6 (B1 on ζ's S): if it does not complete in 1 h, implement the B1 remedies first.
-3. Implement (A6) in Stage A; re-measure stratum 11; then run all strata in increasing candidate-pool
+3. ~~Implement (A6) in Stage A~~ (A6 = §2 option 4(a): kills nothing, DEAD_ENDS B12); strengthen
+   Stage A by other means; re-measure stratum 11; then run all strata in increasing candidate-pool
    size (`data/strata.json`, field `candidates`), on the cluster (one SLURM job per stratum,
    partition `ffa`, ≤ 10 GB, 12 h; checkpoint the include/exclude path; heartbeat).
 4. B1 + B2 for every S; cache eliminants by A; record per-leaf certificates as JSON
@@ -130,4 +163,6 @@ This removes the Stage A / B1 duplication (every S is re-realised in B1 anyway).
 
 `total ≈ Σ_strata #S(stratum) × #leaves(S) × cost(B2)`. Known: #S(0) = 3; #S(11) ≥ 6 000 (A1–A5 only);
 cost(B2, d=3) ≈ 20 s (sympy). Unknown: #leaves(S). Do not launch the full campaign before
-#leaves(ζ's S) and #S(11) with (A6) are measured.
+#leaves(ζ's S) and #S(11) with a working Stage-A strengthening are measured ((A6) does not work).
+Merged search, frame-first (§4): ≈ 5·10⁷ nodes (stratum 0) and ≈ 4·10⁸ (stratum 11) at ~240 nodes/s.
+B1 per S (ζ's S, §3): facet-only 23 min; full ≈ 5.6·10⁵ nodes (Knuth), 10–40 h single-core.

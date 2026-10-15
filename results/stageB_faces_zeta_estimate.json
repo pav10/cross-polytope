@@ -1,0 +1,62 @@
+[
+ {
+  "probes": 300,
+  "nodes_mean": 35143.85,
+  "nodes_median": 187.0,
+  "nodes_max": 4970647.0,
+  "leaves_mean": 0.0,
+  "depth_mean": 4.8966666666666665,
+  "seconds": 14.982435941696167,
+  "s_per_node": 0.008469438606766808,
+  "signvecs": "facet",
+  "dynamic": false,
+  "determine": true,
+  "seed": 1,
+  "backend": "highspy"
+ },
+ {
+  "probes": 300,
+  "nodes_mean": 10849.233333333334,
+  "nodes_median": 309.5,
+  "nodes_max": 494087.0,
+  "leaves_mean": 0.0,
+  "depth_mean": 5.083333333333333,
+  "seconds": 76.4859733581543,
+  "s_per_node": 0.04191012291059102,
+  "signvecs": "facet",
+  "dynamic": true,
+  "determine": true,
+  "seed": 1,
+  "backend": "highspy"
+ },
+ {
+  "probes": 300,
+  "nodes_mean": 557718.76,
+  "nodes_median": 3329.0,
+  "nodes_max": 58796189.0,
+  "leaves_mean": 0.0,
+  "depth_mean": 4.156666666666666,
+  "seconds": 45.60867118835449,
+  "s_per_node": 0.029482019124835557,
+  "signvecs": "all",
+  "dynamic": false,
+  "determine": true,
+  "seed": 1,
+  "backend": "highspy"
+ },
+ {
+  "probes": 300,
+  "nodes_mean": 618092.3333333334,
+  "nodes_median": 2997.0,
+  "nodes_max": 40574581.0,
+  "leaves_mean": 0.0,
+  "depth_mean": 4.34,
+  "seconds": 78.73544883728027,
+  "s_per_node": 0.049148220843292505,
+  "signvecs": "all",
+  "dynamic": true,
+  "determine": true,
+  "seed": 1,
+  "backend": "highspy"
+ }
+]
