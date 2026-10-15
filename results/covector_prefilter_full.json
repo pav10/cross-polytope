@@ -1,0 +1,24 @@
+{
+ "mode": "full",
+ "filter": true,
+ "backend": "highspy",
+ "complete": false,
+ "nodes": 55977,
+ "leaves": 8,
+ "leaf_dims": [
+  1,
+  1,
+  2,
+  2,
+  2,
+  2,
+  3,
+  3
+ ],
+ "seconds": 600.0009899139404,
+ "lp_calls": 399802,
+ "lp_dead": 343759,
+ "filtered": 4033444,
+ "nodes_per_s": 93.29484607688549,
+ "covectors_nonzero": 1704
+}
