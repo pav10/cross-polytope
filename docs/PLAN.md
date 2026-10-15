@@ -109,8 +109,12 @@ contacts) cut the tree only 2–3× at 1.5–2.5× the cost per node — no net 
 **facet-only pass is complete**: 65 148 nodes, 1 404 s, 6 leaves (all dim A = 3), ζ's datum among them (G6f);
 an interrupted and resumed run gives the identical leaf set. The **full run** (zeros allowed) is ≈ 12 nodes/s at
 the top of the tree; expected 10–40 h ⇒ cluster (`scripts/slurm_stageB_zeta.sbatch`, chained `--resume`).
-Campaign-wide (10⁴ sets S per stratum) B1 remains far too slow; a structurally better enumeration is needed
-(e.g. column sign patterns = covectors of the contact arrangement in ℝ⁴, instead of row-by-row branching).
+Campaign-wide (10⁴ sets S per stratum) B1 remains far too slow; a structurally better enumeration is needed.
+*Measured (15 Oct 2026):* the column-wise alternative (each column of the sign matrix is a covector of the
+contact arrangement in ℝ⁴; ζ's S has N = 852 classes, T = 186 topes) is **worse**: no LP prunes before all
+4 columns are fixed, so it needs C(N+3,4) = 2.2·10¹⁰ leaf LPs (5.2·10⁷ facet-only) against row-wise B1's
+~5.6·10⁵ nodes (65 148 facet-only) — DEAD_ENDS B15, `scripts/estimate_covector_B1.py`. The covector list may
+still serve as an LP-free pre-filter inside row-wise B1 (untested).
 
 **B2** (`src/cp4/critical.py`, `scripts/stageB_critical_zeta.py`): `f = det(x0 + Σ t_k N_k)`
 (degree 4, `d = dim A ≤ 6` variables); eliminant of `{∂f/∂t_k = 0, D − f = 0}` by sympy grevlex +
