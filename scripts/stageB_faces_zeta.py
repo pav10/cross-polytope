@@ -53,6 +53,8 @@ resume = None
 if a.resume and os.path.exists(out):
     R = pickle.load(open(out, 'rb'))
     assert R.get('options') == opts, f"checkpoint options {R.get('options')} differ from {opts}"
+    if R['stats'].get('complete'):
+        sys.exit(f"checkpoint {out} is already complete: zeta hits {R['zeta_hits']} - nothing to do")
     resume = {'done_prefixes': R['stats']['done_prefixes'], 'leaves': R['leaves']}
     print(f"resuming: {len(resume['done_prefixes'])} finished subtrees", flush=True)
 leaves, st = enumerate_face_data(S, 4, log_every=a.heartbeat, time_limit=a.seconds, resume=resume,

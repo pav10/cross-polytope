@@ -47,11 +47,14 @@ verify/               verify_audit.py (external), run_all.py (regression gates)
 ```
 python3 verify/run_all.py              # all cheap gates, ~2 min; must print ALL PASS
 python3 scripts/stageA_run.py <sid>    # Stage A for one stratum -> results/stageA_<sid>.json
-python3 scripts/stageB_faces_zeta.py [seconds]   # Stage B1 gate on zeta's S
+python3 scripts/stageB_faces_zeta.py [seconds] [--facet-only] [--static] [--determine] [--estimate K] [--resume]
+                                                 # Stage B1 on zeta's S (G6 / G6f); facet-only static ~23 min
+sbatch scripts/slurm_stageB_zeta.sbatch          # full B1 on zeta's S on the cluster (resumable chain)
 python3 scripts/stageB_critical_zeta.py          # Stage B2 gate (zeta cubic, 21 s)
 ```
-Dependencies: python3, numpy, scipy (HiGHS via linprog), sympy ≥ 1.12. Recommended to add: `highspy`
-(warm-started LPs), `msolve` (B2 for dim A = 5, 6).
+Dependencies: python3, numpy, scipy (HiGHS via linprog), sympy ≥ 1.12, and `highspy` (used by `cp4.lp` when
+installed: ~3× faster LPs, same verdicts — `scripts/check_lp_backend.py`). Recommended to add: `msolve`
+(B2 for dim A = 5, 6).
 
 ## Environment
 * Pavlo's cluster: SLURM, partition `ffa`, 5–10 GB RAM, 12 h wall time. Pavlo runs cluster jobs; Claude writes
@@ -59,9 +62,12 @@ Dependencies: python3, numpy, scipy (HiGHS via linprog), sympy ≥ 1.12. Recomme
 * The claude.ai Project "Cross-polytopes" holds the literature PDFs and older scripts (several superseded —
   see DEAD_ENDS A1–A4 before using any of them).
 
-## Where we are (14 Oct 2026)
-Gates G0–G3, G5, G6a, G7a pass. Stage A is too weak on mid-size strata (≥ 9 800 contact sets in stratum 11
-and growing); Stage B1 costs ~5 nodes/s with an unknown, large tree per S. The PLAN §2 decision rule has been
-run: option 4(a) kills nothing (DEAD_ENDS B12) and the frame-first merged search is ~60–1 000× Stage A's tree on
-stratum 0 (Knuth median–mean; DEAD_ENDS B13). **Next work: undecided — B1 remedies on ζ's S (PLAN §3, finishes G6) or a merged search
-that defers sign branching; Knuth-estimate any new search before building it.**
+## Where we are (15 Oct 2026)
+Gates G0–G3, G5, G6a, G6f, G7a pass. Stage A is too weak on mid-size strata (≥ 9 800 contact sets in stratum 11
+and growing). The PLAN §2 decision rule has been run: option 4(a) kills nothing (DEAD_ENDS B12) and the
+frame-first merged search is ~60–1 000× Stage A's tree on stratum 0 (DEAD_ENDS B13). B1 remedies (PLAN §3):
+highspy LPs, static order, facet-only pass, determine-then-check, resume. The facet-only pass on ζ's S is complete
+and contains ζ's datum (G6f); the full run (G6, ~10–40 h) is a resumable cluster job,
+`scripts/slurm_stageB_zeta.sbatch`. **Next work: G6 on the cluster; B1 is still far too slow campaign-wide
+(~10⁴ S per stratum) — a structurally better enumeration is needed (PLAN §3, last paragraph); Knuth-estimate
+any new search before building it.**

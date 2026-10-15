@@ -28,7 +28,8 @@ occurs only on leaves of Λ_ζ (stratum 11). Leaves violating this go to Stage C
 | G4 Stage A, stratum 11 contains ζ's S | ζ's canonical S ∈ output | see STATUS §4 |
 | G5 Stage B2 on ζ's face datum | eliminant contains `64D³−1920D²+13584D−26011` with root `4·D*` | **passed** (21 s, sympy grevlex+FGLM); other factors `D−6`, `D³+62D²+8D+200` — no root in `[8/3, 4D*)` |
 | G6a B1 witness | ζ's datum survives every prune contact by contact | **passed** |
-| G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | incomplete (STATUS §4) |
+| G6f Stage B1 facet-only pass on ζ's S | ζ's face datum among the facet-only leaves | **passed** (65 148 nodes, 23 min; 6 leaves, all dim 3) |
+| G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | not run yet: ~10–40 h, `scripts/slurm_stageB_zeta.sbatch` (resumable) |
 | G7a merged-search witness | ζ's labels (15 in, 53 out) survive every prune of `src/cp4/merged.py`; leaf dim A = 3 | **passed** (4 s) |
 
 ## 2. Stage A — contact sets (`src/cp4/contacts.py`, `scripts/stageA_run.py <sid>`)
@@ -98,6 +99,19 @@ Remedies:
   some `s_cj = 0` have more equations ⇒ smaller A; enumerate them too (they are needed), but a
   facet-only pass gives the fastest complete picture for the dominant case.
 
+*Measured on ζ's S (15 Oct 2026; Knuth estimates, 300 probes, `results/stageB_faces_zeta_estimate.json`):*
+the original dynamic order spends ~116 LPs per node on closure ranges; a **static order** needs ~35 and
+gives a tree of similar size (5.6·10⁵ vs 6.2·10⁵ nodes, medians ~3·10³), so it is ~2× cheaper overall.
+**highspy** (`src/cp4/lp.py`) gives identical verdicts on 3 011 recorded LPs at 0.66 vs 2.06 ms/LP
+(`scripts/check_lp_backend.py`). **Determine-then-check** is implemented (`determine=True`) but never fired
+on ζ's S (no branch reached rank 16). A norm-range lookahead (min/max of `‖cX‖₁` over the cell for undecided
+contacts) cut the tree only 2–3× at 1.5–2.5× the cost per node — no net gain (DEAD_ENDS B14). The
+**facet-only pass is complete**: 65 148 nodes, 1 404 s, 6 leaves (all dim A = 3), ζ's datum among them (G6f);
+an interrupted and resumed run gives the identical leaf set. The **full run** (zeros allowed) is ≈ 12 nodes/s at
+the top of the tree; expected 10–40 h ⇒ cluster (`scripts/slurm_stageB_zeta.sbatch`, chained `--resume`).
+Campaign-wide (10⁴ sets S per stratum) B1 remains far too slow; a structurally better enumeration is needed
+(e.g. column sign patterns = covectors of the contact arrangement in ℝ⁴, instead of row-by-row branching).
+
 **B2** (`src/cp4/critical.py`, `scripts/stageB_critical_zeta.py`): `f = det(x0 + Σ t_k N_k)`
 (degree 4, `d = dim A ≤ 6` variables); eliminant of `{∂f/∂t_k = 0, D − f = 0}` by sympy grevlex +
 FGLM → lex; exact real roots in the window. *Measured:* d = 3 in 21 s. For d = 5, 6 sympy will be too
@@ -151,3 +165,4 @@ added: at this cost it would take more than a day.
 cost(B2, d=3) ≈ 20 s (sympy). Unknown: #leaves(S). Do not launch the full campaign before
 #leaves(ζ's S) and #S(11) with a working Stage-A strengthening are measured ((A6) does not work).
 Merged search, frame-first (§4): ≈ 5·10⁷ nodes (stratum 0) and ≈ 4·10⁸ (stratum 11) at ~240 nodes/s.
+B1 per S (ζ's S, §3): facet-only 23 min; full ≈ 5.6·10⁵ nodes (Knuth), 10–40 h single-core.
