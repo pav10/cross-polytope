@@ -1,0 +1,42 @@
+{
+ "N_classes": 852,
+ "T_topes": 186,
+ "covectors_incl_zero": 1705,
+ "backend": "highspy",
+ "zeta_columns_are_covectors": true,
+ "facet_leaf_columns_are_topes": true,
+ "partial": {
+  "1": {
+   "samples": 1000,
+   "feasible": 1000
+  },
+  "2": {
+   "samples": 1000,
+   "feasible": 1000
+  },
+  "3": {
+   "samples": 1000,
+   "feasible": 1000
+  }
+ },
+ "leaf": {
+  "topes": {
+   "samples": 5000,
+   "lps": 5000,
+   "feasible": 0,
+   "ms_per_lp": 5.135866355895996,
+   "leaf_multisets": 51494751,
+   "tree_nodes": 52602165,
+   "hours_at_measured_rate": 73.46393310170603
+  },
+  "all": {
+   "samples": 5000,
+   "lps": 4993,
+   "feasible": 0,
+   "ms_per_lp": 4.783061088838583,
+   "leaf_multisets": 22110642855,
+   "tree_nodes": 22214448690,
+   "hours_at_measured_rate": 29376.820969154815
+  }
+ }
+}
