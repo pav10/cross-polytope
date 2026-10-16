@@ -29,7 +29,7 @@ occurs only on leaves of Λ_ζ (stratum 11). Leaves violating this go to Stage C
 | G5 Stage B2 on ζ's face datum | eliminant contains `64D³−1920D²+13584D−26011` with root `4·D*` | **passed** (21 s, sympy grevlex+FGLM); other factors `D−6`, `D³+62D²+8D+200` — no root in `[8/3, 4D*)` |
 | G6a B1 witness | ζ's datum survives every prune contact by contact | **passed** |
 | G6f Stage B1 facet-only pass on ζ's S | ζ's face datum among the facet-only leaves | **passed** (65 148 nodes, 23 min; 6 leaves, all dim 3) |
-| G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | **running** with `--prefilter` (≈ 90 nodes/s; STATUS §4); resumable, `scripts/slurm_stageB_zeta.sbatch` |
+| G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | **ζ's datum found** (810 000 nodes, 46 leaves); run not yet complete, resumed with `--prefilter` (≈ 100 nodes/s; STATUS §4); resumable, `scripts/slurm_stageB_zeta.sbatch` |
 | G8 covector pre-filter (ζ's S) | covector list certified exactly (1 705 faces, 372 topes, Zaslavsky per flat); ζ's datum passes the column filter on its static path and 20 random orders | **passed** (13 s, `scripts/check_covectors_zeta.py`) |
 | G7a merged-search witness | ζ's labels (15 in, 53 out) survive every prune of `src/cp4/merged.py`; leaf dim A = 3 | **passed** (4 s) |
 
