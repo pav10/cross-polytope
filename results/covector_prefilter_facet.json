@@ -1,0 +1,22 @@
+{
+ "mode": "facet",
+ "filter": true,
+ "backend": "highspy",
+ "complete": true,
+ "nodes": 65148,
+ "leaves": 6,
+ "leaf_dims": [
+  3,
+  3,
+  3,
+  3,
+  3,
+  3
+ ],
+ "seconds": 318.66324639320374,
+ "lp_calls": 213807,
+ "lp_dead": 148660,
+ "filtered": 817131,
+ "nodes_per_s": 204.44152483029947,
+ "covectors_nonzero": 1704
+}

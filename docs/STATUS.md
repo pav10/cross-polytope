@@ -119,6 +119,7 @@ points, verify cells, or test admissibility, except for leaves with roots in the
 | **Stage B1 facet-only pass on ζ's S (G6f)** | **complete**: 65 148 nodes, 1 404 s, 6 leaves, all dim A = 3; **ζ's face datum is among them**; an interrupted + resumed run gives the identical leaf set. Facet-only is a validation pass, not complete for the proof (zero coordinates excluded) | `scripts/stageB_faces_zeta.py --facet-only --static --determine`, `results/stageB_faces_zeta_facet.{pkl,log}` |
 | Stage B1 full run on ζ's S (G6) | not run here: ≈ 12 nodes/s at the top of the tree, expected 10–40 h; resumable cluster job prepared | `scripts/slurm_stageB_zeta.sbatch` |
 | Column-wise ("covector") B1 on ζ's S, cost | arrangement `{c^⊥}`: 1 705 covectors, N = 852 classes mod ±, T = 186 topes (ζ's columns among them); partial LP never prunes (1 000/1 000 at levels 1–3) ⇒ C(N+3,4) = 2.2·10¹⁰ leaf LPs (5.2·10⁷ facet-only), ~10²–10³× row-wise B1 (DEAD_ENDS B15) | `scripts/estimate_covector_B1.py`, `results/covector_B1_estimate.json` |
+| Covector pre-filter in row-wise B1 (ζ's S, static order) | facet-only complete pass **319 s vs 1 420 s** (4.5×), identical tree (65 148 nodes) and 6 leaves, 213 807 vs 1 030 938 LPs; full run **93 vs 9.6 nodes/s** (9.7×) over 600 s; LP-subsumed: 0 of 20 031 rejected candidates LP-feasible | `scripts/measure_covector_prefilter.py`, `results/covector_prefilter_*.{json,log}` |
 
 ## §5 Numerical evidence (never cite as proof)
 

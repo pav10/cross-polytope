@@ -113,8 +113,14 @@ Campaign-wide (10⁴ sets S per stratum) B1 remains far too slow; a structurally
 *Measured (15 Oct 2026):* the column-wise alternative (each column of the sign matrix is a covector of the
 contact arrangement in ℝ⁴; ζ's S has N = 852 classes, T = 186 topes) is **worse**: no LP prunes before all
 4 columns are fixed, so it needs C(N+3,4) = 2.2·10¹⁰ leaf LPs (5.2·10⁷ facet-only) against row-wise B1's
-~5.6·10⁵ nodes (65 148 facet-only) — DEAD_ENDS B15, `scripts/estimate_covector_B1.py`. The covector list may
-still serve as an LP-free pre-filter inside row-wise B1 (untested).
+~5.6·10⁵ nodes (65 148 facet-only) — DEAD_ENDS B15, `scripts/estimate_covector_B1.py`.
+*Covector pre-filter inside row-wise B1 (measured 15 Oct 2026, `scripts/measure_covector_prefilter.py`):* with the
+static order, each column of the partial sign matrix must be the restriction of one of the 1 704 nonzero covectors
+to the decided contacts — a set lookup before each LP. **Facet-only complete pass: 319 s instead of 1 420 s
+(4.5×)**, identical tree (65 148 nodes) and leaves (6), 213 807 LPs instead of 1 030 938. **Full run: 93 instead of
+9.6 nodes/s (9.7×)** over the same 600 s, 8 leaves already found. Sound and LP-subsumed: of 20 031 candidates it
+rejected on random walks of the full tree, 0 were LP-feasible. With it the full run on ζ's S (G6) should take a few
+hours instead of 10–40 h; it is not yet built into `faces.enumerate_face_data` (next step).
 
 **B2** (`src/cp4/critical.py`, `scripts/stageB_critical_zeta.py`): `f = det(x0 + Σ t_k N_k)`
 (degree 4, `d = dim A ≤ 6` variables); eliminant of `{∂f/∂t_k = 0, D − f = 0}` by sympy grevlex +

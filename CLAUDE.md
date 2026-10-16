@@ -69,6 +69,8 @@ frame-first merged search is ~60–1 000× Stage A's tree on stratum 0 (DEAD_END
 highspy LPs, static order, facet-only pass, determine-then-check, resume. The facet-only pass on ζ's S is complete
 and contains ζ's datum (G6f); the full run (G6, ~10–40 h) is a resumable cluster job,
 `scripts/slurm_stageB_zeta.sbatch`. The column-wise (covector) alternative is ~10²–10³× worse (no prune
-before the 4th column; DEAD_ENDS B15). **Next work: G6 on the cluster; B1 is still far too slow campaign-wide
+before the 4th column; DEAD_ENDS B15), but the covector list as an LP-free pre-filter inside row-wise B1 gives
+4.5× (facet-only) and ~10× (full) with an identical tree (PLAN §3) — not yet built into `faces.py`.
+**Next work: build the pre-filter into B1, then G6 (a few hours with it); B1 is still far too slow campaign-wide
 (~10⁴ S per stratum) — a structurally better enumeration is needed (PLAN §3, last paragraph); Knuth-estimate
 any new search before building it.**
