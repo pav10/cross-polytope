@@ -94,6 +94,7 @@ if '--skip-slow' not in sys.argv:
 gate('G6a Stage B1 zeta witness path', lambda: (run(['scripts/stageB_witness_zeta.py']).strip().endswith('WITNESS OK') or (_ for _ in ()).throw(AssertionError('witness'))) and 'zeta datum survives all prunes')
 gate('G6f Stage B1 facet-only pass contains zeta', lambda: g6('results/stageB_faces_zeta_facet.pkl'))
 gate('G6 Stage B1 zeta face datum', g6)
+gate('G8 covector pre-filter certified, zeta passes', lambda: (run(['scripts/check_covectors_zeta.py']).strip().endswith('COVECTORS OK') or (_ for _ in ()).throw(AssertionError('covectors'))) and 'exact covector certificate; zeta datum passes the column filter')
 gate('G7a merged-search zeta witness path', lambda: (run(['scripts/merged_witness_zeta.py']).strip().endswith('WITNESS OK') or (_ for _ in ()).throw(AssertionError('merged witness'))) and 'zeta labels survive all merged-search prunes')
 print('ALL PASS' if ok_all else 'SOME GATES FAILED')
 sys.exit(0 if ok_all else 1)

@@ -17,8 +17,11 @@ discarded (perfection, Thm 5.1).
 
 Options of enumerate_face_data (defaults = the original search): static order (dynamic=False, no closure
 LPs); signvecs='facet' (facet interiors only: a fast validation pass, not complete); determine=True
-(determine-then-check at equation rank 16, PLAN §3); checkpoint/resume by depth-3 subtrees.
-estimate_face_data gives Knuth tree-size estimates on the same code path.  LPs go through cp4.lp.
+(determine-then-check at equation rank 16, PLAN §3); checkpoint/resume by depth-3 subtrees; prefilter=True
+(LP-free covector column pre-filter before each LP, cp4.covectors: every column of the partial sign matrix
+must extend to a covector of {c^perp : c in S} realised by a nonzero vector -- sound since det X != 0 --
+with the covector list certified exactly first).  estimate_face_data gives Knuth tree-size estimates on the
+same code path.  LPs go through cp4.lp.
 """
 import numpy as np
 from itertools import product, permutations
@@ -112,10 +115,12 @@ def allowed_signs(c, eqs, stricts, eps=1e-9):
 
 FACETVECS = [s for s in SIGNVECS if all(s)]     # interiors of the 16 facets (ambient-group invariant)
 
-def _children(C, group, eqs, stricts, signs, dynamic, vecs, stats):
+def _children(C, group, eqs, stricts, signs, dynamic, vecs, stats, colfilter=None):
     """One branching step: (ci, [(sign vector, subgroup, eqs, stricts)]), or None if all contacts are decided.
     Dynamic order: the undecided contact with the fewest coordinatewise-allowed sign vectors (closure
-    LPs, conservative); static order: the first undecided contact."""
+    LPs, conservative); static order: the first undecided contact.  colfilter (cp4.covectors.ColumnFilter):
+    candidates whose partial columns extend to no admissible covector are dropped before their LP; the
+    verdict is the same on the whole orbit of the candidate under the subgroup fixing the decided signs."""
     undecided = [i for i in range(len(C)) if i not in signs]
     if not undecided:
         return None
@@ -132,12 +137,15 @@ def _children(C, group, eqs, stricts, signs, dynamic, vecs, stats):
         ci = undecided[0]; choices = vecs
     # orbit reduction must be over the FULL set of sign vectors, restricted afterwards:
     chs = set(choices)
+    allowed = colfilter.allowed(signs, ci) if colfilter is not None else None
     kids = []
     for s in orbit_reps(group, vecs):
         # some image of s under group must be allowed; use that image (same orbit)
         img = next((act_sign(g, s) for g in group if act_sign(g, s) in chs), None)
         if img is None:
             continue
+        if allowed is not None and not all(allowed[j, img[j] + 1] for j in range(4)):
+            stats['prefilter_dead'] = stats.get('prefilter_dead', 0) + 1; continue
         e, st = _rows_for(C[ci], img)
         ok, _ = lp_feasible(eqs + e, stricts + st)
         if not ok:
@@ -164,12 +172,19 @@ def _read_off(C, eqs, signs, vecs):
         full[i] = s
     return {'signs': full, 'x0': x0, 'basis': [], 'dim': 0}
 
+def _column_filter(C, stats):
+    from .covectors import certified_covectors, ColumnFilter
+    cov, cert = certified_covectors(C)
+    stats['covector_certificate'] = cert
+    return ColumnFilter(cov)
+
 def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynamic=True, signvecs='all',
-                        determine=False, resume=None, prefix_depth=3, on_heartbeat=None):
+                        determine=False, resume=None, prefix_depth=3, on_heartbeat=None, prefilter=False):
     """S: list of contacts as numerator tuples over p.  Returns (leaves, stats).
     leaves: dict(signs, x0, basis (affine family), dim, prefix).
     signvecs='facet' restricts every contact to a facet interior (a validation pass, NOT complete).
     determine=True applies determine-then-check at equation rank 16.
+    prefilter=True applies the certified covector column pre-filter before each LP (stats['prefilter_dead']).
     Checkpointing: subtrees below each depth-`prefix_depth` path are recorded in stats['done_prefixes'] when
     finished; resume={'done_prefixes', 'leaves'} (a previous result) skips them and keeps only their leaves.
     on_heartbeat(leaves, stats) is called every log_every nodes (e.g. to dump a checkpoint)."""
@@ -181,7 +196,8 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
     leaves = [L for L in resume['leaves'] if L.get('prefix') in done] if resume else []
     stats = {'nodes': 0, 'lp_dead': 0, 'dim_dead': 0, 'leaves': len(leaves), 'rank16': 0, 'rank16_dead': 0,
              'skipped_subtrees': 0, 'per_depth': {}, 'signvecs': signvecs, 'dynamic': dynamic,
-             'determine': determine, 'prefix_depth': prefix_depth}
+             'determine': determine, 'prefix_depth': prefix_depth, 'prefilter': prefilter, 'prefilter_dead': 0}
+    colfilter = _column_filter(C, stats) if prefilter else None
 
     def rec(group, eqs, stricts, signs, path):
         stats['nodes'] += 1
@@ -197,7 +213,7 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
             raise TimeoutError
         if len(path) == prefix_depth and tuple(path) in done:
             stats['skipped_subtrees'] += 1; return
-        res = _children(C, group, eqs, stricts, signs, dynamic, vecs, stats)
+        res = _children(C, group, eqs, stricts, signs, dynamic, vecs, stats, colfilter)
         if res is None:
             sol = solve_affine([r for r, _ in eqs], [b for _, b in eqs])
             if sol is None:
@@ -239,20 +255,23 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
     stats['seconds'] = time.time() - t0
     return leaves, stats
 
-def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all', determine=False, max_seconds=None):
+def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all', determine=False, max_seconds=None,
+                       prefilter=False):
     """Knuth's estimator for the enumerate_face_data tree (same branching code): mean over random
     root-to-leaf probes of the tree size and of the number of leaves."""
     import time
     t0 = time.time()
     C = [tuple(F(x, p) for x in c) for c in S]
     vecs = FACETVECS if signvecs == 'facet' else SIGNVECS
-    stats = {'lp_dead': 0}
+    stats = {'lp_dead': 0, 'prefilter_dead': 0}
+    colfilter = _column_filter(C, stats) if prefilter else None
+    t0 = time.time()                                   # the certificate is not part of the per-node cost
     nodes, lvs, depth = [], [], []
     for _ in range(probes):
         group, eqs, stricts, signs = AMB, [], [], {}
         w, est, leaf = 1, 1, 0
         while True:
-            res = _children(C, group, eqs, stricts, signs, dynamic, vecs, stats)
+            res = _children(C, group, eqs, stricts, signs, dynamic, vecs, stats, colfilter)
             if res is None:
                 sol = solve_affine([r for r, _ in eqs], [b for _, b in eqs])
                 leaf = w if sol and len(sol[1]) <= max_dim else 0
@@ -275,4 +294,5 @@ def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all
     return {'probes': len(nodes), 'nodes_mean': float(np.mean(nodes)), 'nodes_median': float(np.median(nodes)),
             'nodes_max': float(np.max(nodes)), 'leaves_mean': float(np.mean(lvs)), 'depth_mean': float(np.mean(depth)),
             'seconds': time.time() - t0, 's_per_node': (time.time() - t0) / n,
-            'signvecs': signvecs, 'dynamic': dynamic, 'determine': determine}
+            'signvecs': signvecs, 'dynamic': dynamic, 'determine': determine, 'prefilter': prefilter,
+            'lp_dead': stats['lp_dead'], 'prefilter_dead': stats['prefilter_dead']}
