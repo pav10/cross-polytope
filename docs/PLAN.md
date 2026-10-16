@@ -30,6 +30,7 @@ occurs only on leaves of Λ_ζ (stratum 11). Leaves violating this go to Stage C
 | G6a B1 witness | ζ's datum survives every prune contact by contact | **passed** |
 | G6f Stage B1 facet-only pass on ζ's S | ζ's face datum among the facet-only leaves | **passed** (65 148 nodes, 23 min; 6 leaves, all dim 3) |
 | G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | not run yet: ~10–40 h, `scripts/slurm_stageB_zeta.sbatch` (resumable) |
+| G8 covector pre-filter (ζ's S) | covector list certified exactly (1 705 faces, 372 topes, Zaslavsky per flat); ζ's datum passes the column filter on its static path and 20 random orders | **passed** (13 s, `scripts/check_covectors_zeta.py`) |
 | G7a merged-search witness | ζ's labels (15 in, 53 out) survive every prune of `src/cp4/merged.py`; leaf dim A = 3 | **passed** (4 s) |
 
 ## 2. Stage A — contact sets (`src/cp4/contacts.py`, `scripts/stageA_run.py <sid>`)
@@ -120,7 +121,17 @@ to the decided contacts — a set lookup before each LP. **Facet-only complete p
 (4.5×)**, identical tree (65 148 nodes) and leaves (6), 213 807 LPs instead of 1 030 938. **Full run: 93 instead of
 9.6 nodes/s (9.7×)** over the same 600 s, 8 leaves already found. Sound and LP-subsumed: of 20 031 candidates it
 rejected on random walks of the full tree, 0 were LP-feasible. With it the full run on ζ's S (G6) should take a few
-hours instead of 10–40 h; it is not yet built into `faces.enumerate_face_data` (next step).
+hours instead of 10–40 h.
+**Built in (16 Oct 2026):** `enumerate_face_data(..., prefilter=True)` / `estimate_face_data(..., prefilter=True)`,
+`--prefilter` in `scripts/stageB_faces_zeta.py` and the sbatch (`src/cp4/covectors.py`). Soundness is
+STATUS §3 Lemma B.3 (columns of a nonsingular `X` are covectors at nonzero points); the float covector list is
+accepted only after the exact certificate (exact point per cell, flats, Zaslavsky count per flat; 13 s on ζ's S,
+gate G8). The filter is order-independent (any set of decided contacts) and commutes with the orbit reduction.
+Validated against the search without it (`scripts/compare_prefilter_zeta.py`): identical trees and leaf sets,
+and LP-dead(off) = LP-dead(on) + rejections exactly, in the facet-only pass (337 vs 1 404 s), the static full
+order (first 2 000 nodes, 33 vs 209 s) and the dynamic order (first 1 000 nodes; no gain there, the closure LPs
+dominate — use the static order). A checkpoint written without the filter can be continued with it
+(`prefilter='mixed'`).
 
 **B2** (`src/cp4/critical.py`, `scripts/stageB_critical_zeta.py`): `f = det(x0 + Σ t_k N_k)`
 (degree 4, `d = dim A ≤ 6` variables); eliminant of `{∂f/∂t_k = 0, D − f = 0}` by sympy grevlex +

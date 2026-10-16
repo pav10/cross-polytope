@@ -97,6 +97,24 @@ the data of `Λ_ζ`. *(Lower cut `2p/3` from Cor 1.4.)* **The certificate per le
 (elimination of the critical-value variable) with no real root in the band — no need to locate critical
 points, verify cells, or test admissibility, except for leaves with roots in the band.**
 
+**Lemma B.3 (covector column pre-filter) [P].** Let `X` be nonsingular with face datum `(s_c)_{c∈S}` and let
+`Yⱼ` be the j-th column of `X`. Then each column `(s_cj)_{c∈S}` is the covector `(sign(c·Yⱼ))_{c∈S}` of the
+central arrangement `{c^⊥ : c ∈ S}` in ℝ⁴ at a point `Yⱼ ≠ 0`. Hence a B1 node (decided contacts `D`) with a
+partial column that is not the restriction to `D` of a covector realised by a nonzero vector has no
+descendant cell containing a nonsingular `X`, and can be discarded without an LP; Cor B.2 only concerns
+cells containing a critical (so nonsingular) `X`. The test commutes with the orbit reduction of B1.
+*Proof.* `(cX)ⱼ = c·Yⱼ`, so `s_cj = sign(c·Yⱼ)` by the definition of the face datum, and `det X ≠ 0` gives
+`Yⱼ ≠ 0`. An ambient element `g = (π, ε)` fixing the decided sign vectors maps column `k` of the partial
+matrix to `ε_k` times column `π(k)`, and the covector set is closed under negation. ∎
+
+**Covector certificate [P+C]** (`cp4.covectors.certified_covectors`). The float LP list of covectors is
+accepted only if every listed cell contains an exact rational point (exact sign check), every zero set is a
+flat (exact ranks), and for every flat `F` the number of listed covectors with zero set exactly `F` equals
+`r_F = Σ_{G ⊇ F} |μ(F,G)|`, the number of regions of the arrangement restricted to `⋂_{i∈F} c_i^⊥`
+(Zaslavsky 1975 [Cite]). Distinct genuine covectors with the right count on every flat are all of them.
+ζ's S: 117 flats (by rank 1, 15, 55, 45, 1), **1 705 faces, 372 topes**, 13 s (gate G8,
+`scripts/check_covectors_zeta.py`).
+
 ---
 
 ## §4 Computations already done, with their exact outcomes
@@ -120,6 +138,7 @@ points, verify cells, or test admissibility, except for leaves with roots in the
 | Stage B1 full run on ζ's S (G6) | not run here: ≈ 12 nodes/s at the top of the tree, expected 10–40 h; resumable cluster job prepared | `scripts/slurm_stageB_zeta.sbatch` |
 | Column-wise ("covector") B1 on ζ's S, cost | arrangement `{c^⊥}`: 1 705 covectors, N = 852 classes mod ±, T = 186 topes (ζ's columns among them); partial LP never prunes (1 000/1 000 at levels 1–3) ⇒ C(N+3,4) = 2.2·10¹⁰ leaf LPs (5.2·10⁷ facet-only), ~10²–10³× row-wise B1 (DEAD_ENDS B15) | `scripts/estimate_covector_B1.py`, `results/covector_B1_estimate.json` |
 | Covector pre-filter in row-wise B1 (ζ's S, static order) | facet-only complete pass **319 s vs 1 420 s** (4.5×), identical tree (65 148 nodes) and 6 leaves, 213 807 vs 1 030 938 LPs; full run **93 vs 9.6 nodes/s** (9.7×) over 600 s; LP-subsumed: 0 of 20 031 rejected candidates LP-feasible | `scripts/measure_covector_prefilter.py`, `results/covector_prefilter_*.{json,log}` |
+| **Covector pre-filter built into B1** (`enumerate_face_data(prefilter=True)`, Lemma B.3 + certificate) | validated against the search without it on ζ's S: facet-only complete pass through the real code path **337 s vs 1 404 s**, identical per-depth counts (65 148 nodes) and **identical leaf set** (6 leaves, ζ hit); static full order, first 2 000 nodes: identical tree, 33 s vs 209 s (incl. the 13 s certificate); dynamic order, first 1 000 nodes: identical tree, no speed-up (closure LPs dominate). In all three, LP-dead without the filter = LP-dead with it + filter rejections **exactly** (965 791 = 148 660 + 817 131; 150 015 = 11 395 + 138 620; 5 953 = 2 392 + 3 561) | `scripts/compare_prefilter_zeta.py`, `results/covector_prefilter_validation.{json,log}`, `results/stageB_faces_zeta_facet_prefilter.{pkl,log}` |
 
 ## §5 Numerical evidence (never cite as proof)
 

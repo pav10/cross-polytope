@@ -16,3 +16,4 @@
 | Heiskanen (2025) thesis | background on ℓ¹ lattice packings | yes |
 | External audit note (`docs/audit_note.tex`, `data/audit_certificate.json`) | Thm 1.1, 1.4–1.6, finite test (clean case) | yes |
 | msolve (Berthomieu–Eder–Safey El Din) | recommended engine for Stage B2 at dim A = 5, 6 | — |
+| Zaslavsky, *Facing up to arrangements*, Mem. AMS 154 (1975) | number of regions = Σ \|μ\| over the intersection lattice; used per flat in the covector certificate of B1 (STATUS §3, Lemma B.3) | — |
