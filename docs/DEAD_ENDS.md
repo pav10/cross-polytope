@@ -39,3 +39,6 @@
 * Exact arithmetic for every accept/reject decision; floats only to search or to prune *conservatively*.
 * Separate [P] from [Num] in every write-up; an external audit already caught a false main theorem once.
 * Do not quote δ(L₄) or the density where a determinant threshold is meant.
+* **Long runs in the Claude Code cloud container are not reliable**: the container is reclaimed a few minutes after the
+  session goes idle (16 Oct 2026: G6 legs of 2 h 10 min, 2 h 9 min, then 6.5 min and 5 min; each later leg lost its
+  unfinished depth-3 subtree). Run anything longer than a working session on the cluster from a committed checkpoint.
