@@ -73,8 +73,10 @@ highspy LPs, static order, facet-only pass, determine-then-check, resume. The fa
 and contains ζ's datum (G6f). The column-wise (covector) alternative is ~10²–10³× worse (no prune before the
 4th column; DEAD_ENDS B15), but the covector list as an LP-free pre-filter inside row-wise B1 is now built in
 (`prefilter=True` / `--prefilter`, exact certificate, STATUS §3 Lemma B.3, gate G8): identical trees and leaf
-sets, 4.2× (facet-only) and 6–10× (full, static order). The full run (G6) uses it (`scripts/slurm_stageB_zeta.sbatch`,
-resumable; see STATUS §4 for its state).
-**Next work: finish G6; B1 is still far too slow campaign-wide
+sets, 4.2× (facet-only) and 6–10× (full, static order). The full run (G6) has found ζ's datum (46 leaves after
+≈ 1.73 M nodes, 288 of 1 633 depth-3 subtrees) but is not complete; the Knuth estimate was ≥ 3× low (heavy tail).
+Finish it on the cluster from the committed checkpoint (`scripts/slurm_stageB_zeta.sbatch`; long runs die in the
+cloud container, DEAD_ENDS C).
+**Next work: finish G6 (cluster); B1 is still far too slow campaign-wide
 (~10⁴ S per stratum) — a structurally better enumeration is needed (PLAN §3, last paragraph); Knuth-estimate
 any new search before building it.**
