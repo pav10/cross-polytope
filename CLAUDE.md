@@ -50,8 +50,8 @@ verify/               verify_audit.py (external), run_all.py (regression gates),
 ```
 python3 verify/run_all.py              # all cheap gates, ~2 min; must print ALL PASS
 python3 scripts/stageA_run.py <sid>    # Stage A for one stratum -> results/stageA_<sid>.json
-python3 scripts/stageB_faces_zeta.py [seconds] [--facet-only] [--static] [--determine] [--prefilter] [--estimate K]
-                                     [--resume] [--out F]
+python3 scripts/stageB_faces_zeta.py [seconds] [--facet-only] [--static] [--determine] [--prefilter]
+                                     [--frame-symmetry] [--estimate K] [--resume] [--out F]
                                                  # Stage B1 on zeta's S (G6 / G6f); facet-only static --prefilter ~6 min
 sbatch scripts/slurm_stageB_zeta.sbatch          # full B1 on zeta's S on the cluster (resumable chain)
 python3 scripts/stageB_critical_zeta.py          # Stage B2 gate (zeta cubic, 21 s)
@@ -83,6 +83,8 @@ sets, 4.2× (facet-only) and 6–10× (full, static order). The full run (G6) ha
 ≈ 1.73 M nodes, 288 of 1 633 depth-3 subtrees) but is not complete; the Knuth estimate was ≥ 3× low (heavy tail).
 Finish it on the cluster from the committed checkpoint (`scripts/slurm_stageB_zeta.sbatch`; long runs die in the
 cloud container, DEAD_ENDS C).
+B1 has frame-symmetry isomorph rejection (`frame_group`, PLAN §3): ζ's S ~9×; stratum 0 needs only the star
+A4 set, ≈ 4·10⁴ nodes. Stage A refuses excluded strata (`cp4.strata.EXCLUDED`).
 **Next work: finish G6 (cluster); B1 is still far too slow campaign-wide
 (~10⁴ S per stratum) — a structurally better enumeration is needed (PLAN §3, last paragraph); Knuth-estimate
 any new search before building it.**

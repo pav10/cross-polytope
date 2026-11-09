@@ -64,6 +64,24 @@ Status: `2/3 ≤ D_pack ≤ D* < det L₄`.
 
 ## §3 New results of this campaign set-up (14 Oct 2026) — proofs here
 
+**Stratum 0 needs one contact set, 9 November 2026 [P].** A local minimum in stratum 0 has the A4 contact
+set {±(x_i − x_j)} (THEORY 7.1). In stratum 0 every four independent minimal vectors form a basis (max-det
+index 1), so for any vertex v the star X_i = x_i − x_v is a max-det frame. Hence B1 on the **star embedding** of
+A4 (one of the three Stage A sets, the one with frame stabilizer of order 48) covers all of stratum 0. The path
+and fork embeddings are redundant. With frame symmetry its Knuth estimate is ≈ 3.7·10⁴ nodes (PLAN §3).
+
+**Numerical triage of the next targets, 9 November 2026 [Num].** Constrained Nelder–Mead from feasible
+starts, with full admissibility via short vectors.
+* *Pair problem*: admissible Λ containing minimal u, v with disjoint supports and (u+v)/2 ∈ Λ, which covers
+  strata 1, 8, 9, 10, 15. With the two other frame rows of norm 2 (stratum 1's form) the search found
+  det 0.853 (supports 2+2), 0.867 (1+3) and 0.922 (1+2) (`scripts/probe_pair_stratum1.py`). A realization-wide "pair lemma" at 81/100 would
+  therefore have only ~5 % slack; not pursued in that form (DEAD_ENDS B17).
+* *Common-facet strata* (shell vector (0,⅓,⅓,⅓), rows 2–4 on one facet; the search keeps rows 2–4 ≥ 0):
+  `scripts/probe_common_facet.py`; best found stratum 4: 0.891 (40 restarts); stratum 17: 1.030; stratum 30: 1.028 (partial runs). So 17 and
+  30 have ~27 % slack over 81/100 and are the most promising next exclusions; stratum 4 has ~10 %.
+  Old catalog (`data/catalog_local_optima.json`): every local optimum found lies in stratum 11, except one in
+  stratum 14 with det exactly 1.0.
+
 **Coordinate sections, 9 November 2026 [P] / [P+C]: strata 6, 7, 25 excluded; 14 remain.**
 `docs/COORDINATE_SECTIONS.md`. *Lemma [P]:* if Λ ∩ ℝ^T has full rank r with ℓ¹ covering radius μ_T, then the
 projection of Λ to ℝ^{T^c} has ℓ¹ minimum ≥ 2 − μ_T, so det Λ ≥ det(Λ∩ℝ^T)·β_{4−r}((2−μ_T)/2)^{4−r}. Two axis rows
@@ -216,6 +234,7 @@ flat (exact ranks), and for every flat `F` the number of listed covectors with z
 | Stage B1 on ζ's S, Knuth estimates (300 probes) | facet-only: 3.5·10⁴ (static) / 1.1·10⁴ (dynamic) nodes; full: 5.6·10⁵ (static, ~35 LPs/node) / 6.2·10⁵ (dynamic, ~116 LPs/node) | `results/stageB_faces_zeta_estimate.json` |
 | **Stage B1 facet-only pass on ζ's S (G6f)** | **complete**: 65 148 nodes, 1 404 s, 6 leaves, all dim A = 3; **ζ's face datum is among them**; an interrupted + resumed run gives the identical leaf set. Facet-only is a validation pass, not complete for the proof (zero coordinates excluded) | `scripts/stageB_faces_zeta.py --facet-only --static --determine`, `results/stageB_faces_zeta_facet.{pkl,log}` |
 | Facet-class layer prune inside B1 (ζ's S) | facet-only 65 148 → 64 094 nodes (−1.6 %), same 6 leaves; full static tree: same 25 depth-3 subtrees in 90 708 vs 90 819 nodes over 900 s; 0 of 46 + 6 known leaves killed — inert (DEAD_ENDS B16) | `scripts/measure_layer_prune.py`, `results/layer_prune_zeta.json` |
+| B1 frame symmetry (ζ's S, stratum 0) | facet-only exact: 14 304 vs 82 069 nodes, leaves agree up to G_S×AMB, ζ found; Knuth (full): ζ 3.5·10⁶ → 3.8·10⁵, star-A4 1.8·10⁶ → 3.7·10⁴ | `scripts/check_frame_symmetry.py`, `results/frame_symmetry_*.json` |
 | Structural verifiers | `verify_support_reduction.py` (15 strata), `verify_structural_exclusions.py` (BLOCK_COUPLING, FACET_LAYERS: 7 strata), `verify_coordinate_sections.py` (strata 6, 7, 25): all PASS, exact | `verify/` |
 | Stage B1 full run on ζ's S (G6) | **incomplete; to be finished on the cluster** (`scripts/slurm_stageB_zeta.sbatch`, resumes from the committed checkpoint `results/stageB_faces_zeta.pkl`). Run here 16 Oct 2026 (`--static --determine --prefilter --resume`, ≈ 100–120 nodes/s): ≈ 1.73 M nodes in two long legs (2 h 10 min, 2 h 9 min), **46 leaves, ζ's face datum among them**; 288 of the **1 633 depth-3 subtrees** finished, all in the first depth-1 branch (contact 0 in a facet, 381 subtrees); every rank-16 read-off dead. The session container is reclaimed a few minutes after the session goes idle, so later legs (≈ 5 min) could not finish subtree 289 (> 50 000 nodes); local resumption stopped. **The Knuth estimate (5.6·10⁵) is ≥ 3× too low** (heavy tail: probe maxima 10⁷–10⁸). Per-branch Knuth (150 probes; contact 0 = facet / 1 zero / 2 zeros / 3 zeros): 1.1·10⁶ / 9.1·10⁴ / 1.0·10⁵ / 6.6·10³; the first branch dominates and already exceeds its estimate. Remaining work, roughly 1–3 M nodes (3–8 h single-core), is a guess | `scripts/knuth_G6_by_branch.py`, `scripts/stageB_faces_zeta.py`, `scripts/slurm_stageB_zeta.sbatch`, `results/stageB_faces_zeta_full.log` |
 | Column-wise ("covector") B1 on ζ's S, cost | arrangement `{c^⊥}`: 1 705 covectors, N = 852 classes mod ±, T = 186 topes (ζ's columns among them); partial LP never prunes (1 000/1 000 at levels 1–3) ⇒ C(N+3,4) = 2.2·10¹⁰ leaf LPs (5.2·10⁷ facet-only), ~10²–10³× row-wise B1 (DEAD_ENDS B15) | `scripts/estimate_covector_B1.py`, `results/covector_B1_estimate.json` |

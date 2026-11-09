@@ -42,6 +42,12 @@
     before any facet class contains ≥ 4 contacts generating the index-4 group Γ. Not worth building in.
     `scripts/measure_layer_prune.py`, `results/layer_prune_zeta.json`.
 
+17. **Realization-wide "pair lemma"** (any admissible Λ containing minimal u, v with disjoint supports and
+    (u+v)/2 ∈ Λ has det ≥ 81/100; it would exclude strata 1, 8, 9, 10, 15 at once): numerically almost false.
+    With the other two frame rows of norm 2, constrained searches reach det 0.853 (supports 2+2), 0.867 (1+3),
+    0.922 (1+2) [Num], about 5 % above the target. The coordinate-section bound gives only det ≥ ¼‖u‖∞‖v‖∞
+    here. Per-stratum residue structure, or the max-det condition, is needed instead.
+
 ## C. Process rules learned the hard way
 
 * Validate every new tool on a **known answer** before any long run (p = 1 ⇒ A₄; stratum 11 ⇒ contains ζ's S; Stage B on ζ's S ⇒ recovers the cubic and D*).

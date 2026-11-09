@@ -1,0 +1,9 @@
+{
+ "nodes": 14304,
+ "complete": true,
+ "lp_dead": 50323,
+ "prefilter_dead": 160140,
+ "frame_sym_dead": 283,
+ "seconds": 117.70800280570984,
+ "leaves": 1
+}
