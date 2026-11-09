@@ -42,7 +42,8 @@ scripts/              make_strata, zeta_frame, stageA_run, stageB_faces_zeta, st
                       check_covectors_zeta (G8), compare_prefilter_zeta (pre-filter vs none)
 data/                 strata.json, zeta.json, audit_certificate.json, wolff test sets, catalog
 results/              outputs + logs of runs
-verify/               verify_audit.py (external), run_all.py (regression gates)
+verify/               verify_audit.py (external), run_all.py (regression gates), verify_support_reduction /
+                      verify_structural_exclusions / verify_coordinate_sections (exact stratum exclusions, gate G9)
 ```
 
 ## Commands
@@ -65,8 +66,13 @@ installed: ~3× faster LPs, same verdicts — `scripts/check_lp_backend.py`). Re
 * The claude.ai Project "Cross-polytopes" holds the literature PDFs and older scripts (several superseded —
   see DEAD_ENDS A1–A4 before using any of them).
 
-## Where we are (16 Oct 2026)
-Gates G0–G3, G5, G6a, G6f, G7a, G8 pass. Stage A is too weak on mid-size strata (≥ 9 800 contact sets in stratum 11
+## Where we are (9 Nov 2026)
+**Theory first:** 25 of the 39 strata are excluded by proofs with exact certificates — THEORY_REVIEW (15),
+BLOCK_COUPLING + FACET_LAYERS (7), COORDINATE_SECTIONS (6, 7, 25). **14 remain: 0, 1, 2, 3, 4, 5, 8, 9, 10, 11,
+14, 15, 17, 30** (STATUS §3). Search rejections by float LPs are not yet certified (THEORY_REVIEW §4). Next
+theoretical target: extend the fiber-offset argument (COORDINATE_SECTIONS §6) to one axis row
+(strata 1, 8, 9, 10, 15).
+Gates G0–G3, G5, G6a, G6f, G7a, G8, G9 pass. Stage A is too weak on mid-size strata (≥ 9 800 contact sets in stratum 11
 and growing). The PLAN §2 decision rule has been run: option 4(a) kills nothing (DEAD_ENDS B12) and the
 frame-first merged search is ~60–1 000× Stage A's tree on stratum 0 (DEAD_ENDS B13). B1 remedies (PLAN §3):
 highspy LPs, static order, facet-only pass, determine-then-check, resume. The facet-only pass on ζ's S is complete

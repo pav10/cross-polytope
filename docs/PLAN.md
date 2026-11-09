@@ -1,5 +1,15 @@
 # PLAN — the computation that proves Theorem Z
 
+**Theory update, 9 November 2026.** Before using the original campaign plan
+below, read `THEORY_REVIEW.md`, `BLOCK_COUPLING.md`, `FACET_LAYERS.md` and
+`COORDINATE_SECTIONS.md`: their proved reductions exclude 25 of the 39 strata,
+leaving **14**: 0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 14, 15, 17, 30 (STATUS §3). The current priority is theoretical reduction, not larger searches.
+`INDEX_ONE_GEOMETRY.md` and `COMMON_DESCENT.md` give further necessary geometry
+and a sufficient intersection test for the index-one case; its determinant
+bound remains open. Search completeness still needs the certification work
+identified in THEORY_REVIEW §4. Existing search scripts have not been changed
+to implement these reductions.
+
 Read `STATUS.md` first (what is proved), then this file (what to compute), then `DEAD_ENDS.md`
 (what not to try). Every number below marked *measured* was produced by the scripts named.
 
@@ -31,6 +41,7 @@ occurs only on leaves of Λ_ζ (stratum 11). Leaves violating this go to Stage C
 | G6f Stage B1 facet-only pass on ζ's S | ζ's face datum among the facet-only leaves | **passed** (65 148 nodes, 23 min; 6 leaves, all dim 3) |
 | G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | **ζ's datum found** (≈ 1.73 M nodes, 46 leaves; 288 / 1 633 depth-3 subtrees); not complete: finish on the cluster from the committed checkpoint, `scripts/slurm_stageB_zeta.sbatch` (STATUS §4) |
 | G8 covector pre-filter (ζ's S) | covector list certified exactly (1 705 faces, 372 topes, Zaslavsky per flat); ζ's datum passes the column filter on its static path and 20 random orders | **passed** (13 s, `scripts/check_covectors_zeta.py`) |
+| G9 structural exclusions | `verify_support_reduction.py`, `verify_structural_exclusions.py`, `verify_coordinate_sections.py` all PASS (25 strata excluded, exact) | **passed** (~20 s) |
 | G7a merged-search witness | ζ's labels (15 in, 53 out) survive every prune of `src/cp4/merged.py`; leaf dim A = 3 | **passed** (4 s) |
 
 ## 2. Stage A — contact sets (`src/cp4/contacts.py`, `scripts/stageA_run.py <sid>`)

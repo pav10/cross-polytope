@@ -33,6 +33,15 @@
 14. **Norm-range lookahead in B1** (prune a node when, for some undecided contact c, `min ‖cX‖₁ > 2` or `max ‖cX‖₁ < 2` over the cell closure): sound, but on ζ's S it cuts the Knuth-estimated tree only 2–3× (to 2.9–4.0·10⁵ nodes) while raising the cost per node 1.5–2.5× (130–240 LPs/node) — no net gain; not implemented (PLAN §3).
 15. **Column-wise ("covector") B1 enumeration**: choose each column of the face-datum sign matrix as a covector of the arrangement `{c^⊥ : c ∈ S}` in ℝ⁴ (ζ's S: N = 852 classes mod ±, T = 186 topes; ζ's columns and all 6 facet-only leaves' columns are among them), as a multiset mod the ambient group, LP at the leaf. Sound, but **no convex prune exists before the 4th column**: the partial LP (strict cells, `Σ_{j≤k} |c·Yⱼ| ≤ 2`) was feasible for 1 000/1 000 random 1-, 2- and 3-tuples, because a partial assignment scales towards 0. So every one of C(N+3,4) = **2.2·10¹⁰** multisets (5.2·10⁷ for topes) reaches the leaf LP (0 of 5 000 random leaves feasible; ~5 ms/LP ⇒ ~3 years, facet-only ~3 days), against row-wise B1's ~5.6·10⁵ nodes (facet-only 65 148, done in 23 min). `scripts/estimate_covector_B1.py`, `results/covector_B1_estimate.json`. A revival needs a non-convex partial prune. (The covector list is useful the other way round: as an LP-free pre-filter inside row-wise B1 it saves 4.5–10× — PLAN §3, not a dead end.)
 
+16. **Facet-class layer prune inside B1** (discard a node when the decided contacts whose sign vectors put cX on
+    one closed facet ±σ generate Γ, so σ·Λ ⊆ 2ℤ and det ≥ 5/6 by FACET_LAYERS §1): sound, exact and LP-free, but
+    nearly inert on ζ's S. Facet-only complete pass 65 148 → 64 094 nodes (−1.6 %, same 6 leaves). Full static
+    tree, 900 s each way: the same 25 depth-3 subtrees finished with 90 708 vs 90 819 nodes, although 2 322
+    children were cut. None of the 46 + 6 known leaves is killed (ζ's leaves are spread over at most 3
+    contacts per facet class). Reason: B1's dead subtrees die by LP infeasibility around depth 13–14,
+    before any facet class contains ≥ 4 contacts generating the index-4 group Γ. Not worth building in.
+    `scripts/measure_layer_prune.py`, `results/layer_prune_zeta.json`.
+
 ## C. Process rules learned the hard way
 
 * Validate every new tool on a **known answer** before any long run (p = 1 ⇒ A₄; stratum 11 ⇒ contains ζ's S; Stage B on ζ's S ⇒ recovers the cubic and D*).
