@@ -64,6 +64,34 @@ Status: `2/3 ≤ D_pack ≤ D* < det L₄`.
 
 ## §3 New results of this campaign set-up (14 Oct 2026) — proofs here
 
+**Coordinate sections, 9 November 2026 [P] / [P+C]: strata 6, 7, 25 excluded; 14 remain.**
+`docs/COORDINATE_SECTIONS.md`. *Lemma [P]:* if Λ ∩ ℝ^T has full rank r with ℓ¹ covering radius μ_T, then the
+projection of Λ to ℝ^{T^c} has ℓ¹ minimum ≥ 2 − μ_T, so det Λ ≥ det(Λ∩ℝ^T)·β_{4−r}((2−μ_T)/2)^{4−r}. Two axis rows
+(X_i = ±2e_k) with Γ_{ij} = ℤ²+ℤ(½,½) give det ≥ 1. Three pairwise support-disjoint rows force two axis rows.
+This excludes **stratum 6** (det ≥ 1). In **strata 7 and 25** it leaves one support pattern. There a
+fiber-offset argument applies: the distances of the four coset offsets to 2ℤ² sum to 4 identically, so
+every 4-window of g(k) = ‖x + (k/4)y‖₁ sums to ≥ 4. With a certified one-dimensional inequality
+(`verify/verify_coordinate_sections.py`, exact rational grid with a Lipschitz margin) this gives
+**det ≥ 81/100 > D*** [P+C]. [Num] The residual pattern of stratum 7 has inf det ≈ 1. Also, in strata 1, 8, 9,
+10, 15 every realization with X_3, X_4 both axis rows (in stratum 8 also X_1, X_2) has det ≥ 1.
+**Remaining 14: 0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 14, 15, 17, 30**, with indices {1,2,3,4,5,6,9}.
+
+**Review of the 8–9 November notes (9 November 2026).** Every data-dependent claim of BLOCK_COUPLING and
+FACET_LAYERS is now checked exactly by `verify/verify_structural_exclusions.py`: cyclic generators and
+residue groups, shell vectors, the identities for aX and bX, the planar identity, the section volume 20/3 by
+exact triangulation, and D* < D(13/25) = 8089/10000 < 81/100. All proofs check, including COMMON_DESCENT
+against THEORY 1.7 and INDEX_ONE_GEOMETRY.
+*Remarks.*
+(i) The layer theorem is THEORY 8.1 with w = σ/2: s(1111) = 5/6 there, ×8 = 20/3. The new ingredient is the
+arithmetic proof that σ/2 ∈ Λ*.
+(ii) The generators of strata 28, (1,1,3,3)/8, and 31, (2,4,1,3)/10, are also positive with numerators
+summing to p, so FACET_LAYERS alone excludes them too (BLOCK_COUPLING's bounds 9/8 and 9/10 are stronger).
+(iii) THEORY_REVIEW §4.1 is right that B1/Stage A rejections by float LPs (slack ≤ 1e-9) are not certified.
+That also covers the G6 run, and closing it needs exact Farkas certificates for every rejection.
+(iv) The layer theorem as an in-search prune of B1 is inert (DEAD_ENDS B16).
+(v) For ζ's S the frame stabilizer has order 24. B1's orbit reduction uses only the ambient column group,
+so symmetry breaking on the frame rows could save up to 12× on the G6 gate (not on generic S).
+
 **Common descent, 9 November 2026 [P].** For an equilateral A4 configuration,
 the intersection of the finite admissibility test sets over all spanning-tree
 bases is sufficient. The proof uses the common integer-valued affine mass
@@ -187,6 +215,8 @@ flat (exact ranks), and for every flat `F` the number of listed covectors with z
 | LP backend for float prunes | highspy and scipy give **identical verdicts on 3 011** LPs recorded from B1 walks on ζ's S; 0.66 vs 2.06 ms/LP | `src/cp4/lp.py`, `scripts/check_lp_backend.py` |
 | Stage B1 on ζ's S, Knuth estimates (300 probes) | facet-only: 3.5·10⁴ (static) / 1.1·10⁴ (dynamic) nodes; full: 5.6·10⁵ (static, ~35 LPs/node) / 6.2·10⁵ (dynamic, ~116 LPs/node) | `results/stageB_faces_zeta_estimate.json` |
 | **Stage B1 facet-only pass on ζ's S (G6f)** | **complete**: 65 148 nodes, 1 404 s, 6 leaves, all dim A = 3; **ζ's face datum is among them**; an interrupted + resumed run gives the identical leaf set. Facet-only is a validation pass, not complete for the proof (zero coordinates excluded) | `scripts/stageB_faces_zeta.py --facet-only --static --determine`, `results/stageB_faces_zeta_facet.{pkl,log}` |
+| Facet-class layer prune inside B1 (ζ's S) | facet-only 65 148 → 64 094 nodes (−1.6 %), same 6 leaves; full static tree: same 25 depth-3 subtrees in 90 708 vs 90 819 nodes over 900 s; 0 of 46 + 6 known leaves killed — inert (DEAD_ENDS B16) | `scripts/measure_layer_prune.py`, `results/layer_prune_zeta.json` |
+| Structural verifiers | `verify_support_reduction.py` (15 strata), `verify_structural_exclusions.py` (BLOCK_COUPLING, FACET_LAYERS: 7 strata), `verify_coordinate_sections.py` (strata 6, 7, 25): all PASS, exact | `verify/` |
 | Stage B1 full run on ζ's S (G6) | **incomplete; to be finished on the cluster** (`scripts/slurm_stageB_zeta.sbatch`, resumes from the committed checkpoint `results/stageB_faces_zeta.pkl`). Run here 16 Oct 2026 (`--static --determine --prefilter --resume`, ≈ 100–120 nodes/s): ≈ 1.73 M nodes in two long legs (2 h 10 min, 2 h 9 min), **46 leaves, ζ's face datum among them**; 288 of the **1 633 depth-3 subtrees** finished, all in the first depth-1 branch (contact 0 in a facet, 381 subtrees); every rank-16 read-off dead. The session container is reclaimed a few minutes after the session goes idle, so later legs (≈ 5 min) could not finish subtree 289 (> 50 000 nodes); local resumption stopped. **The Knuth estimate (5.6·10⁵) is ≥ 3× too low** (heavy tail: probe maxima 10⁷–10⁸). Per-branch Knuth (150 probes; contact 0 = facet / 1 zero / 2 zeros / 3 zeros): 1.1·10⁶ / 9.1·10⁴ / 1.0·10⁵ / 6.6·10³; the first branch dominates and already exceeds its estimate. Remaining work, roughly 1–3 M nodes (3–8 h single-core), is a guess | `scripts/knuth_G6_by_branch.py`, `scripts/stageB_faces_zeta.py`, `scripts/slurm_stageB_zeta.sbatch`, `results/stageB_faces_zeta_full.log` |
 | Column-wise ("covector") B1 on ζ's S, cost | arrangement `{c^⊥}`: 1 705 covectors, N = 852 classes mod ±, T = 186 topes (ζ's columns among them); partial LP never prunes (1 000/1 000 at levels 1–3) ⇒ C(N+3,4) = 2.2·10¹⁰ leaf LPs (5.2·10⁷ facet-only), ~10²–10³× row-wise B1 (DEAD_ENDS B15) | `scripts/estimate_covector_B1.py`, `results/covector_B1_estimate.json` |
 | Covector pre-filter in row-wise B1 (ζ's S, static order) | facet-only complete pass **319 s vs 1 420 s** (4.5×), identical tree (65 148 nodes) and 6 leaves, 213 807 vs 1 030 938 LPs; full run **93 vs 9.6 nodes/s** (9.7×) over 600 s; LP-subsumed: 0 of 20 031 rejected candidates LP-feasible | `scripts/measure_covector_prefilter.py`, `results/covector_prefilter_*.{json,log}` |
