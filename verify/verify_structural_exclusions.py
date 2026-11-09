@@ -88,6 +88,33 @@ def check():
     Dz = (16 - 9 * z + 6 * z ** 2) / 16
     assert Dz == sp.Rational(8089, 10000) and Dz < sp.Rational(81, 100) < sp.Rational(5, 6)
     print("BLOCK_COUPLING identities, section volume 20/3, D* < 8089/10000 < 81/100: checked")
+    # COMMON_FACET §3a: the extremal stratum-30 lattice of the axis case is admissible, with det 8/9.
+    import sys
+    sys.path.insert(0, str(ROOT / 'src'))
+    from cp4.lattice import exact_short_vectors
+    from cp4.exact import det as exact_det
+    p30 = strata[30]['p']
+    gens = [[p30 * int(i == j) for j in range(4)] for i in range(4)] + [list(r) for r in strata[30]['residues'] if any(r)]
+    M = [list(r) for r in gens]; basis = []                    # Z-basis of p*Gamma by gcd row reduction
+    for col in range(4):
+        while True:
+            nz = [r for r in M if r[col] != 0]
+            if len(nz) <= 1: break
+            nz.sort(key=lambda r: abs(r[col])); q0 = nz[0]
+            for r in nz[1:]:
+                q = r[col] // q0[col]
+                for k in range(4): r[k] -= q * q0[k]
+            M = [r for r in M if any(r)]
+        piv = [r for r in M if r[col] != 0][0]; basis.append(piv); M = [r for r in M if r is not piv]
+    Bg = [[F(x, p30) for x in r] for r in basis]
+    assert abs(exact_det(Bg)) == F(1, p30)
+    t = F(1, 3)
+    X = [[t, F(-1), t, t], [0, 0, 2, 0], [2, 0, 0, 0], [0, 0, 0, 2]]
+    Y = [[sum(Bg[i][k] * X[k][j] for k in range(4)) for j in range(4)] for i in range(4)]
+    sv = exact_short_vectors(Y, 2, cap=60)
+    assert min(n for _, n in sv) == 2 and sum(1 for _, n in sv if n == 2) == 16
+    assert abs(exact_det(Y)) == F(8, 9)
+    print("stratum 30 axis-case extremal lattice: admissible (lambda_1 = 2, 16 minimal pairs), det = 8/9: checked")
     print("STRUCTURAL PASS")
 
 

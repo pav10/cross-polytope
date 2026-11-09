@@ -55,6 +55,25 @@ So X_1 must largely avoid the coordinates carrying rows 2–4: each cyclic shift
 on one row's support, so the three demands conflict. Rows 2–4 must also be nearly disjoint in a weighted sense.
 (Layer special case: if σ·X_1 = −2 then σ·Λ = 2ℤ and det ≥ 5/6 by FACET_LAYERS.)
 
+### 3a. Stratum 30 with rows 2–4 on the axes: det ≥ 8/9, sharp [P]
+
+Suppose X_2, X_3, X_4 are axis rows 2e_{k_2}, 2e_{k_3}, 2e_{k_4} (distinct coordinates, positive by §1); let t be
+the remaining coordinate, x = X_1, A_r = (x_{k_r})₊ and B_r = (x_{k_r})₋. For the shift (i,j,l),
+vX = ⅓x + (2/9)e_{k_i} + (8/9)e_{k_j} − (4/9)e_{k_l}. Its total is 20/9, and ‖vX‖₁ ≥ 2 caps the cancellation:
+min(B_i, 2/3) + min(B_j, 8/3) + min(A_l, 4/3) ≤ ⅓. Each cap exceeds ⅓, so this reads
+
+    B_2 + B_3 + A_4 ≤ ⅓,   B_4 + B_2 + A_3 ≤ ⅓,   B_3 + B_4 + A_2 ≤ ⅓.
+
+Summing: (A_2+A_3+A_4) + 2(B_2+B_3+B_4) ≤ 1. So X_1 carries mass ≤ 1 on the row coordinates, and |x_t| ≥ 1.
+Since |det X| = 8|x_t|, **det Λ ≥ 8/9 > D***. Equality forces B_r = 0, A_r = ⅓ and |x_t| = 1, i.e.
+X_1 = (⅓ on the row coordinates, ±1 at t). That lattice *is* admissible: with X_2 = 2e_3, X_3 = 2e_1,
+X_4 = 2e_4, X_1 = (⅓, ∓1, ⅓, ⅓) the exact short-vector test gives λ₁ = 2 with 16 minimal pairs, and
+det = 8/9 [P+C]. So in this case 8/9 is the exact minimum. The relaxed search (14 constraint vectors,
+random starts) found nothing lower anywhere (best 0.912, at a frame with rows 2–4 within 0.012 of the axes)
+[Num]. **Conjecture: every admissible realization of stratum 30 has det ≥ 8/9.** What remains is the
+non-axis case: show that leakage of rows 2–4 off their main coordinates does not lower the bound. That is the
+perturbation step of §6.
+
 ## 4. Consequences for stratum 17 [P]
 
 The near-shell vectors are ½X_1 ± (⅓X_2 − ⅙X_3 − ⅙X_4), of frame norm 7/6 and budget ⅓ each. They give
@@ -63,6 +82,10 @@ The near-shell vectors are ½X_1 ± (⅓X_2 − ⅙X_3 − ⅙X_4), of frame nor
 
 The vectors ½(X_1 ± X_3 ∓ X_4) (frame norm 3/2, budget ½) add the weaker Σ_k min(X_3k, X_4k) ≤ 1.
 (Layer special case: if σ·X_1 = 0 then σ·Λ = 2ℤ and det ≥ 5/6.)
+*Axis case.* The same computation with rows 2–4 on the axes gives B_{k_2} + A_{k_3} + A_{k_4} ≤ ⅓ and
+A_{k_2} + B_{k_3} + B_{k_4} ≤ ⅓, so |x_t| ≥ 4/3 and det Λ = 8|x_t|/6 ≥ 16/9. But the searches reach 0.968 [Num], so
+stratum 17's low configurations are **not** near-axis. Its rows 2–4 must overlap substantially, as (4) allows
+for rows 3 and 4. Stratum 17 needs its own case analysis.
 
 ## 5. Calibration and the slicing family [Num] / [P]
 

@@ -70,6 +70,10 @@ Status: `2/3 ≤ D_pack ≤ D* < det L₄`.
 is the forced-shell lemma.) Consequences:
 * stratum 30: Σ_k min(3|X_1k|, 2R_k) ≤ 3 and pairwise row overlaps ≤ ½;
 * stratum 17: Σ_k min(3|X_1k|, R_k) ≤ 2 and Σ_k min(2X_2k, X_3k+X_4k) ≤ 1.
+**Stratum 30, axis case: det ≥ 8/9, sharp [P]** (rows 2–4 axis rows ⇒ X_1 has mass ≤ 1 on their coordinates).
+The bound is attained by an admissible lattice with 16 minimal pairs (exact check). Conjecture: 8/9 for the
+whole stratum; the non-axis (leakage) case is open. For stratum 17 the axis case gives 16/9, but its low
+configurations are not near-axis [Num].
 Slicing along arithmetic dual vectors w = X⁻¹m (m ∈ Γ*) gives 1.0 at the axis frame of stratum 30 and
 ≈ 0.851 at its best-known point [Num]. The plan to finish is in the note, §6.
 
