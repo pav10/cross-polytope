@@ -78,7 +78,10 @@ starts, with full admissibility via short vectors.
   therefore have only ~5 % slack; not pursued in that form (DEAD_ENDS B17).
 * *Common-facet strata* (shell vector (0,⅓,⅓,⅓), rows 2–4 on one facet; the search keeps rows 2–4 ≥ 0):
   `scripts/probe_common_facet.py`; best found stratum 4: 0.891 (40 restarts); stratum 17: 1.030; stratum 30: 1.028 (partial runs). So 17 and
-  30 have ~27 % slack over 81/100 and are the most promising next exclusions; stratum 4 has ~10 %.
+  30 may have up to ~27 % slack over 81/100; stratum 4 up to ~10 %. *Caveat:* these are upper bounds on each
+  stratum's infimum from non-converged searches. The best stratum-30 point (det 1.035) has only 7 minimal
+  pairs, and a local minimum needs ≥ 10 (Thm 5.1), so the true infima may be lower. The same caveat applies to
+  the pair-problem values.
   Old catalog (`data/catalog_local_optima.json`): every local optimum found lies in stratum 11, except one in
   stratum 14 with det exactly 1.0.
 
