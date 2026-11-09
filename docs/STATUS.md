@@ -64,6 +64,58 @@ Status: `2/3 ≤ D_pack ≤ D* < det L₄`.
 
 ## §3 New results of this campaign set-up (14 Oct 2026) — proofs here
 
+**Common descent, 9 November 2026 [P].** For an equilateral A4 configuration,
+the intersection of the finite admissibility test sets over all spanning-tree
+bases is sufficient. The proof uses the common integer-valued affine mass
+mu(b)=sum |b_i|/2; see `docs/COMMON_DESCENT.md`. At mass two, only the 15
+disjoint-edge tests can fail. Higher masses have not been eliminated, and the
+intersection size is not yet known. No additional stratum is excluded.
+
+**Index-one geometric restrictions, 9 November 2026 [P].**
+`docs/INDEX_ONE_GEOMETRY.md` records the general facet-generation obstruction,
+its consequence that no facet can contain four independent contacts in an
+index-one candidate below 5/6, and the 15 strict separation inequalities for
+midpoints of disjoint edges of its equilateral simplex. These are necessary
+conditions, not a new determinant bound. The remaining count stays **17**.
+
+**Facet-layer obstruction, 8 November 2026 [P].** If an admissible lattice has
+sigma.Lambda=2Z for a sign vector sigma, the central section of 2C4 has volume
+20/3 and layer spacing 1, giving **det Lambda >= 5/6** by three-dimensional
+Minkowski. A strictly positive unit-shell cyclic generator forces this layer
+structure. This excludes strata **12, 13, 16, 18, 19**, without enumeration.
+Full proof, including the section-volume calculation: `docs/FACET_LAYERS.md`.
+Combined with the reductions below, **22 of 39 strata are excluded; 17 remain**:
+**0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 17, 25, 30**.
+The possible indices are **{1,2,3,4,5,6,8,9}**. Stratum 11 remains. These are
+theoretical exclusions; existing search code and its certification status are
+unchanged.
+
+**Further theoretical reduction, 8 November 2026 [P].** The explicit residue
+coupling in strata **28** and **31** gives determinant lower bounds **9/8** and
+**9/10**, respectively. These exceed D*, so both strata are excluded. The proofs
+use forced-contact sign compatibility and two planar row-width inequalities;
+no new enumeration or numerical optimization is needed. See
+`docs/BLOCK_COUPLING.md`. Together with the next paragraph, **17 of 39 strata
+are excluded, leaving 22**, with indices in **{1,2,3,4,5,6,7,8,9}**. Stratum 11
+remains. The existing support-reduction checker covers the earlier 15 exclusions
+only; the two new exclusions are proved directly in the note.
+
+**Update, 8 November 2026 — forced-support reduction [P+C].** Equality in the
+triangle inequality for forced unit-shell contacts forces selected frame rows
+to have disjoint supports. Block determinant bounds exclude strata **20, 21,
+22, 23, 24, 26, 27, 29, 32, 33, 34, 35, 36, 37, 38** before Stage A, leaving
+**24** strata (including 11). All indices 12, 16, 18 are excluded. Proof and
+limitations: `docs/THEORY_REVIEW.md` §§2–3. Exact integer/rational checker:
+`python3 verify/verify_support_reduction.py` (PASS). The search code has not yet
+been changed to apply these exclusions.
+
+**Certification qualification, 8 November 2026.** Existing floating LP/hull
+branch rejections do not yet carry exact certificates or proved numerical error
+bounds; rechecking surviving leaves does not establish completeness. Read
+`docs/THEORY_REVIEW.md` §4 before treating Stage A/B enumeration outputs as a
+global proof certificate. This does not retract the separately checked exact
+candidate identities, strata regeneration, or covector certificate.
+
 Notation: `Λ` critical, `X` a max-det frame, `Γ`, `p`, `F` as in §0, and
 `S` = set of **all** minimal vectors of Λ in frame coordinates (one per ± pair).
 

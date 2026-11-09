@@ -1,5 +1,15 @@
 # PLAN — the computation that proves Theorem Z
 
+**Theory update, 9 November 2026.** Before using the original campaign plan
+below, read `THEORY_REVIEW.md`, `BLOCK_COUPLING.md`, and `FACET_LAYERS.md`:
+their proved reductions exclude 22 of the 39 strata, leaving 17 (listed in
+STATUS). The current priority is theoretical reduction, not larger searches.
+`INDEX_ONE_GEOMETRY.md` and `COMMON_DESCENT.md` give further necessary geometry
+and a sufficient intersection test for the index-one case; its determinant
+bound remains open. Search completeness still needs the certification work
+identified in THEORY_REVIEW §4. Existing search scripts have not been changed
+to implement these reductions.
+
 Read `STATUS.md` first (what is proved), then this file (what to compute), then `DEAD_ENDS.md`
 (what not to try). Every number below marked *measured* was produced by the scripts named.
 
