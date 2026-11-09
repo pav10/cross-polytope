@@ -64,6 +64,15 @@ Status: `2/3 ≤ D_pack ≤ D* < det L₄`.
 
 ## §3 New results of this campaign set-up (14 Oct 2026) — proofs here
 
+**Strata 17 and 30: structure and necessary conditions, 9 November 2026 [P] (no exclusion yet).**
+`docs/COMMON_FACET.md`. Rows 2–4 lie on one facet, Λ = (ℤc ⊕ Λ''_0) + ℤh, and det Λ = d_V(h)·‖N‖_∞/3.
+*Cancellation-budget lemma:* a vector c ∈ Γ with ‖c‖₁ = 1 + ε allows total cancellation ≤ 2ε. (The case ε = 0
+is the forced-shell lemma.) Consequences:
+* stratum 30: Σ_k min(3|X_1k|, 2R_k) ≤ 3 and pairwise row overlaps ≤ ½;
+* stratum 17: Σ_k min(3|X_1k|, R_k) ≤ 2 and Σ_k min(2X_2k, X_3k+X_4k) ≤ 1.
+Slicing along arithmetic dual vectors w = X⁻¹m (m ∈ Γ*) gives 1.0 at the axis frame of stratum 30 and
+≈ 0.851 at its best-known point [Num]. The plan to finish is in the note, §6.
+
 **Stratum 0 needs one contact set, 9 November 2026 [P].** A local minimum in stratum 0 has the A4 contact
 set {±(x_i − x_j)} (THEORY 7.1). In stratum 0 every four independent minimal vectors form a basis (max-det
 index 1), so for any vertex v the star X_i = x_i − x_v is a max-det frame. Hence B1 on the **star embedding** of
