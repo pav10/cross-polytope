@@ -84,8 +84,10 @@ The vectors ½(X_1 ± X_3 ∓ X_4) (frame norm 3/2, budget ½) add the weaker Σ
 (Layer special case: if σ·X_1 = 0 then σ·Λ = 2ℤ and det ≥ 5/6.)
 *Axis case.* The same computation with rows 2–4 on the axes gives B_{k_2} + A_{k_3} + A_{k_4} ≤ ⅓ and
 A_{k_2} + B_{k_3} + B_{k_4} ≤ ⅓, so |x_t| ≥ 4/3 and det Λ = 8|x_t|/6 ≥ 16/9. But the searches reach 0.968 [Num], so
-stratum 17's low configurations are **not** near-axis. Its rows 2–4 must overlap substantially, as (4) allows
-for rows 3 and 4. Stratum 17 needs its own case analysis.
+stratum 17's low configurations are **not** near-axis. A relaxed random-start search (16 vectors, ‖c‖₁ ≤ 3/2)
+found det 0.958 at a frame where one facet row is split, X_4 ≈ (1.12, 0.68, 0.20, 0), overlapping the main
+coordinate of X_1 ≈ (0, 1.79, 0, 0.20); the other rows are near-axis [Num]. Stratum 17 needs its own case
+analysis, organized by which facet row splits and where.
 
 ## 5. Calibration and the slicing family [Num] / [P]
 
