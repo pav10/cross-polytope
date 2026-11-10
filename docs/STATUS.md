@@ -79,6 +79,15 @@ alone allow |det X| ≈ 7.31, so the 11/9 ones are essential. The steps:
   For x_t < 0 a weighted sum gives ≥ 196/25 (≥ 8 numerically), or a failure forces X_1 ≤ 0 on the row
   coordinates, which gives ≥ 8.
 
+**Stratum 11, a 7-point reformulation, 10 November 2026 [P] / [Num] / [Conj].** `docs/STRATUM11.md`.
+Put A = (½,¼,¼,¼)X, B = (−½,¼,¼,¼)X and C = A + B. Then Λ = ℤ⟨A, B, X_2, X_3, X_4⟩ with the single relation
+X_2 + X_3 + X_4 = 2C, and det Λ = |det[A, B, X_2, X_3]|. ζ's 15 contacts are exactly the pairs at distance 2 in
+{O, A, B, C, X_2, X_3, X_4}: every pair except O–C and the X_r–X_s (exact check) [P].
+Conjecture 11.A: these 19 pair constraints alone imply det ≥ D*. [Num] 80 local searches found no point below
+4D*; the searcher is weak, so the evidence is mild. Programme to settle stratum 11 without search:
+* a local configuration theorem on ζ's face-datum region, extending audit Prop 3.2;
+* a budget configuration lemma, as for stratum 30.
+
 **Strata 17 and 30: structure and necessary conditions, 9 November 2026 [P].**
 Rows 2–4 lie on one facet, Λ = (ℤc ⊕ Λ''_0) + ℤh, and det Λ = d_V(h)·‖N‖_∞/3.
 *Cancellation-budget lemma:* a vector c ∈ Γ with ‖c‖₁ = 1 + ε allows total cancellation ≤ 2ε. (The case ε = 0

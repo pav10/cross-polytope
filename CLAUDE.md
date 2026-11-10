@@ -70,7 +70,8 @@ installed: ~3× faster LPs, same verdicts — `scripts/check_lp_backend.py`). Re
 **Theory first:** 26 of the 39 strata are excluded by proofs with exact certificates — THEORY_REVIEW (15),
 BLOCK_COUPLING + FACET_LAYERS (7), COORDINATE_SECTIONS (6, 7, 25), COMMON_FACET §3c (30, det ≥ 196/225).
 **13 remain: 0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 14, 15, 17** (STATUS §3). Search rejections by float LPs are not
-yet certified (THEORY_REVIEW §4). Next theoretical targets: stratum 17 by the stratum-30 programme
+yet certified (THEORY_REVIEW §4). Priority target: stratum 11 (ζ's stratum) by theory, which would remove its search entirely (docs/STRATUM11.md:
+7-point reformulation, Conjecture 11.A). Next: stratum 17 by the stratum-30 programme
 (COMMON_FACET §6.3); extend the fiber-offset argument (COORDINATE_SECTIONS §6) to one axis row
 (strata 1, 8, 9, 10, 15).
 Gates G0–G3, G5, G6a, G6f, G7a, G8, G9 pass. Stage A is too weak on mid-size strata (≥ 9 800 contact sets in stratum 11
