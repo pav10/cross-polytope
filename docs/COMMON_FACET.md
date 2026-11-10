@@ -248,6 +248,27 @@ found det 0.958 at a frame where one facet row is split, X_4 ≈ (1.12, 0.68, 0.
 coordinate of X_1 ≈ (0, 1.79, 0, 0.20); the other rows are near-axis [Num]. Stratum 17 needs its own case
 analysis, organized by which facet row splits and where.
 
+*Update, 10 November 2026 [Num] / [P].* Facts about Γ₁₇:
+* c_1 ↦ −c_1 preserves Γ₁₇ (since (−½, 0, ½, ½) ≡ (½, 0, ½, ½)), so X_1 ↦ −X_1 is a frame symmetry and one
+  may take x_t ≥ 0. Swapping rows 3 and 4 is another symmetry [P].
+* **Vectors up to norm 2 matter.** On the family X_2 = 2e_3, X_3 = (1, 1, 0, 0), X_4 = 2e_4, the exact
+  inner minimum over X_1 is 6.67 with vectors of norm ≤ 3/2 but 8.0 with norm ≤ 2.
+* With all 45 vectors of norm ≤ 2, a penalty search reaches |det X| ≈ 5.71. Polishing with the exact inner
+  MILP over X_1 gives **|det X| ≈ 5.671, det ≈ 0.945** (the target is 4.86, i.e. det 0.81).
+* At that point X_1 ≈ 2e_t, and all three facet rows leak onto t: X_2 ≈ (0, 0.48, 0, 1.52),
+  X_3 ≈ (1.50, 0.24, 0.25, 0), X_4 ≈ (0, 0.73, 1.25, 0), with t the second coordinate. Here
+  |det X| = 2 det M (M the facet rows on their main coordinates).
+* The binding constraints are the two norm-7/6 vectors, ½(−X_1 − X_3 + X_4), and the three row vectors of
+  norm 4/3.
+
+In per-coordinate form (§3c), with x_t = ξ ≥ 1 the t-column costs are:
+* in A₊ (3x + 2P_2 − P_3 − P_4): f_3 + f_4;
+* in A₋ (3x − 2P_2 + P_3 + P_4): 2f_2;
+* in B(−,−) = x − P_3 − P_4: f_3 + f_4.
+Each of these constraints has budget 1, so f_2 ≤ ½ and f_3 + f_4 ≤ 1. Stratum 17 is therefore the stratum-30
+picture turned around: X_1 sits on the free coordinate, and the leaks onto it are capped. The analogue of
+Lemma §3b must bound det M from below under these caps, with x_t = 2 − Σ|y_r| and |y_r| charged in A±.
+
 ## 5. Calibration and the slicing family [Num] / [P]
 
 *Slicing family [P].* For every m ∈ Γ* (m·Γ ⊆ ℤ), w = X⁻¹m lies in Λ*, so by THEORY 8.1
