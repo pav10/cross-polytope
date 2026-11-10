@@ -292,8 +292,29 @@ vectors A±, the four B(±, ±), the row vectors D_c and the ℤ⁴-vectors X_1 
 * There the exact inner minimum is 6.0, or the leak pattern is not admissible at all. So the reduced model is
   conservative where it was checked.
 
+*First structure lemmas for stratum 17 [P].* Here A± and B(s, s′) are written in the per-coordinate form (8),
+P_2 = X_2 and Q = X_3 + X_4.
+* **Lemma 17.1 (column sums).**
+  - A₊ + A₋ gives Σ_k [2 min(2P_2, Q) + min(3|x_k|, |2P_2 − Q|)] ≤ 2. Hence Σ_k min(3|x_k|, s_k) ≤ 2, where
+    s_k = 2P_2(k) + Q(k) and Σ_k s_k = 8.
+  - B(+,+) + B(−,−) gives Σ_k min(|x_k|, Q(k)) ≤ 2.
+  - B(+,−) + B(−,+) gives Σ_k [2 min(P_3, P_4) + min(|x_k|, |P_3 − P_4|)] ≤ 2.
+  - *Proof.* For a column with a = 2P_2 ≥ b = Q and x_k ≥ 0, the two A-terms are b and b + min(3x_k, a − b);
+    the other cases are the same. Each B-pair is the same computation with |x_k| in place of 3|x_k|.
+  - Consequently X_1 has total mass ≤ ⅔ on the "heavy" columns (s_k ≥ 3|x_k|). The "light" columns carry
+    Σ s_k ≤ 2, i.e. at most a quarter of the weighted row mass, but at least 4/3 of X_1.
+* **Lemma 17.2 (leaks onto t).** Let t be a coordinate with x_t ≥ 1 (x_t ≥ 0 by symmetry). Then f_2 ≤ ½ and
+  f_3 + f_4 ≤ 1.
+  - *Proof.* The cost of t is min(Q(t) + 3x_t, 2f_2) in A₋ and min(2f_2 + 3x_t, Q(t)) in A₊. Since 3x_t ≥ 3,
+    each min is the leak term or exceeds the budget 1.
+* **Open: x_t ≥ 1 for t = argmax |x_k|** (tight: X_1 = (0, −1, 0, 1), X_3 = (0, 1, 0, 1)).
+  - Lemma 17.1 reduces it to placing three facet rows on the at most two heavy columns. The overlap terms in
+    Lemma 17.1 and the D_c then allow only a few patterns. One of them was checked by hand: row 2 on one
+    heavy column, rows 3 and 4 shared between the other heavy column and light ones, contradicting the
+    B-pair budget.
+
 *What a proof of stratum 17 still needs.*
-1. The structure facts above, by hand, as in §3c Step 1.
+1. The structure facts above, by hand, as in §3c Step 1: first x_t ≥ 1, then d_2 ≥ 3/2 and |y_2| ≤ ⅓.
 2. The failure branches of the linearization. Given those facts they can occur only at the columns k_3 and k_4,
    in A± and the B's, because rows 3 and 4 may have main entries below 1.
 3. A proof that Ψ₂ ≥ 4.86 (about 8% margin) on the leak polytope. Its row-vector terms min(f_a + f_b, 2f_c)
