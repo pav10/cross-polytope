@@ -72,10 +72,19 @@ is the forced-shell lemma.) Consequences:
 * stratum 17: Σ_k min(3|X_1k|, R_k) ≤ 2 and Σ_k min(2X_2k, X_3k+X_4k) ≤ 1.
 **Stratum 30, axis case: det ≥ 8/9, sharp [P]** (rows 2–4 axis rows ⇒ X_1 has mass ≤ 1 on their coordinates).
 The bound is attained by an admissible lattice with 16 minimal pairs (exact check). Conjecture: 8/9 for the
-whole stratum; the non-axis (leakage) case is open. For stratum 17 the axis case gives 16/9, but its low
-configurations are not near-axis [Num].
+whole stratum. For stratum 17 the axis case gives 16/9, but its low configurations are not near-axis [Num].
+**Stratum 30, main configuration [P] (COMMON_FACET §3b, 10 Nov 2026).** The proof uses six vectors of Γ₃₀:
+three of norm 10/9 and three of norm 11/9. [Num] The three 10/9 vectors alone allow |det X| ≈ 7.31; the 11/9
+ones are essential. In the near-axis sign pattern of the six vectors 3X_1 + u, the six constraints are
+linear. Their sum satisfies a budget identity: each unit of leakage costs exactly 9. This gives
+x_t ≥ 1 + L (L = total leakage), and then a 3×3 determinant lemma (column trick plus a Laplacian bound) gives
+|det X| ≥ 8 for τ = sign x_t = +. For τ = − a weighted sum gives |det X| ≥ 7.84 in crude form (≥ 8 numerically).
+So **det Λ ≥ 0.87 > 81/100 in every main configuration.** Identities checked symbolically in
+`verify/verify_structural_exclusions.py`. **Open:** the configuration lemma (every admissible frame is in a
+main configuration, or has det ≥ 81/100). The summed constraint alone is far too weak (|det X| ≈ 2 [Num]), so
+the lemma needs the six constraints individually.
 Slicing along arithmetic dual vectors w = X⁻¹m (m ∈ Γ*) gives 1.0 at the axis frame of stratum 30 and
-≈ 0.851 at its best-known point [Num]. The plan to finish is in the note, §6.
+≈ 0.851 at its best-known point [Num] (superseded for stratum 30). The plan to finish is in the note, §6.
 
 **Stratum 0 needs one contact set, 9 November 2026 [P].** A local minimum in stratum 0 has the A4 contact
 set {±(x_i − x_j)} (THEORY 7.1). In stratum 0 every four independent minimal vectors form a basis (max-det

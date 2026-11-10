@@ -1,4 +1,4 @@
-"""Exact checks of the data-dependent claims in docs/BLOCK_COUPLING.md and docs/FACET_LAYERS.md.
+"""Exact checks of the data-dependent claims in docs/BLOCK_COUPLING.md, docs/FACET_LAYERS.md and docs/COMMON_FACET.md.
 
 Run from any directory: python3 verify/verify_structural_exclusions.py   (a few seconds; prints STRUCTURAL PASS)
 The proofs themselves are in the notes; this script checks every finite fact they use:
@@ -115,7 +115,57 @@ def check():
     assert min(n for _, n in sv) == 2 and sum(1 for _, n in sv if n == 2) == 16
     assert abs(exact_det(Y)) == F(8, 9)
     print("stratum 30 axis-case extremal lattice: admissible (lambda_1 = 2, 16 minimal pairs), det = 8/9: checked")
+    check_main_configuration()
     print("STRUCTURAL PASS")
+
+
+def check_main_configuration():
+    """COMMON_FACET §3b, symbolically: the six short vectors, the budget identities, Schur/Cramer, the column trick,
+    the expansion of det M', and the Laplacian determinant formula."""
+    # the six vectors: v_s (norm 10/9) and v_s - e_j (norm 11/9), all in Gamma_30
+    R30 = residues(30)
+    for (i, j, l) in [(1, 2, 3), (3, 1, 2), (2, 3, 1)]:
+        v = [F(1, 3), 0, 0, 0]; v[i] += F(1, 9); v[j] += F(4, 9); v[l] -= F(2, 9)
+        w = list(v); w[j] -= 1
+        for c, n in ((v, F(10, 9)), (w, F(11, 9))):
+            assert sum(abs(x) for x in c) == n and tuple(int((9 * x) % 9) for x in c) in R30
+    e = {(a, b): sp.Symbol(f'e{a}{b}') for a in range(3) for b in range(3) if a != b}
+    f = [sp.Symbol(f'f{a}') for a in range(3)]
+    ell = [f[a] + sum(e[(a, b)] for b in range(3) if b != a) for a in range(3)]
+    d = [2 - ell[a] for a in range(3)]
+    M = sp.Matrix(3, 3, lambda a, b: d[a] if a == b else e[(a, b)])
+    P = M.row_join(sp.Matrix(f))                  # rows X2, X3, X4 on columns (k2, k3, k4, t); row sums 2
+    SH = [(0, 1, 2), (2, 0, 1), (1, 2, 0)]        # (i, j, l) as row indices of P
+    L = sum(ell); E = sum(ell) - sum(f); Fs = sum(f)
+    E3 = e[(1, 2)] + e[(0, 1)] + e[(2, 0)]; E6 = e[(0, 2)] + e[(2, 1)] + e[(1, 0)]
+    q = m = qm = mm = 0
+    for (i, j, l) in SH:
+        q += 2 * P[l, l] - P[i, l] - 4 * P[j, l] - 3
+        S = lambda r: P[r, j] + P[r, l]
+        m += 5 * S(j) + 2 * S(l) - S(i) - 12
+        qm += 2 * (P[l, l] + P[l, 3]) - (P[i, l] + P[i, 3]) - 4 * (P[j, l] + P[j, 3]) - 3
+        mm += P[i, i] - 5 * P[j, i] - 2 * P[l, i]
+    assert sp.expand(q + m - 9 * (1 - L)) == 0
+    assert sp.expand(qm + mm - (9 - 9 * E - 6 * Fs)) == 0
+    assert sp.expand(2 * qm - mm - (-9 * E3 - 9 * Fs)) == 0 and sp.expand(2 * mm - qm - (9 - 9 * E6 + 3 * Fs)) == 0
+    y = sp.symbols('y0:3'); xt = sp.Symbol('xt')
+    X = sp.Matrix([[y[0], y[1], y[2], xt]]).col_join(P)
+    C = [sp.Matrix.hstack(*[sp.Matrix(f) if k == r else M[:, k] for k in range(3)]).det() for r in range(3)]
+    assert sp.expand(X.det() + xt * M.det() - sum(y[r] * C[r] for r in range(3))) == 0
+    W = M - sp.ones(3, 1) * sp.Matrix([y])
+    assert sp.expand(X.det().subs(xt, 2 - sum(y)) + 2 * W.det()) == 0
+    r, b, c = 0, 1, 2
+    Mp = M.copy(); Mp[:, r] = M[:, r] - (1 - L) * sp.ones(3, 1)
+    u = ell[b] + ell[c]; al = 1 - L - e[(b, r)]; be = 1 - L - e[(c, r)]
+    assert sp.expand(Mp[r, r] - (1 + u)) == 0
+    assert sp.expand(Mp.det() - ((1 + u) * (d[b] * d[c] - e[(b, c)] * e[(c, b)]) + e[(r, b)] * (al * d[c] - be * e[(b, c)])
+                                 + e[(r, c)] * (be * d[b] - al * e[(c, b)]))) == 0
+    w = {(a, bb): sp.Symbol(f'w{a}{bb}') for a in range(3) for bb in range(3) if a != bb}
+    Lap = sp.Matrix(3, 3, lambda a, bb: sum(w[(a, k)] for k in range(3) if k != a) if a == bb else -w[(a, bb)])
+    s2 = sum(Lap.extract([p_, q_], [p_, q_]).det() for p_ in range(3) for q_ in range(p_ + 1, 3))
+    assert sp.expand((2 * sp.eye(3) - Lap).det() - (8 - 4 * Lap.trace() + 2 * s2)) == 0
+    print("COMMON_FACET §3b: six vectors in Gamma_30, budget identities, Schur/Cramer, column trick, det M', "
+          "Laplacian formula: checked")
 
 
 if __name__ == '__main__':

@@ -70,9 +70,108 @@ X_1 = (⅓ on the row coordinates, ±1 at t). That lattice *is* admissible: with
 X_4 = 2e_4, X_1 = (⅓, ∓1, ⅓, ⅓) the exact short-vector test gives λ₁ = 2 with 16 minimal pairs, and
 det = 8/9 [P+C]. So in this case 8/9 is the exact minimum. The relaxed search (14 constraint vectors,
 random starts) found nothing lower anywhere (best 0.912, at a frame with rows 2–4 within 0.012 of the axes)
-[Num]. **Conjecture: every admissible realization of stratum 30 has det ≥ 8/9.** What remains is the
-non-axis case: show that leakage of rows 2–4 off their main coordinates does not lower the bound. That is the
-perturbation step of §6.
+[Num]. **Conjecture: every admissible realization of stratum 30 has det ≥ 8/9.** §3b proves it in the whole
+near-axis region (the "main configuration"). What remains is the configuration lemma of §3b.
+
+### 3b. Six short vectors; the main configuration has det ≥ 8/9 [P]
+
+*The six vectors.* For each cyclic shift s = (i,j,l), Γ₃₀ contains v_s = ⅓e_1 + (1/9)e_i + (4/9)e_j − (2/9)e_l
+(norm 10/9) and v'_s = v_s − e_j (norm 11/9). With x = X_1, P_r = X_r (r = 2, 3, 4) and
+u_s = P_i + 4P_j − 2P_l, u'_s = P_i − 5P_j − 2P_l, admissibility gives
+
+    (N_s)  ‖3x + u_s‖₁ ≥ 18,        (M_s)  ‖3x + u'_s‖₁ ≥ 18.                                   (6)
+
+[Num] The three N_s alone are **not** enough. With only them, the minimum of |det X| drops to ≈ 7.31 (det ≈ 0.812,
+at the threshold). The minimizer is a frame whose three facet rows leak 0.24, 0.48 and 0.44 onto X_1's main
+coordinate, and it violates all three M_s. With all six, take the exact inner minimum over X_1 (a MILP for each
+frame) and run Nelder–Mead over rows 2–4 from near-axis starts. Four runs end at 8.006–8.018, next to the axis.
+The minimum also grows linearly along leakage directions: 9.44 for a 0.2 leak onto t, 9.12 for a 0.1 cross
+leak, and over 6·10⁴ random leak patterns min (|det X| − 8)/L ≈ 1.6.
+
+*Main configuration.* Label the coordinates k_2, k_3, k_4, t (distinct). Put d_r = P_r(k_r),
+e_{r→r'} = P_r(k_{r'}), f_r = P_r(t), ℓ_r = 2 − d_r, L = Σℓ_r = E + F (E the cross leaks, F the leaks onto
+t), y_r = x(k_r). Let M be the 3×3 block of rows 2–4 on columns k_2, k_3, k_4, and
+C_r = det(M with column r replaced by (f_2, f_3, f_4)ᵀ). The frame is in the *main configuration with sign τ*
+if, for every s, the sign vector of 3x + u_s on (k_i, k_j, k_l, t) is (+, +, −, τ) and that of 3x + u'_s is
+(+, −, −, τ). Zero entries count as either sign.
+
+If ε is the sign vector of z, then ‖z‖ = ε·z, and ε·x ≤ 2 − 2·(the mass of x where ε_k x_k < 0). So in the
+main configuration with τ = + the six constraints (6) are equivalent to linear inequalities:
+
+    q_l := 2d_l − e_{i→l} − 4e_{j→l} − 3   ≥ 3(y_l⁺ + y_i⁻ + y_j⁻ + x_t⁻),
+    m_s := 5S_j + 2S_l − S_i − 12          ≥ 3(y_j⁺ + y_l⁺ + y_i⁻ + x_t⁻),   S_r = P_r(k_j) + P_r(k_l).
+
+**Budget identity.** Σ_l q_l + Σ_s m_s = 9(1 − L) identically, for any rows of sum 2. Every unit of leakage
+costs exactly 9: each cross leak has N-weight 1 or 4 and M-weight 6 or 3 (sum 7), plus 2 from its own row.
+Summing the six inequalities gives 9Σ|y_r| + 18x_t⁻ ≤ 9(1 − L). With ‖x‖₁ = 2 this forces
+
+    x_t ≥ 1 + L   and   L ≤ 1.                                                                 (7)
+
+The axis case of §3a is L = 0.
+
+**Determinant.** Schur's complement and Cramer give det X = −(x_t det M − Σ_r y_r C_r). Hence
+|det X| ≥ x_t det M − (2 − x_t) max_r |C_r|, which increases in x_t, so by (7)
+
+    |det X| ≥ (1 + L) det M − (1 − L) max_r |C_r|.
+
+**Lemma.** If P ≥ 0, the rows have sum 2 and L ≤ 1, then (1 + L) det M − (1 − L)|C_r| ≥ 8 for each r.
+*Proof.* Write the other two rows as b, c, with u = ℓ_b + ℓ_c and E_r = e_{r→b} + e_{r→c}.
+(a) C_r ≥ 0. *Column trick:* if x ≥ 0 and Σx = 2, then det X = −2 det(M − 𝟙yᵀ). To see this, add all
+columns to column t (it becomes (2, 2, 2, 2)ᵀ) and subtract row 1 from the others. Take
+x = (1 − L)e_{k_r} + (1 + L)e_t. Then (1 + L) det M − (1 − L)C_r = 2 det M′ with M′ = M − (1 − L)𝟙e_rᵀ, whose
+column r is (1 + u, −α, −β) with α = 1 − L − e_{b→r} and β = 1 − L − e_{c→r}. Expanding along column r,
+
+    det M′ = (1 + u)(d_b d_c − e_{b→c}e_{c→b}) + e_{r→b}(α d_c − β e_{b→c}) + e_{r→c}(β d_b − α e_{c→b}).
+
+Since e_{b→c} ≤ ℓ_b and e_{c→b} ≤ ℓ_c, the first term is ≥ (1 + u)(4 − 2u). Using 0 ≤ d_c ≤ 2 and β ≤ 1 − L,
+αd_c − βe_{b→c} ≥ −2(e_{b→r} − (1 − L))⁺ − (1 − L)e_{b→c} ≥ −2ℓ_b; symmetrically, the other bracket is
+≥ −2ℓ_c. So det M′ ≥ 4 + 2u(1 − u − E_r) ≥ 4, because E_r + u ≤ L ≤ 1.
+(b) C_r < 0. Let D_r = det M^{(r)}, where M^{(r)} is M with the t-column added to column r; its rows sum to 2.
+Since det M = D_r − C_r, the expression equals (1 + L)D_r − 2L C_r ≥ (1 + L)D_r. Write M^{(r)} = 2I − ℒ with ℒ a
+Laplacian (zero row sums, off-diagonals ≤ 0). Then D_r = 8 − 4 tr ℒ + 2σ₂(ℒ) ≥ 8 − 4 tr ℒ, since the
+principal 2×2 minors of ℒ are ≥ 0 and det ℒ = 0. Also tr ℒ = E_r + u ≤ L, so
+(1 + L)D_r ≥ (1 + L)(8 − 4L) ≥ 8. ∎
+
+So **in the main configuration with τ = +, |det X| ≥ 8, i.e. det Λ ≥ 8/9.** It is sharp at the axis
+(§3a). The lemma needs only L ≤ 1, and the six constraints enter only through their sum (7).
+
+*τ = −.* The linear forms become q⁻_l = −u_s(k_l) − u_s(t) − 3 ≥ 3(y_l⁺ + y_i⁻ + y_j⁻ + x_t⁺) and
+m⁻_s = u′_s(k_i) = d_i − 5e_{j→i} − 2e_{l→i} ≥ 3(y_j⁺ + y_l⁺ + y_i⁻ + x_t⁺). They satisfy, identically,
+
+    Σq⁻ + Σm⁻ = 9 − 9E − 6F,   2Σq⁻ − Σm⁻ = −9E₃ − 9F,   2Σm⁻ − Σq⁻ = 9 − 9E₆ + 3F,
+
+where E₃ (E₆) is the cross leakage of N-weight 4 (1). The plain sum forces x_t < 0. Now |det X| =
+|x_t| det M + Σ y_r C_r ≥ 2 det M − (det M + c⁻)ΣA − (det M + c⁺)ΣB, where A, B are the positive and negative
+parts of y and c^± = max_r (C_r)^±. Weight the N's by α = (det M + 2c⁺ − c⁻)/9 and the M's by
+β = (det M + 2c⁻ − c⁺)/9; then
+
+    |det X| ≥ det M (1 + E + ⅔F) + c⁺(E₃ + F) − c⁻(1 − E₆ + ⅓F).
+
+Crude bounds finish it:
+* det M ≥ 8 − 4L (the same Laplacian expansion with diagonal 2 − f_a);
+* c⁻ ≤ 2 f_max E (only the off-diagonal cofactors can make C_r negative);
+* f_j ≤ ¼ (from q⁻_l ≥ 0) and 3E + 5F ≤ 3 (from Σq⁻ ≥ 0, since Σn ≥ E);
+* β ≥ 0, since det M ≥ 4 ≥ 4F ≥ c⁺.
+
+Together, |det X| ≥ min over that triangle of (8 − 4E − 4F)(1 + E + ⅔F) − 2 min(¼, F)E(1 + ⅓F) = 7.84 > 7.29,
+attained at E = 0, F = 3/5. Numerically the displayed bound itself is ≥ 8 (68 000 feasible leak samples).
+**So in the main configuration with τ = −, det Λ ≥ 0.871 > 81/100.**
+
+*The remaining step: the configuration lemma.* It is not proved that every admissible realization of
+stratum 30 is in a main configuration for some labelling and some τ. Ways out of it, and what each needs:
+* a row without a coordinate of mass > 1;
+* |y_r| beyond the flat range of its column;
+* |u(t)| > 3|x_t|.
+The summed constraint alone, (S): Σ_k Φ(x_k, p_k) ≥ 108 with Φ(ξ, p) = Σ over the six vectors of |3ξ + u(p)|,
+is far too weak: [Num] it admits |det X| ≈ 2. So the configuration lemma must use the six constraints
+individually. Their exact form is a disjunction: (N_s) holds iff, for some T ⊆ {1,2,3,4} (the coordinates
+where 3x + u_s < 0), 2P_l(T) − P_i(T) − 4P_j(T) − 3 ≥ 3(x⁺(T) + x⁻(Tᶜ)); likewise (M_s) with
+5P_j + 2P_l − P_i − 12. Facts used so far:
+* a row l has P_l(T_l) ≥ 3/2 on its N-set;
+* if d_r > ½ then k_r ∈ T_r, so y_r⁺ ≤ ⅓;
+* if d_r > 1 then k_r lies in no other N-set, so y_r⁻ ≤ ⅓.
+
+Exact checks of the identities above are in `verify/verify_structural_exclusions.py`.
 
 ## 4. Consequences for stratum 17 [P]
 
@@ -105,13 +204,17 @@ m = (−1,−1,1,0) gives ≈ 0.851 > 81/100 (Monte Carlo section volume).
 
 ## 6. Plan to finish the two exclusions
 
-1. From (2)–(4), prove that every admissible frame of the stratum is *near-axis*: after a permutation of
-   coordinates, X_ii ≥ 2 − ℓ with an explicit leakage bound ℓ. Rows 2–4 are nearly disjoint by (3)/(4), and
-   then X_1 is pushed onto the remaining coordinate by (2)/(4). Handle the residual cases where rows 2–4 share
-   coordinates by the same budgets, ending either in a contradiction or in a determinant bound.
-2. In the near-axis region, bound ‖X⁻¹m‖₂ for a fixed short m ∈ Γ* (for stratum 30, m = (−1,−1,1,0) and its
-   images under the cyclic symmetry of rows 2–4), and the section volume from below, so that (5) gives ≥ 81/100.
-   The margin at the axis is 1.0, and at the best-known point 0.851.
-3. Same for stratum 17 with its short dual vectors.
-Step 1 is pure inequality work. Step 2 needs explicit perturbation bounds for X⁻¹ and for section volumes; THEORY 8.1
-has the exact (Hermite–Genocchi) section formula.
+1. **Stratum 30: the configuration lemma (§3b) is the only open step.** Show that every admissible frame is in
+   a main configuration for some labelling and some τ, or else has |det X| ≥ 7.29. The tools are the exact
+   ∃T forms of the six constraints (6), the row-only bounds (3) (pairwise overlaps ≤ ½), the 4/3-vectors, and
+   ‖X_1 ± X_r‖ ≥ 2. A small slack is enough: the main-configuration bounds hold up to the total "mismatch"
+   δ (the summed |entries| of the six vectors 3x + u whose sign differs from the main pattern). Their sum
+   weakens by 2δ, so x_t ≥ 1 + L − 2δ/9, and since the target is 7.29 and not 8, δ up to about 0.35 can be
+   absorbed. If a hand proof stalls, the fallback is an exact enumeration of the sign configurations (the
+   membership type of each coordinate in the six T-sets, with the sign conditions as linear constraints). That
+   needs certified (rational Farkas) LP infeasibility, so it is a [P+C] route.
+2. The slicing route of the earlier plan is superseded for stratum 30: at the extremal lattice the best
+   slicing bound is only ≈ 0.745.
+3. Stratum 17: same programme. Find its short vectors (norm ≤ 3/2: ½X_1 ± (⅓X_2 − ⅙X_3 − ⅙X_4) and
+   ½(X_1 ± X_3 ∓ X_4), §4), check numerically which subset already forces |det X| ≥ 6·0.81 = 4.86, look for the
+   analogous budget identity in its low configuration (one facet row split), then do the determinant algebra.
