@@ -269,6 +269,36 @@ Each of these constraints has budget 1, so f_2 ≤ ½ and f_3 + f_4 ≤ 1. Strat
 picture turned around: X_1 sits on the free coordinate, and the leaks onto it are capped. The analogue of
 Lemma §3b must bound det M from below under these caps, with x_t = 2 − Σ|y_r| and |y_r| charged in A±.
 
+*Labelling and structure for stratum 17 [Num] (exact-structure MILP over all 45 vectors of norm ≤ 2).* Take t as
+the coordinate where X_1 is largest in absolute value; by the symmetry, x_t ≥ 0. Let k_r be row r's largest
+coordinate other than t. This labelling is needed: rows 3 and 4 may put their maximum on t, for example
+X_3 = (0, 1, 0, 1) with X_1 = (0, −1, 0, 1), det X = 8. With it, the MILP finds:
+* x_t ≥ 1;
+* d_2 ≥ 3/2, while d_3 and d_4 can be as low as ¾;
+* f_2 ≤ ½, while f_3 and f_4 can reach 1;
+* |y_2| ≤ ⅓, and y_3, y_4 ∈ [−1, ⅓], where y_r⁻ ≤ 2 − x_t.
+Rows 3 and 4 can be *spread*. For example X_3 = (¼, ¾, ¼, ¾) occurs even with X_1 = 2e_t, with det X = 6.
+
+*Reduced model and certificate [Num].* Linearize every per-coordinate cost (small side) in the norm-7/6
+vectors A±, the four B(±, ±), the row vectors D_c and the ℤ⁴-vectors X_1 ± X_r. This mirrors §3b. As there,
+|det X| ≥ 2 det M − Σ_r A_r(det M + C_r) − Σ_r B_r(det M − C_r) when x_t > 0.
+* The model reproduces the polished minimum 5.6705 exactly.
+* Each variable A_r, B_r has coefficient 3 in exactly one of A±. So weights max(D⁻_2, D⁺_3, D⁺_4)/3 on A₊ and
+  max(D⁺_2, D⁻_3, D⁻_4)/3 on A₋ (D^±_r = det M ± C_r) give a dual certificate:
+  |det X| ≥ Ψ₂ := 2 det M − λ₊σ₊ − λ₋σ₋, where σ± are the slacks of A± at y = 0.
+* The symmetric choice (both weights max D/3) is too weak: it dips to 4.72.
+* Over 2·10³ local searches, min Ψ₂ ≈ 5.25–5.31, against 4.86 needed. The low points have row 3 or row 4
+  spread like (¼, ¾, ¼, ¾) over k_2, k_r, k_4, t, with X_1 ≈ 2e_t.
+* There the exact inner minimum is 6.0, or the leak pattern is not admissible at all. So the reduced model is
+  conservative where it was checked.
+
+*What a proof of stratum 17 still needs.*
+1. The structure facts above, by hand, as in §3c Step 1.
+2. The failure branches of the linearization. Given those facts they can occur only at the columns k_3 and k_4,
+   in A± and the B's, because rows 3 and 4 may have main entries below 1.
+3. A proof that Ψ₂ ≥ 4.86 (about 8% margin) on the leak polytope. Its row-vector terms min(f_a + f_b, 2f_c)
+   split it into finitely many pieces.
+
 ## 5. Calibration and the slicing family [Num] / [P]
 
 *Slicing family [P].* For every m ∈ Γ* (m·Γ ⊆ ℤ), w = X⁻¹m lies in Λ*, so by THEORY 8.1
