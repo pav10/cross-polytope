@@ -64,27 +64,29 @@ Status: `2/3 ≤ D_pack ≤ D* < det L₄`.
 
 ## §3 New results of this campaign set-up (14 Oct 2026) — proofs here
 
-**Strata 17 and 30: structure and necessary conditions, 9 November 2026 [P] (no exclusion yet).**
-`docs/COMMON_FACET.md`. Rows 2–4 lie on one facet, Λ = (ℤc ⊕ Λ''_0) + ℤh, and det Λ = d_V(h)·‖N‖_∞/3.
+**Stratum 30 excluded, 10 November 2026 [P] (exact checks: G9). 26 of 39 strata excluded; 13 remain:
+0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 14, 15, 17.** `docs/COMMON_FACET.md` §3–3c. Every admissible realization of
+stratum 30 has **det Λ ≥ 196/225 = 0.871 > 81/100 > D***; 8/9 is attained (sharp axis lattice, 16 minimal pairs).
+The proof uses only six vectors of Γ₃₀: three of norm 10/9 and three of norm 11/9. [Num] The three 10/9 vectors
+alone allow |det X| ≈ 7.31, so the 11/9 ones are essential. The steps:
+* *Per-coordinate form.* Each constraint reads Σ_k min(Pos_k + 3x_k⁺, Neg_k + 3x_k⁻) ≤ 1 or ≤ 2.
+* *Structure.* Facet-row overlaps are ≤ ½, so every facet row has a main entry d_r > ½ on its own coordinate.
+  Then |X_1(k_r)| ≤ ⅓, so |x_t| ≥ 1, and then every d_r > 1.
+* *Linearity.* Every cost then takes its linear value, except M_s at k_{i(s)} ("failure").
+* *Budget.* A budget identity (each unit of leakage costs exactly 9), and exact rational certificates for the
+  8 failure patterns, give x_t ≥ 1 + L when x_t > 0.
+* *Determinant.* A 3×3 determinant lemma (column trick plus Laplacian bound) then gives |det X| ≥ 8.
+  For x_t < 0 a weighted sum gives ≥ 196/25 (≥ 8 numerically), or a failure forces X_1 ≤ 0 on the row
+  coordinates, which gives ≥ 8.
+
+**Strata 17 and 30: structure and necessary conditions, 9 November 2026 [P].**
+Rows 2–4 lie on one facet, Λ = (ℤc ⊕ Λ''_0) + ℤh, and det Λ = d_V(h)·‖N‖_∞/3.
 *Cancellation-budget lemma:* a vector c ∈ Γ with ‖c‖₁ = 1 + ε allows total cancellation ≤ 2ε. (The case ε = 0
 is the forced-shell lemma.) Consequences:
 * stratum 30: Σ_k min(3|X_1k|, 2R_k) ≤ 3 and pairwise row overlaps ≤ ½;
 * stratum 17: Σ_k min(3|X_1k|, R_k) ≤ 2 and Σ_k min(2X_2k, X_3k+X_4k) ≤ 1.
-**Stratum 30, axis case: det ≥ 8/9, sharp [P]** (rows 2–4 axis rows ⇒ X_1 has mass ≤ 1 on their coordinates).
-The bound is attained by an admissible lattice with 16 minimal pairs (exact check). Conjecture: 8/9 for the
-whole stratum. For stratum 17 the axis case gives 16/9, but its low configurations are not near-axis [Num].
-**Stratum 30, main configuration [P] (COMMON_FACET §3b, 10 Nov 2026).** The proof uses six vectors of Γ₃₀:
-three of norm 10/9 and three of norm 11/9. [Num] The three 10/9 vectors alone allow |det X| ≈ 7.31; the 11/9
-ones are essential. In the near-axis sign pattern of the six vectors 3X_1 + u, the six constraints are
-linear. Their sum satisfies a budget identity: each unit of leakage costs exactly 9. This gives
-x_t ≥ 1 + L (L = total leakage), and then a 3×3 determinant lemma (column trick plus a Laplacian bound) gives
-|det X| ≥ 8 for τ = sign x_t = +. For τ = − a weighted sum gives |det X| ≥ 7.84 in crude form (≥ 8 numerically).
-So **det Λ ≥ 0.87 > 81/100 in every main configuration.** Identities checked symbolically in
-`verify/verify_structural_exclusions.py`. **Open:** the configuration lemma (every admissible frame is in a
-main configuration, or has det ≥ 81/100). The summed constraint alone is far too weak (|det X| ≈ 2 [Num]), so
-the lemma needs the six constraints individually.
-Slicing along arithmetic dual vectors w = X⁻¹m (m ∈ Γ*) gives 1.0 at the axis frame of stratum 30 and
-≈ 0.851 at its best-known point [Num] (superseded for stratum 30). The plan to finish is in the note, §6.
+For stratum 17 the axis case gives 16/9, but its low configurations are not near-axis [Num] (relaxed minimum
+≈ 0.958, with one facet row split). The plan for 17 is COMMON_FACET §6.3: the same programme as stratum 30.
 
 **Stratum 0 needs one contact set, 9 November 2026 [P].** A local minimum in stratum 0 has the A4 contact
 set {±(x_i − x_j)} (THEORY 7.1). In stratum 0 every four independent minimal vectors form a basis (max-det

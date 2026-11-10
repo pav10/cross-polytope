@@ -116,7 +116,60 @@ def check():
     assert abs(exact_det(Y)) == F(8, 9)
     print("stratum 30 axis-case extremal lattice: admissible (lambda_1 = 2, 16 minimal pairs), det = 8/9: checked")
     check_main_configuration()
+    check_configuration_lemma()
     print("STRUCTURAL PASS")
+
+
+def check_configuration_lemma():
+    """COMMON_FACET §3c, exactly: (i) for every set of failing shifts (x_t > 0) the stated rational combination of
+    the linear N_r, the linear M_s and the failure forms F_s dominates sum(A+B) + L with right-hand side 1;
+    (ii) the minimum of the crude x_t < 0 bound over 3E + 5F <= 3 is 196/25; (iii) the failure case x_t < 0."""
+    e = {(a, b): sp.Symbol(f'e{a}{b}', nonnegative=True) for a in range(3) for b in range(3) if a != b}
+    f = [sp.Symbol(f'f{a}', nonnegative=True) for a in range(3)]
+    A = [sp.Symbol(f'A{a}', nonnegative=True) for a in range(3)]
+    B = [sp.Symbol(f'B{a}', nonnegative=True) for a in range(3)]
+    ell = [f[a] + sum(e[(a, b)] for b in range(3) if b != a) for a in range(3)]
+    gens = list(e.values()) + f + A + B
+    SH = [(0, 1, 2), (2, 0, 1), (1, 2, 0)]        # (i, j, l) as row indices (rows X2, X3, X4 = 0, 1, 2)
+    # each inequality as (lhs, rhs) with lhs <= rhs
+    Nrow = {l: (2 * ell[l] + e[(i, l)] + 4 * e[(j, l)] + 3 * (A[l] + B[i] + B[j]), 1) for (i, j, l) in SH}
+    Mlin = {s: (5 * e[(j, i)] + 2 * e[(l, i)] + e[(i, j)] + e[(i, l)] + 5 * f[j] + 2 * f[l] + 3 * (A[j] + A[l] + B[i]), 2)
+            for s, (i, j, l) in enumerate(SH)}
+    Mfail = {s: (3 * sum(A) + 5 * f[j] + 2 * f[l] - f[i], 0) for s, (i, j, l) in enumerate(SH)}
+    target = sum(A) + sum(B) + sum(ell)
+    def certified(comb):
+        lhs = sum(w * c[0] for w, c in comb); rhs = sum(w * c[1] for w, c in comb)
+        diff = sp.Poly(sp.expand(lhs - target), *gens)
+        assert all(cf >= 0 for cf in diff.coeffs()) and rhs == 1, (diff, rhs)
+    q = sp.Rational
+    certified([(q(1, 9), Nrow[l]) for l in range(3)] + [(q(1, 9), Mlin[s]) for s in range(3)])
+    for s, (i, j, l) in enumerate(SH):
+        sp_ = [t for t, sh in enumerate(SH) if sh[2] == i][0]            # s': the shift with l(s') = i(s)
+        certified([(q(4, 9), Nrow[i]), (q(2, 9), Nrow[j]), (q(1, 9), Nrow[l]), (q(1, 9), Mfail[s]), (q(1, 9), Mlin[sp_])])
+    assert sorted([t for t, sh in enumerate(SH) if sh[2] == SH[s][0]][0] for s in range(3)) == [0, 1, 2]  # s -> s' bijective
+    assert all([t for t, sh in enumerate(SH) if sh[2] == SH[s][0]][0] != s for s in range(3))          # ... a 3-cycle
+    certified([(q(1, 3), Nrow[l]) for l in range(3)] + [(q(1, 18), Mfail[s]) for s in range(3)])
+    # (ii) crude x_t < 0 bound: G = (8-4E-4F)(1+E+2F/3) - 2 min(1/4, F) E (1+F/3) on 3E + 5F <= 3, E, F >= 0
+    E, Fv = sp.symbols('E F', real=True)
+    base = (8 - 4 * E - 4 * Fv) * (1 + E + q(2, 3) * Fv)
+    cands = []
+    for G, lo, hi in ((base - 2 * Fv * E * (1 + Fv / 3), sp.Integer(0), q(1, 4)), (base - E / 2 * (1 + Fv / 3), q(1, 4), q(3, 5))):
+        ok = lambda a, b: a >= 0 and b >= 0 and 3 * a + 5 * b <= 3 and lo <= b <= hi
+        pts = [(s_[E], s_[Fv]) for s_ in sp.solve([sp.diff(G, E), sp.diff(G, Fv)], [E, Fv], dict=True)]
+        for sub, var in (({E: sp.Integer(0)}, Fv), ({Fv: lo}, E), ({Fv: hi}, E), ({E: (3 - 5 * Fv) / 3}, Fv)):
+            g = sp.expand(G.subs(sub))
+            for r in sp.solve(sp.diff(g, var), var):
+                pt = {**{k: v.subs(var, r) for k, v in sub.items()}, var: r}; pts.append((pt[E], pt[Fv]))
+        pts += [(sp.Integer(0), lo), (sp.Integer(0), hi), ((3 - 5 * lo) / 3, lo), ((3 - 5 * hi) / 3, hi)]
+        cands += [G.subs({E: a, Fv: b}) for a, b in pts if a.is_real and b.is_real and ok(a, b)]
+    assert min(cands) == q(196, 25) and q(196, 25) > 9 * q(81, 100)
+    # (iii) failure with x_t < 0: (2-b)(8-4E-4F) - 4bF at the vertices of 3E + 5F <= 3 - 6b, 0 <= b <= 1/2
+    b_ = sp.Symbol('b')
+    v1 = sp.expand(((2 - b_) * (8 - 4 * E - 4 * Fv) - 4 * b_ * Fv).subs({E: 1 - 2 * b_, Fv: 0}))
+    v2 = sp.expand(((2 - b_) * (8 - 4 * E - 4 * Fv) - 4 * b_ * Fv).subs({E: 0, Fv: (3 - 6 * b_) / 5}))
+    assert sp.expand(v1 - (8 + 12 * b_ - 8 * b_ ** 2)) == 0 and sp.expand(v2 - (56 + 8 * b_) / 5) == 0
+    print("COMMON_FACET §3c: 8 failure-pattern certificates, crude x_t<0 minimum 196/25, failure case x_t<0: "
+          "checked -> stratum 30 det >= 196/225 > 81/100")
 
 
 def check_main_configuration():

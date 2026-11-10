@@ -15,9 +15,10 @@ import json
 SIGNED_PERMS = [(pm, sg) for pm in permutations(range(4)) for sg in product((1, -1), repeat=4)]
 
 # Strata excluded by proof, independently of any search (gate G9 checks the certificates):
-# THEORY_REVIEW §3 (15), BLOCK_COUPLING (28, 31), FACET_LAYERS (12, 13, 16, 18, 19), COORDINATE_SECTIONS (6, 7, 25).
+# THEORY_REVIEW §3 (15), BLOCK_COUPLING (28, 31), FACET_LAYERS (12, 13, 16, 18, 19), COORDINATE_SECTIONS (6, 7, 25),
+# COMMON_FACET §3c (30).
 EXCLUDED = frozenset({20, 21, 22, 23, 24, 26, 27, 29, 32, 33, 34, 35, 36, 37, 38,
-                      28, 31, 12, 13, 16, 18, 19, 6, 7, 25})
+                      28, 31, 12, 13, 16, 18, 19, 6, 7, 25, 30})
 REMAINING = sorted(set(range(39)) - EXCLUDED)
 
 def _diagonals(p, n):

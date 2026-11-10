@@ -14,6 +14,7 @@
 10. **Lemma "det Λ ≥ Δ₁/p" (superlattice reduction)** is true but weaker by the factor p; it removes nothing.
 11. **Bantegnie's paper does not exclude types 2–6**; it confirms max clean index 5 and bounds the index of admissible superlattices of ℤ⁴ by 16 (cyclic) / 18 (non-cyclic) — consistent with our strata (max p = 18).
 12. **"The determinant minimum over a polytope is at a vertex."** False (ζ is a cubic irrational). Kills every vertex-LP approach.
+13. **"The three near-shell vectors (norm 10/9) of stratum 30 suffice."** FALSE (10 Nov 2026, [Num]). With only them, |det X| drops to ≈ 7.31 (det ≈ 0.812, at the threshold). In that frame the facet rows leak 0.24, 0.48, 0.44 onto X_1's main coordinate. The three norm-11/9 vectors v_s − e_j cut this off and are needed (COMMON_FACET §3b). Likewise, "a single facet-row leak onto t keeps |det X| = 8" holds only for the three-vector system. The summed six-vector constraint alone is far weaker still (|det X| ≈ 2).
 
 ## B. Computational approaches that failed (measured)
 

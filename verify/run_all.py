@@ -102,7 +102,7 @@ def g9():
         out = run([script])
         assert tag in out, (script, out[-400:])
     from cp4.strata import EXCLUDED, REMAINING
-    assert EXCLUDED == {20, 21, 22, 23, 24, 26, 27, 29, 32, 33, 34, 35, 36, 37, 38, 28, 31, 12, 13, 16, 18, 19, 6, 7, 25}
+    assert EXCLUDED == {20, 21, 22, 23, 24, 26, 27, 29, 32, 33, 34, 35, 36, 37, 38, 28, 31, 12, 13, 16, 18, 19, 6, 7, 25, 30}
     return f'{len(EXCLUDED)} of 39 strata excluded by exact certificates; remaining {REMAINING}'
 
 gate('G9 structural stratum exclusions', g9)

@@ -1,8 +1,8 @@
-# Strata 17 and 30: structure, necessary conditions, and a route to exclusion
+# Strata 17 and 30: structure, necessary conditions; stratum 30 excluded
 
-9 November 2026. Work in progress. §§1–4 are proved [P]; §5 is numerical [Num]; §6 is the plan. No stratum is
-excluded here yet. Conventions as in `THEORY_REVIEW.md` (Γ ⊇ ℤ⁴ of index p, frame rows X_i of ℓ¹ norm 2,
-Λ = ΓX admissible).
+9–10 November 2026. §§1–4 are proved [P]; §5 is numerical [Num]; §6 is the plan. **Stratum 30 is excluded
+(§3c, det ≥ 196/225 > 81/100).** Stratum 17 is open. Conventions as in `THEORY_REVIEW.md` (Γ ⊇ ℤ⁴ of index p,
+frame rows X_i of ℓ¹ norm 2, Λ = ΓX admissible).
 
 ## 1. Common facet and the coset structure [P]
 
@@ -70,10 +70,10 @@ X_1 = (⅓ on the row coordinates, ±1 at t). That lattice *is* admissible: with
 X_4 = 2e_4, X_1 = (⅓, ∓1, ⅓, ⅓) the exact short-vector test gives λ₁ = 2 with 16 minimal pairs, and
 det = 8/9 [P+C]. So in this case 8/9 is the exact minimum. The relaxed search (14 constraint vectors,
 random starts) found nothing lower anywhere (best 0.912, at a frame with rows 2–4 within 0.012 of the axes)
-[Num]. **Conjecture: every admissible realization of stratum 30 has det ≥ 8/9.** §3b proves it in the whole
-near-axis region (the "main configuration"). What remains is the configuration lemma of §3b.
+[Num]. **Conjecture: every admissible realization of stratum 30 has det ≥ 8/9.** §3b–3c prove
+det ≥ 196/225 = 0.871 for the whole stratum, which excludes it.
 
-### 3b. Six short vectors; the main configuration has det ≥ 8/9 [P]
+### 3b. Six short vectors; the main configuration has det ≥ 0.87 [P]
 
 *The six vectors.* For each cyclic shift s = (i,j,l), Γ₃₀ contains v_s = ⅓e_1 + (1/9)e_i + (4/9)e_j − (2/9)e_l
 (norm 10/9) and v'_s = v_s − e_j (norm 11/9). With x = X_1, P_r = X_r (r = 2, 3, 4) and
@@ -157,19 +157,79 @@ Together, |det X| ≥ min over that triangle of (8 − 4E − 4F)(1 + E + ⅔F) 
 attained at E = 0, F = 3/5. Numerically the displayed bound itself is ≥ 8 (68 000 feasible leak samples).
 **So in the main configuration with τ = −, det Λ ≥ 0.871 > 81/100.**
 
-*The remaining step: the configuration lemma.* It is not proved that every admissible realization of
-stratum 30 is in a main configuration for some labelling and some τ. Ways out of it, and what each needs:
-* a row without a coordinate of mass > 1;
-* |y_r| beyond the flat range of its column;
-* |u(t)| > 3|x_t|.
-The summed constraint alone, (S): Σ_k Φ(x_k, p_k) ≥ 108 with Φ(ξ, p) = Σ over the six vectors of |3ξ + u(p)|,
-is far too weak: [Num] it admits |det X| ≈ 2. So the configuration lemma must use the six constraints
-individually. Their exact form is a disjunction: (N_s) holds iff, for some T ⊆ {1,2,3,4} (the coordinates
-where 3x + u_s < 0), 2P_l(T) − P_i(T) − 4P_j(T) − 3 ≥ 3(x⁺(T) + x⁻(Tᶜ)); likewise (M_s) with
-5P_j + 2P_l − P_i − 12. Facts used so far:
-* a row l has P_l(T_l) ≥ 3/2 on its N-set;
-* if d_r > ½ then k_r ∈ T_r, so y_r⁺ ≤ ⅓;
-* if d_r > 1 then k_r lies in no other N-set, so y_r⁻ ≤ ⅓.
+*Is the main configuration forced?* The summed constraint alone, (S): Σ_k Φ(x_k, p_k) ≥ 108 with
+Φ(ξ, p) = Σ over the six vectors of |3ξ + u(p)|, is far too weak: [Num] it admits |det X| ≈ 2. §3c uses the six
+constraints individually and shows that every admissible frame is in a main configuration, apart from one
+branch per shift, and that this branch is harmless.
+
+### 3c. The configuration lemma; stratum 30 is excluded [P]
+
+Only the six constraints (6), ‖x‖₁ = 2, and rows 2–4 ≥ 0 of sum 2 are used.
+
+*Per-coordinate form.* At a coordinate k, let Pos_k and Neg_k be the positive and negative row parts of u_s(k)
+(resp. u′_s(k)). Then |3x_k + u_k| = (Pos_k + 3x_k⁺) + (Neg_k + 3x_k⁻) − 2 min(Pos_k + 3x_k⁺, Neg_k + 3x_k⁻).
+The row parts total 14 (resp. 16) and ‖3x‖₁ = 6, so (6) is equivalent to
+
+    (N_s)  Σ_k min(P_i(k) + 4P_j(k) + 3x_k⁺, 2P_l(k) + 3x_k⁻) ≤ 1,
+    (M_s)  Σ_k min(P_i(k) + 3x_k⁺, 5P_j(k) + 2P_l(k) + 3x_k⁻) ≤ 2.                               (8)
+
+Call the k-th summand the *cost* of k. Costs are ≥ 0, and min(a + c, b + d) ≥ min(c, b) for a, d ≥ 0.
+
+**Step 1 (structure).**
+(a) *Overlaps.* Drop x in (N_s) and use min(P_i + 4P_j, 2P_l) ≥ 2 min(P_j, P_l). Every pair of facet rows then
+has overlap Σ_k min(P_a(k), P_b(k)) ≤ ½, since the pairs (j, l) of the three shifts are all three pairs.
+(b) *No flat row; labelling.* Suppose a row were (½, ½, ½, ½). Overlap ≤ ½ with it forces both other rows to
+be axis rows 2e_k and 2e_m. Then the N_s with the flat row as l costs min(2, 1) + min(8, 1) = 2 > 1, which is
+impossible. So every row has an entry > ½. By (a), these entries sit on different coordinates for different
+rows. Let k_r be such a coordinate for row r and t the fourth coordinate. Then d_r > ½, and
+e_{b→r} ≤ ½ (overlap with row r).
+(c) *X_1 is small on the row coordinates.* At k_r, the N_s with l = r costs ≥ min(3x⁺(k_r), 2d_r), and
+2d_r > 1. The N_s with j = r costs ≥ min(4d_r, 3x⁻(k_r)), and 4d_r > 2. Hence |y_r| ≤ ⅓ and **|x_t| ≥ 1**.
+(d) **d_b > 1 for every facet row.** Let i, j be the other rows of the shift with l = b. That N_s costs at
+least min(d_i, 2e_{b→i}) at k_i, at least 2e_{b→j} at k_j (since 4d_j > 2), and at least min(3x_t⁺, 2f_b) at t.
+* If x_t > 0, then 3x_t ≥ 3 > 2f_b, so min(d_i, 2e_{b→i}) + 2e_{b→j} + 2f_b ≤ 1. If 2e_{b→i} ≤ d_i this gives
+  ℓ_b ≤ ½. Otherwise d_i > ½ gives 2e_{b→j} + 2f_b < ½, so ℓ_b < ¾.
+* If x_t < 0, the N_s with j = b costs ≥ min(4f_b, 3|x_t|) at t, with 3|x_t| ≥ 3, so f_b ≤ ¼. The same N_s
+  as above gives e_{b→i} + e_{b→j} < ¾. So ℓ_b < 1.
+
+**Step 2 (linearity).** Take a main coordinate k_b in a constraint where row b has coefficient c_b. If the
+min in (8) took the side that contains row b, its cost would be ≥ |c_b| d_b. That is > 1 in every N_s and > 2
+in the M_s with c_b ∈ {−5, −2}. So every cost at k_b takes the other side, which is the linear value of §3b,
+with one exception: M_s at k_{i(s)}, where c_b = 1. Call that case a *failure* of s.
+At t, the side containing 3|x_t| ≥ 3 would cost > 2. So the cost at t is Neg_t if x_t > 0 and Pos_t if
+x_t < 0, again the linear value. So the linear forms of §3b hold, except that a failing M_s is replaced by its
+true form. There the k_{i(s)} cost is d_i + 3A_i, and d_i + e_{i→j} + e_{i→l} = 2 − f_i, so it reads
+
+    F_s:  3(A_2 + A_3 + A_4) + 5f_j + 2f_l ≤ f_i   if x_t > 0;        A_2 = A_3 = A_4 = 0   if x_t < 0.
+
+Here A_r and B_r are the positive and negative parts of y_r.
+
+**Step 3 (x_t > 0): |det X| ≥ 8.** Write N_r for the N_s with l = r. For each set of failing shifts, a
+nonnegative rational combination of the valid inequalities gives Σ_r (A_r + B_r) + L ≤ 1. The combinations
+are checked exactly in the verifier:
+* no failure: all six inequalities, each with weight 1/9 (the budget identity);
+* s fails and s′ does not, where s′ is the shift with l(s′) = i(s): weights 4/9 on N_{i(s)}, 2/9 on N_{j(s)},
+  1/9 on N_{l(s)}, 1/9 on F_s and 1/9 on M_{s′};
+* all three fail: 1/3 on each N_r and 1/18 on each F_s.
+The map s ↦ s′ is a 3-cycle, so if some but not all shifts fail, some failing s has a non-failing s′. In
+every case x_t = 2 − Σ|y_r| ≥ 1 + L, and the Lemma of §3b gives |det X| ≥ 8.
+
+**Step 4 (x_t < 0): |det X| ≥ 196/25.**
+* *No failure.* This is the main configuration with τ = −, so §3b applies. The minimum of the crude bound
+  there, over the triangle 3E + 5F ≤ 3, is exactly 196/25 = 7.84, at E = 0, F = 3/5 (checked exactly in
+  the verifier).
+* *Some failure.* Then A = 0 and y = −B. The linear N_r give 6b ≤ 3 − 2E − Σn − 5F with b = ΣB, hence
+  3E + 5F ≤ 3 − 6b. Use det X = −(x_t det M − Σ y_r C_r), det M ≥ 8 − 4L and |C_r| ≤ 4F (all cofactors are
+  ≤ 4 in absolute value). Then |det X| ≥ (2 − b)(8 − 4E − 4F) − 4bF. This is linear in (E, F); at the two
+  outer vertices of the region it equals (2 − b)(4 + 8b) and (56 + 8b)/5, both ≥ 8 for 0 ≤ b ≤ ½.
+
+**Theorem.** Every admissible realization of stratum 30 has |det X| ≥ 196/25, i.e.
+**det Λ ≥ 196/225 = 0.871… > 81/100 > D*. Stratum 30 is excluded.** Its infimum lies in [196/225, 8/9]. 8/9 is
+attained (§3a), and numerically the bound for x_t < 0 is ≥ 8 too, so the infimum is conjecturally 8/9.
+Only the six vectors of norm ≤ 11/9 are used; the N_s alone already force Step 1.
+(Numerical cross-checks, not part of the proof: an exact-structure MILP over all admissible frames reproduces
+|y_r| ≤ ⅓, |x_t| ≥ 1, min d_b = 3/2 (x_t ≥ 0) and 5/4 (x_t ≤ 0). Without the facet hypotheses failures do
+occur: for example X_3 = (½, 3/2, 0, 0) with x = 2e_t.)
 
 Exact checks of the identities above are in `verify/verify_structural_exclusions.py`.
 
@@ -204,17 +264,14 @@ m = (−1,−1,1,0) gives ≈ 0.851 > 81/100 (Monte Carlo section volume).
 
 ## 6. Plan to finish the two exclusions
 
-1. **Stratum 30: the configuration lemma (§3b) is the only open step.** Show that every admissible frame is in
-   a main configuration for some labelling and some τ, or else has |det X| ≥ 7.29. The tools are the exact
-   ∃T forms of the six constraints (6), the row-only bounds (3) (pairwise overlaps ≤ ½), the 4/3-vectors, and
-   ‖X_1 ± X_r‖ ≥ 2. A small slack is enough: the main-configuration bounds hold up to the total "mismatch"
-   δ (the summed |entries| of the six vectors 3x + u whose sign differs from the main pattern). Their sum
-   weakens by 2δ, so x_t ≥ 1 + L − 2δ/9, and since the target is 7.29 and not 8, δ up to about 0.35 can be
-   absorbed. If a hand proof stalls, the fallback is an exact enumeration of the sign configurations (the
-   membership type of each coordinate in the six T-sets, with the sign conditions as linear constraints). That
-   needs certified (rational Farkas) LP infeasibility, so it is a [P+C] route.
+1. **Stratum 30: done (§3c).** Optional refinement: sharpen the x_t < 0 bound from 196/25 to 8, which would
+   make 8/9 the exact infimum of the stratum.
 2. The slicing route of the earlier plan is superseded for stratum 30: at the extremal lattice the best
    slicing bound is only ≈ 0.745.
-3. Stratum 17: same programme. Find its short vectors (norm ≤ 3/2: ½X_1 ± (⅓X_2 − ⅙X_3 − ⅙X_4) and
-   ½(X_1 ± X_3 ∓ X_4), §4), check numerically which subset already forces |det X| ≥ 6·0.81 = 4.86, look for the
-   analogous budget identity in its low configuration (one facet row split), then do the determinant algebra.
+3. **Stratum 17: same programme.** The stratum-30 proof has three parts: the per-coordinate form (8) of each
+   short vector; a structure step (overlaps, then the main entries are large and X_1 is small on them); and the
+   summed budget with exact certificates for the few non-linear branches. Steps for stratum 17:
+   * find its short vectors (norm ≤ 3/2: ½X_1 ± (⅓X_2 − ⅙X_3 − ⅙X_4) and ½(X_1 ± X_3 ∓ X_4), §4);
+   * check numerically which subset already forces |det X| ≥ 6·0.81 = 4.86;
+   * look for the analogous budget identity in its low configuration (one facet row split);
+   * then do the determinant algebra.
