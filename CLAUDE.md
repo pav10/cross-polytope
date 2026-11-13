@@ -84,8 +84,9 @@ yet certified (THEORY_REVIEW §4).
   (scratchpad prototype; not yet in `src/cp4/contacts.py`, so G4 is skipped).
 * **Supporting-facet B1** (STATUS §3 Thm B.1′, Lemmas B.4–B.5; PLAN §3): non-frame contacts take only the 16
   facets in half-open cells, and every LP carries `‖cY‖₁ ≤ 2` for the undecided contacts. Complete, gates
-  G6s/G6S. About 20–30× smaller trees than the original B1; this is the new default
-  (`supporting=True, ball=True`).
+  G6s/G6S. ζ's S is **complete in 55 613 nodes (38 min, 15 leaves, ζ found)**; the original B1 was incomplete
+  at 1.7·10⁶. This is the new default (`supporting=True, ball=True`). Stratum-11 estimate:
+  ≈ 1.1·10⁹ nodes, ≈ 6·10³ CPU-h (Knuth over 24 of the 1 469 sets).
 
 **Next work:**
 * the stratum-11 pipeline: frame-swap rules into `contacts.py` (G4), a stratum-wide B1 driver and sbatch array

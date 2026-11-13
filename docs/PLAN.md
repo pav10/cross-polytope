@@ -39,9 +39,9 @@ occurs only on leaves of Λ_ζ (stratum 11). Leaves violating this go to Stage C
 | G5 Stage B2 on ζ's face datum | eliminant contains `64D³−1920D²+13584D−26011` with root `4·D*` | **passed** (21 s, sympy grevlex+FGLM); other factors `D−6`, `D³+62D²+8D+200` — no root in `[8/3, 4D*)` |
 | G6a B1 witness | ζ's datum survives every prune contact by contact | **passed** |
 | G6f Stage B1 facet-only pass on ζ's S | ζ's face datum among the facet-only leaves | **passed** (65 148 nodes, 23 min; 6 leaves, all dim 3) |
-| G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | **ζ's datum found** (≈ 1.73 M nodes, 46 leaves; 288 / 1 633 depth-3 subtrees); not complete: finish on the cluster from the committed checkpoint, `scripts/slurm_stageB_zeta.sbatch` (STATUS §4) |
+| G6 Stage B1 on ζ's S (complete run, original faces) | ζ's face datum among leaves (up to ambient group) | **ζ's datum found** (≈ 1.73 M nodes, 46 leaves; 288 / 1 633 depth-3 subtrees); not complete. **Superseded by G6S** (supporting facets, complete) — no need to finish it |
 | G6s supporting-facet B1 witness | ζ and D4 (frame e₁±e₂, e₃±e₄; 28 zero coordinates on non-frame contacts) keep their own half-open path through the real branching code, with/without ball rows and the pre-filter | **passed** (`scripts/stageB_witness_supporting.py`) |
-| G6S supporting-facet B1 on ζ's S (complete run) | ζ's datum among the leaves (`--supporting --ball --static --determine --prefilter --frame-symmetry`) | see STATUS §4 |
+| G6S supporting-facet B1 on ζ's S (complete run) | ζ's datum among the leaves (`--supporting --ball --static --determine --prefilter --frame-symmetry`) | **passed** (complete: 55 613 nodes, 38 min, 15 leaves, ζ hit) |
 | G8 covector pre-filter (ζ's S) | covector list certified exactly (1 705 faces, 372 topes, Zaslavsky per flat); ζ's datum passes the column filter on its static path and 20 random orders | **passed** (13 s, `scripts/check_covectors_zeta.py`) |
 | G9 structural exclusions | `verify_support_reduction.py`, `verify_structural_exclusions.py`, `verify_coordinate_sections.py` all PASS (25 strata excluded, exact) | **passed** (~20 s) |
 | G7a merged-search witness | ζ's labels (15 in, 53 out) survive every prune of `src/cp4/merged.py`; leaf dim A = 3 | **passed** (4 s) |
@@ -180,9 +180,12 @@ This is complete, because THEORY Thms 5.1–5.2 hold for every choice of support
   nodes and every count): floats cached per row (`faces._Row`) and a vectorised HiGHS matrix build.
   1.7× more nodes/s.
 * **Stratum-11 cost.** Real-code Knuth sample of 24 of the 1 469 frame-swap Stage-A sets (`--supporting --ball
-  --prefilter --frame-symmetry --determine`): per-set means 1.4·10⁵–4·10⁶ nodes, heavy-tailed. Real enumeration
-  runs at 25–40 nodes/s on one core (ζ's S: see STATUS §4). So the total is of order 10³–10⁴ CPU-hours: a
+  --prefilter --frame-symmetry --determine`): per-set means 7.6·10⁴–4·10⁶ nodes (mean 7.4·10⁵), heavy-tailed,
+  so ≈ 1.1·10⁹ nodes for the stratum. Real enumeration runs at 25–50 nodes/s on one core. ζ's S is **complete in
+  55 613 nodes (38 min)** with 15 leaves, ζ's datum among them (G6S). So the total is ≈ 6·10³ CPU-hours: a
   cluster array, no longer out of reach.
+* An LP-free contact order (the undecided contact with the fewest covector-allowed facets first; any order is
+  sound, Lemma B.4) cuts another 1.15–3.6× (4 sets, scratchpad `order_test.py`). It is the next option to build.
 * **Next reductions:**
   1. LP warm start: keep one HiGHS model per node and add or delete the child rows. HiGHS time now dominates.
   2. Share B1 prefixes across contact sets. With a global contact order, the 1 469 sets have 42 distinct
