@@ -79,6 +79,20 @@ alone allow |det X| ≈ 7.31, so the 11/9 ones are essential. The steps:
   For x_t < 0 a weighted sum gives ≥ 196/25 (≥ 8 numerically), or a failure forces X_1 ≤ 0 on the row
   coordinates, which gives ≥ 8.
 
+**Frame-swap lemma, 13 November 2026 [P] / [P+C].** `docs/FRAME_SWAP.md`, exact check
+`verify/verify_frame_swap.py`. If four minimal vectors Q ⊆ S have |det Q| = 1 in frame coordinates, then QX is
+another max-det frame, with frame lattice ΓQ⁻¹. Consequences:
+* (a) Γ′ has no point of frame norm < 1. This is already implied by Stage A's hull-interior rule.
+* (b) If Γ′ is an excluded stratum, then det ≥ 0.81.
+* (c) Assign each critical lattice to the first remaining stratum, in a fixed order, among those of its max-det
+  frames. A stratum's search may then discard Q whose Γ′ lies in an earlier stratum.
+The rules are hereditary. Single-vector swaps shrink every remaining candidate pool except stratum 0's (table in
+the note); for stratum 11, 24 of 68 candidates go by (b)/(c). **[Num] Stage A for stratum 11 now completes:**
+* pool rules alone: 2 477 contact sets in 126 s;
+* pool rules plus the dynamic quadruple rule: **1 469 sets in 113 s**.
+Before, it stood at ≥ 9 800 sets after 25 min and was still growing. ζ's S survives, and every set passes the
+exact re-verification. This was a scratchpad prototype; it is not yet integrated into `src/cp4/contacts.py`.
+
 **Stratum 11, a 7-point reformulation, 10 November 2026 [P] / [Num] / [Conj].** `docs/STRATUM11.md`.
 Put A = (½,¼,¼,¼)X, B = (−½,¼,¼,¼)X and C = A + B. Then Λ = ℤ⟨A, B, X_2, X_3, X_4⟩ with the single relation
 X_2 + X_3 + X_4 = 2C, and det Λ = |det[A, B, X_2, X_3]|. ζ's 15 contacts are exactly the pairs at distance 2 in
