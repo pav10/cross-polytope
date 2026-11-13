@@ -21,7 +21,10 @@ LPs); signvecs='facet' (facet interiors only: a fast validation pass, not comple
 (LP-free covector column pre-filter before each LP, cp4.covectors: every column of the partial sign matrix
 must extend to a covector of {c^perp : c in S} realised by a nonzero vector -- sound since det X != 0 --
 with the covector list certified exactly first).  estimate_face_data gives Knuth tree-size estimates on the
-same code path.  LPs go through cp4.lp.
+same code path.  LPs go through cp4.lp.  frame_group (static order only): isomorph rejection under the frame
+symmetries G_S (signed permutations P of frame coordinates with Gamma P = Gamma and S P = +-S, X -> PX; see
+frame_stabilizer); the four frame vectors are decided first and a depth-4 node is kept iff the AMB-orbit of its
+frame-row sign matrix contains the lexicographic minimum of its G_S x AMB orbit.
 """
 import numpy as np
 from itertools import product, permutations
@@ -178,8 +181,77 @@ def _column_filter(C, stats):
     stats['covector_certificate'] = cert
     return ColumnFilter(cov)
 
+def _canon_pm(v):
+    return v if next(x for x in v if x) > 0 else tuple(-x for x in v)
+
+def act_frame(g, c):
+    """c -> cP for the frame signed permutation g = (pm, sg) acting by X -> PX, (PX)_i = sg_i X_{pm(i)}."""
+    pm, sg = g
+    out = [0] * 4
+    for i in range(4):
+        out[pm[i]] = sg[i] * c[i]
+    return tuple(out)
+
+def frame_stabilizer(S, residues, p):
+    """Signed permutations g of frame coordinates with Gamma P = Gamma (residues mod p) and S P = +-S."""
+    R = {tuple(x % p for x in r) for r in residues}
+    Sset = {_canon_pm(tuple(c)) for c in S}
+    out = []
+    for g in AMB:                                   # the same 384 signed permutations, now acting on rows
+        if {tuple(x % p for x in act_frame(g, r)) for r in R} == R and {_canon_pm(act_frame(g, c)) for c in S} == Sset:
+            out.append(g)
+    return out
+
+def contact_action(S, g):
+    """For each contact i: (j, eps) with S[i] P = eps * S[j]."""
+    idx = {tuple(c): j for j, c in enumerate(S)}
+    out = []
+    for c in S:
+        d = act_frame(g, tuple(c))
+        out.append((idx[d], 1) if d in idx else (idx[tuple(-x for x in d)], -1))
+    return out
+
+def _lexmin_amb(Fm):
+    return min(tuple(act_sign(q, r) for r in Fm) for q in AMB)
+
+def _frame_canonical(Fm, group, cache):
+    """Is the AMB-orbit of the frame-row sign matrix Fm the one holding the lex-minimum of its group x AMB orbit?"""
+    if Fm not in cache:
+        own = _lexmin_amb(Fm)
+        ok = True
+        for pm, sg in group:
+            if _lexmin_amb(tuple(tuple(sg[i] * x for x in Fm[pm[i]]) for i in range(4))) < own:
+                ok = False; break
+        cache[Fm] = ok
+    return cache[Fm]
+
+def _frame_order(S, p):
+    """Internal contact order with the frame vectors p*e_1..p*e_4 first (in coordinate order)."""
+    pos = {}
+    for i, c in enumerate(S):
+        nz = [k for k in range(4) if c[k]]
+        if len(nz) == 1 and abs(c[nz[0]]) == p:
+            pos[nz[0]] = i
+    assert len(pos) == 4, 'frame symmetry needs the four frame vectors in S'
+    first = [pos[k] for k in range(4)]
+    return first + [i for i in range(len(S)) if i not in first]
+
+def _frame_filter(kids, ci, signs, group, cache, stats):
+    """At the step that decides the 4th frame vector (internal indices 0..3), keep only canonical children."""
+    if group is None or len(signs) != 3 or ci > 3:
+        return kids
+    keep = []
+    for kid in kids:
+        sg = dict(signs); sg[ci] = kid[0]
+        if _frame_canonical(tuple(sg[i] for i in range(4)), group, cache):
+            keep.append(kid)
+        else:
+            stats['frame_sym_dead'] = stats.get('frame_sym_dead', 0) + 1
+    return keep
+
 def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynamic=True, signvecs='all',
-                        determine=False, resume=None, prefix_depth=3, on_heartbeat=None, prefilter=False):
+                        determine=False, resume=None, prefix_depth=3, on_heartbeat=None, prefilter=False,
+                        frame_group=None):
     """S: list of contacts as numerator tuples over p.  Returns (leaves, stats).
     leaves: dict(signs, x0, basis (affine family), dim, prefix).
     signvecs='facet' restricts every contact to a facet interior (a validation pass, NOT complete).
@@ -187,16 +259,25 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
     prefilter=True applies the certified covector column pre-filter before each LP (stats['prefilter_dead']).
     Checkpointing: subtrees below each depth-`prefix_depth` path are recorded in stats['done_prefixes'] when
     finished; resume={'done_prefixes', 'leaves'} (a previous result) skips them and keeps only their leaves.
-    on_heartbeat(leaves, stats) is called every log_every nodes (e.g. to dump a checkpoint)."""
+    on_heartbeat(leaves, stats) is called every log_every nodes (e.g. to dump a checkpoint).
+    frame_group (from frame_stabilizer; static order only): isomorph rejection under the frame symmetries; leaves
+    are then complete up to frame_group x AMB, with 'signs' in the caller's contact indices."""
     import time
     t0 = time.time()
-    C = [tuple(F(x, p) for x in c) for c in S]
+    order = list(range(len(S)))
+    if frame_group is not None:
+        assert not dynamic, 'frame_group needs the static order'
+        order = _frame_order(S, p)
+    C = [tuple(F(x, p) for x in S[i]) for i in order]
+    back = lambda sg: {order[i]: v for i, v in sg.items()}
+    fcache = {}
     vecs = FACETVECS if signvecs == 'facet' else SIGNVECS
     done = set(map(tuple, resume['done_prefixes'])) if resume else set()
     leaves = [L for L in resume['leaves'] if L.get('prefix') in done] if resume else []
     stats = {'nodes': 0, 'lp_dead': 0, 'dim_dead': 0, 'leaves': len(leaves), 'rank16': 0, 'rank16_dead': 0,
              'skipped_subtrees': 0, 'per_depth': {}, 'signvecs': signvecs, 'dynamic': dynamic,
-             'determine': determine, 'prefix_depth': prefix_depth, 'prefilter': prefilter, 'prefilter_dead': 0}
+             'determine': determine, 'prefix_depth': prefix_depth, 'prefilter': prefilter, 'prefilter_dead': 0,
+             'frame_symmetry': frame_group is not None, 'frame_group_order': len(frame_group or []), 'frame_sym_dead': 0}
     colfilter = _column_filter(C, stats) if prefilter else None
 
     def rec(group, eqs, stricts, signs, path):
@@ -222,9 +303,10 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
             if len(N) > max_dim:
                 stats['dim_dead'] += 1; return
             stats['leaves'] += 1
-            leaves.append({'signs': dict(signs), 'x0': x0, 'basis': N, 'dim': len(N), 'prefix': tuple(path[:prefix_depth])})
+            leaves.append({'signs': back(signs), 'x0': x0, 'basis': N, 'dim': len(N), 'prefix': tuple(path[:prefix_depth])})
             return
         ci, kids = res
+        kids = _frame_filter(kids, ci, signs, frame_group, fcache, stats)
         for img, sub, e1, s1 in kids:
             path.append((ci, img))
             if determine:
@@ -237,6 +319,7 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
                         stats['rank16_dead'] += 1
                     else:
                         stats['leaves'] += 1
+                        L['signs'] = back(L['signs'])
                         L['prefix'] = tuple(path[:prefix_depth]); leaves.append(L)
                     path.pop(); continue
             signs[ci] = img
@@ -256,12 +339,17 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
     return leaves, stats
 
 def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all', determine=False, max_seconds=None,
-                       prefilter=False):
+                       prefilter=False, frame_group=None):
     """Knuth's estimator for the enumerate_face_data tree (same branching code): mean over random
     root-to-leaf probes of the tree size and of the number of leaves."""
     import time
     t0 = time.time()
-    C = [tuple(F(x, p) for x in c) for c in S]
+    order = list(range(len(S)))
+    if frame_group is not None:
+        assert not dynamic, 'frame_group needs the static order'
+        order = _frame_order(S, p)
+    C = [tuple(F(x, p) for x in S[i]) for i in order]
+    fcache = {}
     vecs = FACETVECS if signvecs == 'facet' else SIGNVECS
     stats = {'lp_dead': 0, 'prefilter_dead': 0}
     colfilter = _column_filter(C, stats) if prefilter else None
@@ -277,6 +365,7 @@ def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all
                 leaf = w if sol and len(sol[1]) <= max_dim else 0
                 break
             ci, kids = res
+            kids = _frame_filter(kids, ci, signs, frame_group, fcache, stats)
             if not kids:
                 break
             w *= len(kids); est += w
@@ -295,4 +384,5 @@ def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all
             'nodes_max': float(np.max(nodes)), 'leaves_mean': float(np.mean(lvs)), 'depth_mean': float(np.mean(depth)),
             'seconds': time.time() - t0, 's_per_node': (time.time() - t0) / n,
             'signvecs': signvecs, 'dynamic': dynamic, 'determine': determine, 'prefilter': prefilter,
-            'lp_dead': stats['lp_dead'], 'prefilter_dead': stats['prefilter_dead']}
+            'frame_symmetry': frame_group is not None, 'lp_dead': stats['lp_dead'],
+            'prefilter_dead': stats['prefilter_dead'], 'frame_sym_dead': stats.get('frame_sym_dead', 0)}

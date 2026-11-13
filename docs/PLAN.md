@@ -144,6 +144,20 @@ order (first 2 000 nodes, 33 vs 209 s) and the dynamic order (first 1 000 nodes;
 dominate — use the static order). A checkpoint written without the filter can be continued with it
 (`prefilter='mixed'`).
 
+*Frame symmetry (9 November 2026).* B1 now has an optional isomorph rejection under the frame symmetries of
+S: `enumerate_face_data(..., frame_group=frame_stabilizer(S, residues, p))`, `--frame-symmetry` in
+`scripts/stageB_faces_zeta.py`. These are signed permutations P of frame coordinates with ΓP = Γ and SP = ±S,
+acting by X ↦ PX (same lattice, same |det|). The frame vectors are decided first. A depth-4 node is kept iff the
+AMB-orbit of its frame-row sign matrix holds the lex-minimum of its G_S × AMB orbit, so leaves are complete up
+to G_S × AMB. Validated on ζ's S (`scripts/check_frame_symmetry.py`, `results/frame_symmetry_*.json`):
+* facet-only exact pass: 14 304 nodes and 1 leaf, against 82 069 nodes and 6 leaves without the group (same
+  frame-first order; the original order gives 65 148 nodes); the leaf sets agree up to G_S × AMB, and all
+  six facet-only leaves are ζ's own datum up to frame symmetry;
+* Knuth estimates (full tree, 300 probes): ζ's S 3.5·10⁶ → 3.8·10⁵ nodes (|G_S| = 24);
+* stratum 0's star-frame A4 set: 1.8·10⁶ → 3.7·10⁴ (|G_S| = 48).
+**Stratum 0 needs only the star embedding** (STATUS §3), so its whole B1 is now ≈ 4·10⁴ nodes. For contact
+sets with a small G_S (the other two A4 embeddings have |G_S| = 4) the gain is 1–2×.
+
 **B2** (`src/cp4/critical.py`, `scripts/stageB_critical_zeta.py`): `f = det(x0 + Σ t_k N_k)`
 (degree 4, `d = dim A ≤ 6` variables); eliminant of `{∂f/∂t_k = 0, D − f = 0}` by sympy grevlex +
 FGLM → lex; exact real roots in the window. *Measured:* d = 3 in 21 s. For d = 5, 6 sympy will be too

@@ -1,12 +1,17 @@
-"""Stage A driver.  Usage: python3 scripts/stageA_run.py <stratum_id> [node_limit]
-Writes results/stageA_<id>.json  (canonical contact sets + search statistics)."""
+"""Stage A driver.  Usage: python3 scripts/stageA_run.py <stratum_id> [node_limit] [--force]
+Writes results/stageA_<id>.json  (canonical contact sets + search statistics).  Strata excluded by proof
+(cp4.strata.EXCLUDED, gate G9) are refused unless --force is given."""
 import sys, os, json, time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-from cp4.strata import stabilizer
+from cp4.strata import stabilizer, EXCLUDED
 from cp4.contacts import enumerate_contact_sets, verify_contact_set
 root = os.path.join(os.path.dirname(__file__), '..')
 strata = json.load(open(os.path.join(root, 'data', 'strata.json')))
-sid = int(sys.argv[1]); lim = int(sys.argv[2]) if len(sys.argv) > 2 else None
+force = '--force' in sys.argv
+args = [x for x in sys.argv[1:] if x != '--force']
+sid = int(args[0]); lim = int(args[1]) if len(args) > 1 else None
+if sid in EXCLUDED and not force:
+    sys.exit(f"stratum {sid} is excluded by proof (cp4.strata.EXCLUDED; gate G9) - nothing to search (--force to run)")
 s = strata[sid]
 stab = stabilizer([tuple(r) for r in s['residues']], s['p'])
 t = time.time()

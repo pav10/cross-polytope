@@ -101,7 +101,9 @@ def g9():
                         ('verify/verify_coordinate_sections.py', 'COORDINATE SECTIONS PASS')):
         out = run([script])
         assert tag in out, (script, out[-400:])
-    return '25 of 39 strata excluded by exact certificates; 14 remain'
+    from cp4.strata import EXCLUDED, REMAINING
+    assert EXCLUDED == {20, 21, 22, 23, 24, 26, 27, 29, 32, 33, 34, 35, 36, 37, 38, 28, 31, 12, 13, 16, 18, 19, 6, 7, 25, 30}
+    return f'{len(EXCLUDED)} of 39 strata excluded by exact certificates; remaining {REMAINING}'
 
 gate('G9 structural stratum exclusions', g9)
 gate('G7a merged-search zeta witness path', lambda: (run(['scripts/merged_witness_zeta.py']).strip().endswith('WITNESS OK') or (_ for _ in ()).throw(AssertionError('merged witness'))) and 'zeta labels survive all merged-search prunes')

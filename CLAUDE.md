@@ -50,8 +50,8 @@ verify/               verify_audit.py (external), run_all.py (regression gates),
 ```
 python3 verify/run_all.py              # all cheap gates, ~2 min; must print ALL PASS
 python3 scripts/stageA_run.py <sid>    # Stage A for one stratum -> results/stageA_<sid>.json
-python3 scripts/stageB_faces_zeta.py [seconds] [--facet-only] [--static] [--determine] [--prefilter] [--estimate K]
-                                     [--resume] [--out F]
+python3 scripts/stageB_faces_zeta.py [seconds] [--facet-only] [--static] [--determine] [--prefilter]
+                                     [--frame-symmetry] [--estimate K] [--resume] [--out F]
                                                  # Stage B1 on zeta's S (G6 / G6f); facet-only static --prefilter ~6 min
 sbatch scripts/slurm_stageB_zeta.sbatch          # full B1 on zeta's S on the cluster (resumable chain)
 python3 scripts/stageB_critical_zeta.py          # Stage B2 gate (zeta cubic, 21 s)
@@ -66,11 +66,13 @@ installed: ~3× faster LPs, same verdicts — `scripts/check_lp_backend.py`). Re
 * The claude.ai Project "Cross-polytopes" holds the literature PDFs and older scripts (several superseded —
   see DEAD_ENDS A1–A4 before using any of them).
 
-## Where we are (9 Nov 2026)
-**Theory first:** 25 of the 39 strata are excluded by proofs with exact certificates — THEORY_REVIEW (15),
-BLOCK_COUPLING + FACET_LAYERS (7), COORDINATE_SECTIONS (6, 7, 25). **14 remain: 0, 1, 2, 3, 4, 5, 8, 9, 10, 11,
-14, 15, 17, 30** (STATUS §3). Search rejections by float LPs are not yet certified (THEORY_REVIEW §4). Next
-theoretical target: extend the fiber-offset argument (COORDINATE_SECTIONS §6) to one axis row
+## Where we are (10 Nov 2026)
+**Theory first:** 26 of the 39 strata are excluded by proofs with exact certificates — THEORY_REVIEW (15),
+BLOCK_COUPLING + FACET_LAYERS (7), COORDINATE_SECTIONS (6, 7, 25), COMMON_FACET §3c (30, det ≥ 196/225).
+**13 remain: 0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 14, 15, 17** (STATUS §3). Search rejections by float LPs are not
+yet certified (THEORY_REVIEW §4). Priority target: stratum 11 (ζ's stratum) by theory, which would remove its search entirely (docs/STRATUM11.md:
+7-point reformulation, Conjecture 11.A). Next: stratum 17 by the stratum-30 programme
+(COMMON_FACET §6.3); extend the fiber-offset argument (COORDINATE_SECTIONS §6) to one axis row
 (strata 1, 8, 9, 10, 15).
 Gates G0–G3, G5, G6a, G6f, G7a, G8, G9 pass. Stage A is too weak on mid-size strata (≥ 9 800 contact sets in stratum 11
 and growing). The PLAN §2 decision rule has been run: option 4(a) kills nothing (DEAD_ENDS B12) and the
@@ -83,6 +85,8 @@ sets, 4.2× (facet-only) and 6–10× (full, static order). The full run (G6) ha
 ≈ 1.73 M nodes, 288 of 1 633 depth-3 subtrees) but is not complete; the Knuth estimate was ≥ 3× low (heavy tail).
 Finish it on the cluster from the committed checkpoint (`scripts/slurm_stageB_zeta.sbatch`; long runs die in the
 cloud container, DEAD_ENDS C).
+B1 has frame-symmetry isomorph rejection (`frame_group`, PLAN §3): ζ's S ~9×; stratum 0 needs only the star
+A4 set, ≈ 4·10⁴ nodes. Stage A refuses excluded strata (`cp4.strata.EXCLUDED`).
 **Next work: finish G6 (cluster); B1 is still far too slow campaign-wide
 (~10⁴ S per stratum) — a structurally better enumeration is needed (PLAN §3, last paragraph); Knuth-estimate
 any new search before building it.**
