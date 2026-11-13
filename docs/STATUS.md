@@ -97,8 +97,10 @@ exact re-verification. This was a scratchpad prototype; it is not yet integrated
 Put A = (½,¼,¼,¼)X, B = (−½,¼,¼,¼)X and C = A + B. Then Λ = ℤ⟨A, B, X_2, X_3, X_4⟩ with the single relation
 X_2 + X_3 + X_4 = 2C, and det Λ = |det[A, B, X_2, X_3]|. ζ's 15 contacts are exactly the pairs at distance 2 in
 {O, A, B, C, X_2, X_3, X_4}: every pair except O–C and the X_r–X_s (exact check) [P].
-Conjecture 11.A: these 19 pair constraints alone imply det ≥ D*. [Num] 80 local searches found no point below
-4D*; the searcher is weak, so the evidence is mild. Programme to settle stratum 11 without search:
+Conjecture 11.A (these 19 pair constraints alone imply det ≥ D*) is **false** (13 Nov 2026) [P]: an exact rational
+frame satisfies them, and ‖cX‖₁ ≥ 2 for all 68 candidates of the cube, with det = 115/144 < D*. The lattice is not
+admissible, because the vector (½, ¾, −¼, −5/4), outside the cube, has norm 4/3 (`verify/verify_stratum11.py`,
+STRATUM11 §3, DEAD_ENDS A14). Programme to settle stratum 11 without search (it must use vectors outside the cube):
 * a local configuration theorem on ζ's face-datum region, extending audit Prop 3.2;
 * a budget configuration lemma, as for stratum 30.
 
@@ -263,6 +265,50 @@ flat (exact ranks), and for every flat `F` the number of listed covectors with z
 ζ's S: 117 flats (by rank 1, 15, 55, 45, 1), **1 705 faces, 372 topes**, 13 s (gate G8,
 `scripts/check_covectors_zeta.py`).
 
+
+**Theorem B.1′ (supporting facets) [P]** (13 Nov 2026). Let `X` be a critical frame with contact set `S` and face
+datum `(s_c)`. Fix any `T ⊆ S` (in B1: the four frame vectors) and keep `T` on its exact faces. For `c ∈ S∖T`
+choose any **supporting facet** `σ_c ∈ {±1}⁴`, i.e. `σ_cj = s_cj` whenever `s_cj ≠ 0` (free where `(cX)_j = 0`).
+Let `A′` be cut out by the equations of Theorem B.1 for `c ∈ T` and by `σ_c·(cY) = 2` for `c ∈ S∖T`. Then `X ∈ A′`,
+`X` is a local minimum of `|det|` on `A′`, and (ii), (iii) of B.1, Cor B.2 and `dim A′ ≤ 6` hold with `A′` in
+place of `A`.
+*Proof.* For `Y ∈ A′` near `X`: `c ∈ T` as in B.1; `c ∈ S∖T`: `‖cY‖₁ ≥ σ_c·(cY) = 2` (Hölder, `‖σ_c‖_∞ = 1`);
+the non-contacts by THEORY Lemma 5.0. So `ΓY` is admissible for all `Y ∈ A′` near `X`, in both directions of
+every line; the rest is the proof of B.1 and THEORY Thm 5.1 (which is already stated for every choice of
+supporting facets). ∎
+*Use.* Non-frame contacts need only the 16 facets, never the 64 lower-dimensional faces with zero coordinates.
+That was the dominant cost of B1: on ζ's S the facet-only pass is complete in 14 304 nodes (frame symmetry) while
+the full one was not, at ≥ 1.7·10⁶. The leaf families have one equation per non-frame contact (zero equations
+only for frame rows), so they can be larger than the B.1 families, but `dim ≤ 6` still holds.
+
+**Lemma B.4 (half-open facet cells) [P].** For a contact `c` and any `ρ ∈ {±1}⁴` (the *tie side*), the 16 cells
+`H_ρ(σ) = {Y : σ·(cY) = 2; σ_j(cY)_j ≥ 0 if σ_j = ρ_j, σ_j(cY)_j > 0 if σ_j ≠ ρ_j}`, `σ ∈ {±1}⁴`, partition
+`{Y : ‖cY‖₁ = 2}`. `Y` lies in the cell with `σ_j = sign((cY)_j)`, and `ρ_j` where `(cY)_j = 0`; that `σ` is a
+supporting facet of `cY`. Hence B1 may branch each non-frame contact over the 16 cells with any `ρ`, chosen
+afresh at each node, and every critical `X` reaches exactly one leaf. That leaf's affine space is an `A′` of
+Theorem B.1′.
+* *Symmetry.* Below the frame no orbit reduction is applied (trivial group), so no compatibility of `ρ` with the
+  ambient group is needed; the frame rows keep the exact faces, the stabiliser chain and the frame-symmetry
+  isomorph rejection unchanged.
+* *Pre-filter.* Lemma B.3 extends: a decided entry `σ_j = ρ_j` allows the true sign `σ_j` **or 0**
+  (`ColumnFilter.allowed(..., zero_ok)`).
+* *Choice of ρ* (efficiency only): `ρ_j = +1` iff `(cY)_j > 0` is possible on the node's cell (covector filter,
+  else two closure LPs). This avoids spurious cells pinned to `(cY)_j = 0`. With a fixed `ρ` (frame-derived), or
+  with closed cells and no tie rule, the trees are 2–20× (fixed `ρ`) and up to 10²–10⁴× (closed, duplicated
+  boundaries, heavy tails) larger (scratchpad Knuth, DEAD_ENDS B18).
+* *Determine-then-check.* At rank 16, decided non-frame contacts are checked against their half-open cells, and
+  an undecided one only needs `‖cX‖₁ = 2` exactly.
+
+**Lemma B.5 (ball rows) [P].** At a critical `X`, `‖cX‖₁ = 2` for every `c ∈ S`. So the rows
+`−2 ≤ τ·(cY) ≤ 2` (`τ ∈ {1}×{±1}³`), i.e. `‖cY‖₁ ≤ 2`, may be added for **every** `c ∈ S` to every LP of B1
+(decided or not) without losing `X`. *Not* DEAD_ENDS B14 (look-ahead LPs per undecided contact) or B12 (the same
+inequality as a Stage-A prune, inert there). Inside the B1 LPs it is the convex half of the undecided contacts'
+`F = 2`. Measured, B1 (Knuth, 400 probes): 2–20× fewer nodes at 1.4–2× the LP cost.
+
+Implementation: `enumerate_face_data` / `estimate_face_data(..., supporting=True, ball=True)` (static order, frame
+first); witness gate G6s (`scripts/stageB_witness_supporting.py`: ζ, and D4 with the frame (e₁±e₂, e₃±e₄), whose
+non-frame contacts have 28 zero coordinates); complete run on ζ's S, gate G6S. Defaults are unchanged: the
+facet-only frame-symmetry pass reproduces 14 304 nodes and the same LP-dead, filter-dead and symmetry-dead counts.
 ---
 
 ## §4 Computations already done, with their exact outcomes

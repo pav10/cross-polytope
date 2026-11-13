@@ -1,13 +1,16 @@
 """Stage B part 1 gate: enumerate face data for zeta's contact set S (stratum 11, p=4) and check that
 zeta's own face datum (all 15 contacts in facets) appears among the leaves up to the ambient group.
 Usage: python3 scripts/stageB_faces_zeta.py [time_limit_seconds] [--facet-only] [--static] [--determine]
-                                            [--prefilter] [--frame-symmetry] [--estimate K] [--resume]
-                                            [--heartbeat N] [--out F]
+                                            [--prefilter] [--frame-symmetry] [--supporting] [--ball]
+                                            [--estimate K] [--resume] [--heartbeat N] [--out F]
 Output: results/stageB_faces_zeta.pkl (full run, gate G6) or results/stageB_faces_zeta_facet.pkl
 (--facet-only, gate G6f), or --out F, rewritten atomically at every heartbeat as a checkpoint; --resume
 continues from it (the options must match).  --prefilter: certified covector column pre-filter (cp4.covectors).
 --frame-symmetry: isomorph rejection under the 24 frame symmetries of zeta's S (static order; frame vectors first;
 leaves complete up to G_S x AMB).
+--supporting: frame rows on relative-interior faces, every other contact on a half-open facet cell (STATUS §3
+Theorem B.1', Lemma B.4; complete; static order, frame first); output ..._supporting.pkl.
+--ball: add ||cX||_1 <= 2 for every contact to every LP (Lemma B.5).
 --estimate K prints a Knuth tree-size estimate instead (results/stageB_faces_zeta_estimate.json)."""
 import sys, os, json, time, pickle, random, argparse
 import numpy as np
@@ -24,6 +27,8 @@ ap.add_argument('--static', action='store_true')
 ap.add_argument('--determine', action='store_true')
 ap.add_argument('--prefilter', action='store_true')
 ap.add_argument('--frame-symmetry', action='store_true')
+ap.add_argument('--supporting', action='store_true')
+ap.add_argument('--ball', action='store_true')
 ap.add_argument('--out')
 ap.add_argument('--estimate', type=int)
 ap.add_argument('--seed', type=int, default=1)
@@ -38,7 +43,7 @@ pm = z['signed_perm_to_canonical']['perm']; sg = z['signed_perm_to_canonical']['
 X = np.array([sg[k] * X0[pm[k]] for k in range(4)])
 zsig = {i: tuple(int(np.sign(round(v, 9))) for v in (np.array(c) / 4) @ X) for i, c in enumerate(S)}
 opts = dict(dynamic=not a.static, signvecs='facet' if a.facet_only else 'all', determine=a.determine,
-            prefilter=a.prefilter, frame_symmetry=a.frame_symmetry)
+            prefilter=a.prefilter, frame_symmetry=a.frame_symmetry, supporting=a.supporting, ball=a.ball)
 G = frame_stabilizer(S, json.load(open(os.path.join(root, 'data', 'strata.json')))[11]['residues'], 4) \
     if a.frame_symmetry else None
 run_opts = dict({k: v for k, v in opts.items() if k != 'frame_symmetry'}, frame_group=G)
@@ -52,7 +57,8 @@ if a.estimate:
     json.dump(prev + [dict(e, seed=a.seed, backend=lp.BACKEND)], open(f, 'w'), indent=1)
     sys.exit(0)
 
-out = a.out or os.path.join(root, 'results', 'stageB_faces_zeta' + ('_facet' if a.facet_only else '') + '.pkl')
+out = a.out or os.path.join(root, 'results', 'stageB_faces_zeta' + ('_facet' if a.facet_only else '')
+                             + ('_supporting' if a.supporting else '') + ('_ball' if a.ball else '') + '.pkl')
 FRAME = [contact_action(S, g) for g in (G or [((0, 1, 2, 3), (1, 1, 1, 1))])]
 def hits(leaves):
     """Leaves equal to zeta's datum up to AMB (columns), and up to the frame symmetries when they are used."""
@@ -71,7 +77,7 @@ resume = None
 if a.resume and os.path.exists(out):
     R = pickle.load(open(out, 'rb'))
     old = R.get('options')
-    old = dict({'prefilter': False, 'frame_symmetry': False}, **old) if old else old   # older checkpoints
+    old = dict({'prefilter': False, 'frame_symmetry': False, 'supporting': False, 'ball': False}, **old) if old else old
     # A run without the pre-filter may be continued with it ('mixed'): finished subtrees without it contain
     # every leaf the pre-filtered search would find (the filter only drops candidates no NONSINGULAR X completes).
     mixed = bool(old) and a.prefilter and old['prefilter'] in (False, 'mixed') and \

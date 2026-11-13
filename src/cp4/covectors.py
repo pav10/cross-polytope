@@ -132,15 +132,24 @@ class ColumnFilter:
         self.M = np.array(cov, dtype=np.int8).reshape(len(cov), -1)
         self.ncov = len(cov)
 
-    def allowed(self, signs, ci):
+    def allowed(self, signs, ci, zero_ok=None):
         """(4, 3) boolean array: allowed[j, v + 1] iff some covector agrees with signs[i][j] for every
-        decided contact i and has value v at contact ci."""
+        decided contact i and has value v at contact ci.  zero_ok (supporting mode, STATUS §3 Lemma B.4):
+        {i: 4 booleans}; where True, the decided entry is a half-open facet sign whose cell also contains the
+        zero coordinate, so the covector may have 0 there as well."""
         D = sorted(signs)
         out = np.zeros((4, 3), dtype=bool)
         V = np.array([signs[i] for i in D], dtype=np.int8).reshape(len(D), 4)
         MD = self.M[:, D]
+        Z = np.array([zero_ok.get(i, (False,) * 4) for i in D], dtype=bool).reshape(len(D), 4) if zero_ok else None
         for j in range(4):
-            rows = np.all(MD == V[:, j], axis=1) if D else np.ones(self.ncov, dtype=bool)
+            if D:
+                match = MD == V[:, j]
+                if Z is not None:
+                    match |= (MD == 0) & Z[:, j]
+                rows = np.all(match, axis=1)
+            else:
+                rows = np.ones(self.ncov, dtype=bool)
             out[j, np.unique(self.M[rows, ci]) + 1] = True
         return out
 

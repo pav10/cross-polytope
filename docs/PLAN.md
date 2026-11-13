@@ -40,6 +40,8 @@ occurs only on leaves of Λ_ζ (stratum 11). Leaves violating this go to Stage C
 | G6a B1 witness | ζ's datum survives every prune contact by contact | **passed** |
 | G6f Stage B1 facet-only pass on ζ's S | ζ's face datum among the facet-only leaves | **passed** (65 148 nodes, 23 min; 6 leaves, all dim 3) |
 | G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | **ζ's datum found** (≈ 1.73 M nodes, 46 leaves; 288 / 1 633 depth-3 subtrees); not complete: finish on the cluster from the committed checkpoint, `scripts/slurm_stageB_zeta.sbatch` (STATUS §4) |
+| G6s supporting-facet B1 witness | ζ and D4 (frame e₁±e₂, e₃±e₄; 28 zero coordinates on non-frame contacts) keep their own half-open path through the real branching code, with/without ball rows and the pre-filter | **passed** (`scripts/stageB_witness_supporting.py`) |
+| G6S supporting-facet B1 on ζ's S (complete run) | ζ's datum among the leaves (`--supporting --ball --static --determine --prefilter --frame-symmetry`) | see STATUS §4 |
 | G8 covector pre-filter (ζ's S) | covector list certified exactly (1 705 faces, 372 topes, Zaslavsky per flat); ζ's datum passes the column filter on its static path and 20 random orders | **passed** (13 s, `scripts/check_covectors_zeta.py`) |
 | G9 structural exclusions | `verify_support_reduction.py`, `verify_structural_exclusions.py`, `verify_coordinate_sections.py` all PASS (25 strata excluded, exact) | **passed** (~20 s) |
 | G7a merged-search witness | ζ's labels (15 in, 53 out) survive every prune of `src/cp4/merged.py`; leaf dim A = 3 | **passed** (4 s) |
@@ -157,6 +159,37 @@ to G_S × AMB. Validated on ζ's S (`scripts/check_frame_symmetry.py`, `results/
 * stratum 0's star-frame A4 set: 1.8·10⁶ → 3.7·10⁴ (|G_S| = 48).
 **Stratum 0 needs only the star embedding** (STATUS §3), so its whole B1 is now ≈ 4·10⁴ nodes. For contact
 sets with a small G_S (the other two A4 embeddings have |G_S| = 4) the gain is 1–2×.
+
+*Supporting facets and ball rows (13 November 2026; STATUS §3 Theorem B.1′, Lemmas B.4–B.5).* **The new default
+for every B1 run.** `enumerate_face_data(..., supporting=True, ball=True)` (static order, frame first; `--supporting
+--ball` in `scripts/stageB_faces_zeta.py`). The frame rows keep the 80 exact faces (stabiliser chain, frame
+symmetry). Every other contact takes one of the 16 facets, in a half-open cell whose tie side ρ is chosen per node.
+This is complete, because THEORY Thms 5.1–5.2 hold for every choice of supporting facets. Every LP also carries
+`‖cY‖₁ ≤ 2` for the undecided contacts.
+* Measured B1 on stratum-11 contact sets (Knuth, 400 probes, scratchpad prototype; same order and symmetry):
+
+  | set | original B1 | supporting + ball |
+  |---|---|---|
+  | ζ's S | 1.2·10⁶ | 5.4·10⁴ |
+  | #1165 | 8.3·10⁶ | 3.4·10⁵ |
+  | #275 | 3.2·10⁶ | 2.1·10⁵ |
+
+  LPs per node are 17 against ~35.
+* Rejected variants (closed cells, fixed tie side): DEAD_ENDS B18.
+* Engineering, same verdicts (`scripts/check_lp_backend.py`; the facet-only frame-symmetry pass reproduces 14 304
+  nodes and every count): floats cached per row (`faces._Row`) and a vectorised HiGHS matrix build.
+  1.7× more nodes/s.
+* **Stratum-11 cost.** Real-code Knuth sample of 24 of the 1 469 frame-swap Stage-A sets (`--supporting --ball
+  --prefilter --frame-symmetry --determine`): per-set means 1.4·10⁵–4·10⁶ nodes, heavy-tailed. Real enumeration
+  runs at 25–40 nodes/s on one core (ζ's S: see STATUS §4). So the total is of order 10³–10⁴ CPU-hours: a
+  cluster array, no longer out of reach.
+* **Next reductions:**
+  1. LP warm start: keep one HiGHS model per node and add or delete the child rows. HiGHS time now dominates.
+  2. Share B1 prefixes across contact sets. With a global contact order, the 1 469 sets have 42 distinct
+     non-frame prefixes of length 4 and 279 of length 6.
+  3. Move the frame-swap rules into `src/cp4/contacts.py` (G4), then a stratum-wide B1 driver and sbatch array.
+  4. B2 by msolve for leaf families of dim 5–6.
+* Stage C on a supporting leaf checks the leaf's half-open cells (`signs`, `rho`), not exact faces.
 
 **B2** (`src/cp4/critical.py`, `scripts/stageB_critical_zeta.py`): `f = det(x0 + Σ t_k N_k)`
 (degree 4, `d = dim A ≤ 6` variables); eliminant of `{∂f/∂t_k = 0, D − f = 0}` by sympy grevlex +
