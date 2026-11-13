@@ -79,6 +79,23 @@ def check():
         assert all(t in REMAINING for t in targets)
         print(f"stratum {sid:2d}: pool {pool}, impossible {out['impossible']}, into excluded {out['excluded']}, "
               f"cross {out['cross']} -> {targets}")
+    # the implementation used by Stage A (src/cp4/frameswap.py, rule A6) agrees with this classification:
+    # a candidate is excluded at the root iff one of its single swaps is impossible, excluded, or lands in a
+    # remaining stratum earlier than sid (canonical order sorted(REMAINING))
+    from cp4.frameswap import FrameSwapRule
+    order = {s: k for k, s in enumerate(sorted(REMAINING))}
+    for sid in REMAINING:
+        st = byid[sid]; p = st['p']; cand = [tuple(c) for c in st['candidates']]
+        mine = set()
+        for k, c in enumerate(cand):
+            for i in range(4):
+                if abs(c[i]) == p:
+                    Q = [tuple(p * int(r == j) for j in range(4)) for r in range(4)]; Q[i] = c
+                    r = frame_stratum(sid, Q)
+                    if r == 'impossible' or r in EXCLUDED or order[r] < order[sid]:
+                        mine.add(k)
+        assert FrameSwapRule(strata, sid).pool_excluded(cand) == mine, sid
+        print(f"stratum {sid:2d}: Stage-A root exclusions (cp4.frameswap) {len(mine)} - agree")
     print("FRAME SWAP PASS")
 
 

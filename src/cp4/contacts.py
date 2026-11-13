@@ -10,7 +10,11 @@ Necessary conditions used (all PROVED, docs/STATUS.md §A):
       Gamma point of P belongs to S.                                       [Lemma A.1]
  (A4) volume: vol(P) <= 16/p   (Minkowski applied to (A3))                [Cor. A.2]
  (A5) 10 <= |S| <= 20                                                      [Thm 5.1, Miller]
-(A2), (A3)-interior, (A4) and |S|<=20 are HEREDITARY (fail for S => fail for supersets).
+ (A6) frame swaps (optional, swap=cp4.frameswap.FrameSwapRule; docs/FRAME_SWAP.md): every quadruple of S with
+      |det| = 1 is another max-det frame; S is discarded if that frame is impossible, lies in an excluded
+      stratum, or lies in an earlier remaining stratum (canonical assignment).  Candidates whose single swap with
+      the frame fails are excluded at the root.
+(A2), (A3)-interior, (A4), (A6) and |S|<=20 are HEREDITARY (fail for S => fail for supersets).
 (A3)-boundary is a FORCING rule: boundary Gamma points must be added.
 
 Search: binary include/exclude branching over candidates in a fixed order, with forcing
@@ -55,6 +59,20 @@ def _quad_dets_ok(S_num, new, p):
     d = np.abs(np.linalg.det(M))
     return bool(np.all(d <= lim))
 
+def _swap_ok(S_num, new, p, swap):
+    """(A6): every quadruple (T, new), T a triple of S, with |det| = p^4 (exact) passes swap.ok."""
+    if swap is None or len(S_num) < 3:
+        return True
+    lim = p ** 4
+    T = np.array(list(combinations(S_num, 3)), float)
+    M = np.concatenate([T, np.broadcast_to(np.array(new, float), (T.shape[0], 1, 4))], axis=1)
+    d = np.abs(np.linalg.det(M))
+    for k in np.nonzero(np.abs(d - lim) < 0.5)[0]:
+        Q = [tuple(int(x) for x in row) for row in M[k]]
+        if abs(exact_det([list(q) for q in Q])) == lim and not swap.ok(Q):
+            return False
+    return True
+
 def canon_set(S_num, stab, p):
     best = None
     for g in stab:
@@ -68,13 +86,13 @@ def canon_set(S_num, stab, p):
             best = key
     return best
 
-def enumerate_contact_sets(stratum, stab, max_size=20, min_size=10, node_limit=None, log=None):
+def enumerate_contact_sets(stratum, stab, max_size=20, min_size=10, node_limit=None, log=None, swap=None):
     p = stratum['p']
     cand = [tuple(c) for c in stratum['candidates']]
     idx = {c: i for i, c in enumerate(cand)}
     forced = [tuple(c) for c in stratum['forced']]
     stats = {'nodes': 0, 'dead_det': 0, 'dead_interior': 0, 'dead_volume': 0,
-             'dead_size': 0, 'dead_excluded_forced': 0, 'leaves': 0}
+             'dead_size': 0, 'dead_excluded_forced': 0, 'leaves': 0, 'dead_swap': 0, 'pool_swap_excluded': 0}
     results = set()
     vol_lim = 16.0 / p + TOL
 
@@ -96,6 +114,8 @@ def enumerate_contact_sets(stratum, stab, max_size=20, min_size=10, node_limit=N
                     stats['dead_excluded_forced'] += 1; return None, None
                 if not _quad_dets_ok(S, c, p):
                     stats['dead_det'] += 1; return None, None
+                if not _swap_ok(S, c, p, swap):
+                    stats['dead_swap'] += 1; return None, None
                 S.append(c)
                 if len(S) > max_size:
                     stats['dead_size'] += 1; return None, None
@@ -105,8 +125,14 @@ def enumerate_contact_sets(stratum, stab, max_size=20, min_size=10, node_limit=N
     for c in forced:
         if not _quad_dets_ok(S0, c, p):
             return results, dict(stats, root_dead='forced set violates det<=1')
+        if not _swap_ok(S0, c, p, swap):
+            return results, dict(stats, root_dead='forced set fails the frame-swap rule')
         S0.append(c)
-    S0, _ = close(S0, set())
+    excl0 = set(swap.pool_excluded(cand)) if swap is not None else set()
+    stats['pool_swap_excluded'] = len(excl0)
+    if any(idx[c] in excl0 for c in S0):
+        return results, dict(stats, root_dead='a forced vector fails the frame-swap rule')
+    S0, _ = close(S0, excl0)
     if S0 is None:
         return results, dict(stats, root_dead='forced set violates closure')
 
@@ -128,15 +154,18 @@ def enumerate_contact_sets(stratum, stab, max_size=20, min_size=10, node_limit=N
         c = cand[k]
         # branch 1: include c
         if len(S) < max_size and _quad_dets_ok(S, c, p):
-            S1, _ = close(S + [c], excluded)
-            if S1 is not None:
-                rec(S1, excluded, k + 1)
+            if _swap_ok(S, c, p, swap):
+                S1, _ = close(S + [c], excluded)
+                if S1 is not None:
+                    rec(S1, excluded, k + 1)
+            else:
+                stats['dead_swap'] += 1
         else:
             stats['dead_det'] += 1
         # branch 2: exclude c
         rec(S, excluded | {k}, k + 1)
 
-    rec(S0, frozenset(), 0)
+    rec(S0, frozenset(excl0), 0)
     return results, stats
 
 def verify_contact_set(S_num, stratum):

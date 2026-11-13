@@ -65,6 +65,21 @@
     1.6·10⁶ (#1165), 3.3·10⁶ (#129). Use the half-open cells with a per-node tie side (Lemma B.4): with ball rows,
     5.4·10⁴ (ζ's S), 3.4·10⁵ (#1165), 2.1·10⁵ (#275), against 1.2·10⁶, 8.3·10⁶, 3.2·10⁶ for the original B1.
 
+19. **Eutaxy as an internal-node prune in B1** (13 Nov 2026; STATUS §3 Lemma B.6). The RLT relaxation of THEORY
+    Thm 5.2 relaxes the undecided contacts to a free `T_q` with `T_jj ≥ |(qZ_q)_j|`, `ΣT_jj = 2λ_q` and
+    `|T_ij| ≤ T_jj`. Checked at every node of depth ≥ 5, it killed 3/124, 2/326 and 3/286 nodes (sets #1468, #808,
+    #492) and 0/80 on ζ's S, at 8–14 ms/LP. That is inert: the undecided relaxation is too loose. The X-free sign
+    corollary (`0 ∈ conv` of the sign products) kills only ~5 % of leaves. Use the eutaxy LP **at leaves only**
+    (97 % of the leaves of #1468).
+
+20. **LP-free "fewest filter-allowed facets" contact order in supporting-facet B1** (`contact_order='filter'`; 13 Nov
+    2026). Any order is sound (Lemma B.4). A first Knuth test (4 sets, 120 probes) suggested 1.15–3.6× fewer nodes.
+    It did not hold up:
+    * the real complete-run comparison on ζ's S: the static order is complete in 55 613 nodes; the filter order was
+      at 62 000 nodes with only 580 of ~1 700 depth-3 subtrees finished, so roughly 3× worse;
+    * a 150-probe Knuth sample of 10 stratum-11 sets is mixed (0.4–3× either way).
+    The option stays in `faces.py`; the default and the stratum driver use the static order.
+
 ## C. Process rules learned the hard way
 
 * Validate every new tool on a **known answer** before any long run (p = 1 ⇒ A₄; stratum 11 ⇒ contains ζ's S; Stage B on ζ's S ⇒ recovers the cubic and D*).

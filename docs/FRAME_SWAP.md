@@ -49,7 +49,7 @@ The candidate is then
 * *det ≥ 0.81* if some swap lands in an excluded stratum (b);
 * *cross-stratum* if a swap lands in another remaining stratum, which rule (c) handles.
 
-## 4. Counts [P+C] (exact; `scratchpad` prototype, to be moved to `verify/`)
+## 4. Counts [P+C] (exact; `verify/verify_frame_swap.py`, gate G9)
 
 | stratum | p | pool | impossible | swap into excluded | cross-stratum (targets) |
 |---|---|---|---|---|---|
@@ -76,3 +76,19 @@ the frame, A and B (5/4), C − X_r (3/2) and A − X_r, B − X_r (7/4), 15 vec
 
 Fifteen non-ζ candidates remain open, in four classes, all without a ±1 coordinate (except the last):
 −C (3/2), A + C − X_r (9/4), A + C (11/4) and X_1 + X_r − X_s (3; it swaps only back into 11).
+
+## 5. Implementation (13 November 2026)
+
+`src/cp4/frameswap.py` (`FrameSwapRule`) implements rules (a)–(c) exactly, with the canonical order
+`sorted(REMAINING)`. `cp4.contacts.enumerate_contact_sets(..., swap=FrameSwapRule(strata, sid))` applies them as
+Stage-A rule (A6):
+* the candidates whose single swap with the frame fails are excluded at the root;
+* every new quadruple of S with |det| = p⁴ (exact) must pass `ok`.
+
+`scripts/stageA_run.py` uses it by default (`--no-swap` to disable). `verify_frame_swap.py` checks that the root
+exclusions agree with its own independent classification in every remaining stratum.
+
+**Stratum 11 [P+C]: 1 469 contact sets in 102 s** (`results/stageA_11.json`, gate G4: ζ's S present). That is
+168 523 nodes, 38 root exclusions and 19 349 branches cut by the quadruple rule. The sets are identical to the
+scratchpad prototype's. Stratum 0 is unchanged (no swap applies at p = 1; G3).
+

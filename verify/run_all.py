@@ -96,6 +96,30 @@ gate('G6f Stage B1 facet-only pass contains zeta', lambda: g6('results/stageB_fa
 gate('G6 Stage B1 zeta face datum', g6)
 gate('G6s supporting-facet B1 witness paths (zeta, D4 with zeros)', lambda: (run(['scripts/stageB_witness_supporting.py']).strip().endswith('SUPPORTING WITNESS OK') or (_ for _ in ()).throw(AssertionError('supporting witness'))) and 'zeta and D4 (28 zero coordinates) survive all prunes, with/without ball rows and pre-filter')
 gate('G6S Stage B1 supporting-facet run on zeta S', lambda: g6('results/stageB_faces_zeta_supporting_ball.pkl'))
+def g5s():
+    f = 'results/stageB2_zeta_G6S.json'
+    if not os.path.exists(f):
+        return f'SKIPPED ({f} absent; python3 scripts/stageB2_stratum.py 11 --pkl results/stageB_faces_zeta_supporting_ball.pkl --out {f})'
+    R = json.load(open(f))
+    t = R['totals']
+    assert t.get('window', 0) == 0 and t.get('error', 0) == 0 and t.get('pending', 0) == 0, t
+    assert t.get('zeta', 0) >= 1, 'zeta value p*D* not recovered'
+    return f"B2 on the complete G6S leaves of zeta's S: {t} - no critical value in [8/3, 4D*) except zeta's"
+
+def g6z():
+    f = 'results/stageB_11/set_00200.pkl'
+    if not os.path.exists(f):
+        return f'SKIPPED ({f} absent; python3 scripts/stageB_stratum.py 11 --only 200)'
+    out = run(['scripts/stageB_stratum.py', '11', '--summary'])
+    d = json.loads(out.strip().splitlines()[-1])
+    z = d['zeta']
+    if not (z and z['complete']):
+        return f'INCOMPLETE (zeta set {z})'
+    assert z['hits'], z
+    return f"stratum-wide driver: zeta's set {z['set']} complete, zeta datum at leaves {z['hits']}; {d['complete']} of {d['sets']} sets complete"
+
+gate('G5S Stage B2 on the G6S leaves (window clear except zeta)', g5s)
+gate('G6Z stratum-wide B1 driver on zeta set (static order + eutaxy)', g6z)
 gate('G8 covector pre-filter certified, zeta passes', lambda: (run(['scripts/check_covectors_zeta.py']).strip().endswith('COVECTORS OK') or (_ for _ in ()).throw(AssertionError('covectors'))) and 'exact covector certificate; zeta datum passes the column filter')
 def g9():
     for script, tag in (('verify/verify_support_reduction.py', 'SUPPORT REDUCTION PASS'),

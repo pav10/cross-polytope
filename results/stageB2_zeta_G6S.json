@@ -1,0 +1,43 @@
+{
+ "stratum": 11,
+ "p": 4,
+ "window": "[8/3, p*D*)",
+ "max_dim": 3,
+ "totals": {
+  "clear": 10,
+  "zeta": 2,
+  "above": 3
+ },
+ "families": 15,
+ "seconds": 45,
+ "sets": [
+  {
+   "file": "stageB_faces_zeta_supporting_ball.pkl",
+   "set": null,
+   "leaves": 15,
+   "status": {
+    "clear": 10,
+    "zeta": 2,
+    "above": 3
+   },
+   "flagged": [
+    {
+     "status": "zeta",
+     "values": [
+      "p*D* (64*D**3 - 1920*D**2 + 13584*D - 26011)"
+     ],
+     "leaf": 4,
+     "dim": 3
+    },
+    {
+     "status": "zeta",
+     "values": [
+      "p*D* (-64*D**3 + 1920*D**2 - 13584*D + 26011)"
+     ],
+     "leaf": 6,
+     "dim": 3
+    }
+   ]
+  }
+ ]
+}

@@ -80,6 +80,8 @@ def _rows_for(c, s):
             strict.append(_Row(s[j] * x for x in cols[j]))
     return eq, strict
 
+SLACK_TOL = 1e-9      # strict-slack test of lp_feasible: a cell is kept iff its max common slack t > SLACK_TOL
+
 def _ub_rows(stricts, nonstricts, extra, slack):
     """Inequality rows for the LPs: strict rows S x >= t (slack column, if `slack`), nonstrict rows N x >= 0, and
     the extra rows extra = (A, b), A x <= b (A over 17 columns, last one zero; e.g. ball_rows)."""
@@ -125,7 +127,7 @@ def lp_feasible(eqs, stricts, nonstricts=(), extra=None):
     ok, x, _ = lp_solve(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=[(-2, 2)] * n + [(None, 1.0)])
     if not ok:
         return False, None
-    return x[-1] > 1e-9, x[:n]
+    return x[-1] > SLACK_TOL, x[:n]
 
 def _closure_ranges(eqs, stricts, row, nonstricts=(), extra=None):
     """min and max of row.x over the closure of the current polyhedron (|x|<=2)."""
@@ -373,6 +375,53 @@ def _frame_filter(kids, ci, signs, group, cache, stats):
             stats['frame_sym_dead'] = stats.get('frame_sym_dead', 0) + 1
     return keep
 
+def eutaxy_residual(C, signs, eqs, ineqs):
+    """Leaf prune by l1-eutaxy (THEORY Thm 5.2; STATUS §3 Lemma B.6), RLT relaxation.  At a critical X with
+    contacts v_q = qX and ANY supporting facets sigma_q there are lambda >= 0, sum lambda = 2, with
+    sum_q lambda_q sigma_q^T v_q = I.  Put Z_q = lambda_q X: then Z_q lies in lambda_q * (the leaf's cell closure),
+    i.e. r.Z_q = b lambda_q for every equation (r, b) of the leaf, g.Z_q >= 0 for every sign row g, |Z_q| <= 2 lambda_q,
+    and sum_q sigma_q^T (q Z_q) = I.  Returns the minimal max-norm residual of that identity over the relaxation
+    (0 if some lambda, Z satisfy it); a leaf with residual > 1e-7 contains no critical X.  C, signs: internal order,
+    every contact decided; ineqs: the leaf's strict and nonstrict rows (closure)."""
+    n = len(C)
+    nv = 17 * n + 1
+    sv = nv - 1
+    Cf = [np.array([float(x) for x in c]) for c in C]
+    Aeq, beq, Aub, bub = [], [], [], []
+    for a in range(4):
+        for b in range(4):
+            r = np.zeros(nv)
+            for q in range(n):
+                for i in range(4):
+                    r[17 * q + 1 + 4 * i + b] += signs[q][a] * Cf[q][i]
+            d = 1.0 if a == b else 0.0
+            r1 = r.copy(); r1[sv] = -1.0; Aub.append(r1); bub.append(d)
+            r2 = -r; r2[sv] = -1.0; Aub.append(r2); bub.append(-d)
+    r = np.zeros(nv)
+    r[[17 * q for q in range(n)]] = 1.0
+    Aeq.append(r); beq.append(2.0)
+    E = [(_fl(row), float(b)) for row, b in eqs]
+    G = [_fl(row) for row in ineqs]
+    for q in range(n):
+        z0 = 17 * q + 1
+        for row, b in E:
+            r = np.zeros(nv); r[z0:z0 + 16] = row; r[17 * q] = -b; Aeq.append(r); beq.append(0.0)
+        for row in G:
+            r = np.zeros(nv); r[z0:z0 + 16] = -row; Aub.append(r); bub.append(0.0)
+        for k in range(16):
+            r = np.zeros(nv); r[z0 + k] = 1.0; r[17 * q] = -2.0; Aub.append(r); bub.append(0.0)
+            r = np.zeros(nv); r[z0 + k] = -1.0; r[17 * q] = -2.0; Aub.append(r); bub.append(0.0)
+    bounds = []
+    for q in range(n):
+        bounds += [(0, 2)] + [(None, None)] * 16
+    bounds.append((0, None))
+    c = np.zeros(nv); c[sv] = 1.0
+    ok, _, fun = lp_solve(c, A_ub=np.array(Aub), b_ub=np.array(bub), A_eq=np.array(Aeq), b_eq=np.array(beq),
+                          bounds=bounds)
+    return fun if ok else float('inf')
+
+EUTAXY_TOL = 1e-7
+
 def _expand(C, group, eqs, stricts, nons, signs, rhos, ctx, stats):
     """One branching step shared by enumerate_face_data and estimate_face_data: None if every contact is decided,
     else (ci, kids) with kids (sign vector, subgroup, eqs, stricts, nonstricts, rho); rho is the tie side of a
@@ -392,7 +441,7 @@ def _expand(C, group, eqs, stricts, nons, signs, rhos, ctx, stats):
         if len(signs) == 4 and any(all(signs[i][j] == 0 for i in range(4)) for j in range(4)):
             stats['zero_column_dead'] = stats.get('zero_column_dead', 0) + 1
             return 4, []                    # a zero column of X: det X = 0
-        ci = min(i for i in range(len(C)) if i not in signs)
+        ci = _next_contact(C, signs, rhos, ctx)
         rho, kids = _children_supporting(C, ci, eqs, stricts, nons, signs, rhos, stats, ctx['colfilter'], extra)
         return ci, [(sv, None, e, st, no, rho) for sv, _, e, st, no in kids]
     kw = {'extra': extra} if extra is not None else {}
@@ -403,22 +452,46 @@ def _expand(C, group, eqs, stricts, nons, signs, rhos, ctx, stats):
     kids = _frame_filter(kids, ci, signs, ctx['frame_group'], ctx['fcache'], stats)
     return ci, [(img, sub, e1, s1, nons, None) for img, sub, e1, s1 in kids]
 
-def _setup(S, p, dynamic, signvecs, prefilter, frame_group, supporting, ball, stats):
+def _next_contact(C, signs, rhos, ctx):
+    """Supporting mode, non-frame contacts: the first undecided contact (contact_order='static'), or the undecided
+    contact with the fewest facets still allowed by the covector column filter (contact_order='filter'; LP-free).
+    Any order is sound: the children of a node partition its cell (Lemma B.4)."""
+    und = [i for i in range(len(C)) if i not in signs]
+    if ctx['contact_order'] != 'filter' or ctx['colfilter'] is None:
+        return und[0]
+    zok = {i: tuple(sg[j] == rhos[i][j] for j in range(4)) for i, sg in signs.items() if i in rhos}
+    best, bi = None, und[0]
+    for i in und:
+        a = ctx['colfilter'].allowed(signs, i, zero_ok=zok)
+        sc = 1
+        for j in range(4):
+            sc *= max(1, int(a[j, 0]) + int(a[j, 2]))
+        if best is None or sc < best:
+            best, bi = sc, i
+            if sc == 1:
+                break
+    return bi
+
+def _setup(S, p, dynamic, signvecs, prefilter, frame_group, supporting, ball, stats, contact_order='static',
+           eutaxy=False):
     order = list(range(len(S)))
     if frame_group is not None or supporting:
         assert not dynamic, 'frame_group and supporting need the static order'
         order = _frame_order(S, p)
     if supporting:
         assert signvecs == 'all', 'supporting mode: frame rows on all faces, other contacts on facets'
+    assert contact_order in ('static', 'filter') and (contact_order == 'static' or (supporting and prefilter)), \
+        "contact_order='filter' needs supporting=True and prefilter=True"
     C = [tuple(F(x, p) for x in S[i]) for i in order]
     ctx = {'dynamic': dynamic, 'vecs': FACETVECS if signvecs == 'facet' else SIGNVECS, 'frame_group': frame_group,
            'fcache': {}, 'supporting': supporting, 'extra': ball_rows(C) if ball else None,
-           'colfilter': _column_filter(C, stats) if prefilter else None}
+           'colfilter': _column_filter(C, stats) if prefilter else None, 'contact_order': contact_order,
+           'eutaxy': eutaxy}
     return order, C, ctx
 
 def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynamic=True, signvecs='all',
                         determine=False, resume=None, prefix_depth=3, on_heartbeat=None, prefilter=False,
-                        frame_group=None, supporting=False, ball=False):
+                        frame_group=None, supporting=False, ball=False, contact_order='static', eutaxy=False):
     """S: list of contacts as numerator tuples over p.  Returns (leaves, stats).
     leaves: dict(signs, x0, basis (affine family), dim, prefix[, rho]).
     signvecs='facet' restricts every contact to a facet interior (a validation pass, NOT complete).
@@ -433,7 +506,11 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
     relative-interior faces as above; every other contact takes a FACET with a half-open cell (zero coordinates
     on the tie side rho, chosen per node; leaves record rho).  Complete: a critical X is a local minimum of |det|
     on the affine space of any supporting facets.  Leaf families are cut out by one equation per non-frame
-    contact.  ball=True adds ||cX||_1 <= 2 for every contact to every LP (Lemma B.5)."""
+    contact.  ball=True adds ||cX||_1 <= 2 for every contact to every LP (Lemma B.5).
+    contact_order='filter' (supporting + prefilter): branch next on the non-frame contact with the fewest facets
+    allowed by the covector filter (LP-free).  Sound, but no reliable gain (DEAD_ENDS B20): use 'static'.
+    eutaxy=True: a leaf is recorded only if the l1-eutaxy relaxation (eutaxy_residual, Lemma B.6) is feasible
+    (residual <= EUTAXY_TOL); stats['eutaxy_dead'] counts the others."""
     import time
     t0 = time.time()
     done = set(map(tuple, resume['done_prefixes'])) if resume else set()
@@ -442,8 +519,9 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
              'skipped_subtrees': 0, 'per_depth': {}, 'signvecs': signvecs, 'dynamic': dynamic,
              'determine': determine, 'prefix_depth': prefix_depth, 'prefilter': prefilter, 'prefilter_dead': 0,
              'frame_symmetry': frame_group is not None, 'frame_group_order': len(frame_group or []), 'frame_sym_dead': 0,
-             'supporting': supporting, 'ball': ball}
-    order, C, ctx = _setup(S, p, dynamic, signvecs, prefilter, frame_group, supporting, ball, stats)
+             'supporting': supporting, 'ball': ball, 'contact_order': contact_order, 'eutaxy': eutaxy, 'eutaxy_dead': 0}
+    order, C, ctx = _setup(S, p, dynamic, signvecs, prefilter, frame_group, supporting, ball, stats, contact_order,
+                           eutaxy)
     back = lambda sg: {order[i]: v for i, v in sg.items()}
     vecs = ctx['vecs']
 
@@ -469,6 +547,8 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
             x0, N = sol
             if len(N) > max_dim:
                 stats['dim_dead'] += 1; return
+            if eutaxy and eutaxy_residual(C, signs, eqs, list(stricts) + list(nons)) > EUTAXY_TOL:
+                stats['eutaxy_dead'] += 1; return
             stats['leaves'] += 1
             L = {'signs': back(signs), 'x0': x0, 'basis': N, 'dim': len(N), 'prefix': tuple(path[:prefix_depth])}
             if supporting:
@@ -485,6 +565,9 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
                 L = _read_off(C, e1, signs, vecs, rhos if supporting else None)
                 if L != 'branch':
                     stats['rank16'] += 1
+                    if L is not None and eutaxy and \
+                            eutaxy_residual(C, L['signs'], e1, list(s1) + list(n1)) > EUTAXY_TOL:
+                        stats['eutaxy_dead'] += 1; L = None
                     if L is None:
                         stats['rank16_dead'] += 1
                     else:
@@ -510,12 +593,14 @@ def enumerate_face_data(S, p, max_dim=6, log_every=None, time_limit=None, dynami
     return leaves, stats
 
 def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all', determine=False, max_seconds=None,
-                       prefilter=False, frame_group=None, supporting=False, ball=False):
+                       prefilter=False, frame_group=None, supporting=False, ball=False, contact_order='static',
+                       eutaxy=False):
     """Knuth's estimator for the enumerate_face_data tree (same branching code): mean over random
     root-to-leaf probes of the tree size and of the number of leaves."""
     import time
     stats = {'lp_dead': 0, 'prefilter_dead': 0}
-    order, C, ctx = _setup(S, p, dynamic, signvecs, prefilter, frame_group, supporting, ball, stats)
+    order, C, ctx = _setup(S, p, dynamic, signvecs, prefilter, frame_group, supporting, ball, stats, contact_order,
+                           eutaxy)
     vecs = ctx['vecs']
     t0 = time.time()                                   # the certificate is not part of the per-node cost
     nodes, lvs, depth = [], [], []
@@ -527,6 +612,8 @@ def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all
             if res is None:
                 sol = solve_affine([r for r, _ in eqs], [b for _, b in eqs])
                 leaf = w if sol and len(sol[1]) <= max_dim else 0
+                if leaf and eutaxy and eutaxy_residual(C, signs, eqs, list(stricts) + list(nons)) > EUTAXY_TOL:
+                    leaf = 0
                 break
             ci, kids = res
             if not kids:
@@ -539,7 +626,8 @@ def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all
             if determine:
                 L = _read_off(C, eqs, signs, vecs, rhos if supporting else None)
                 if L != 'branch':
-                    leaf = w if L else 0
+                    leaf = w if L and not (eutaxy and eutaxy_residual(C, L['signs'], eqs, list(stricts) + list(nons))
+                                           > EUTAXY_TOL) else 0
                     break
         nodes.append(est); lvs.append(leaf); depth.append(len(signs))
         if max_seconds and time.time() - t0 > max_seconds:
@@ -550,5 +638,19 @@ def estimate_face_data(S, p, probes, rng, max_dim=6, dynamic=True, signvecs='all
             'seconds': time.time() - t0, 's_per_node': (time.time() - t0) / n,
             'signvecs': signvecs, 'dynamic': dynamic, 'determine': determine, 'prefilter': prefilter,
             'frame_symmetry': frame_group is not None, 'supporting': supporting, 'ball': ball,
+            'contact_order': contact_order, 'eutaxy': eutaxy,
             'lp_dead': stats['lp_dead'], 'range_lps': stats.get('range_lps', 0),
             'prefilter_dead': stats['prefilter_dead'], 'frame_sym_dead': stats.get('frame_sym_dead', 0)}
+
+def datum_hits(S, leaves, sig, frame_group=None):
+    """Indices of leaves whose face datum equals `sig` ({contact index of S: sign vector}) up to the ambient group
+    (columns) and, if given, the frame symmetries (frame_stabilizer).  Used to check that a known lattice (zeta)
+    is found by a complete B1 run."""
+    acts = [contact_action(S, g) for g in (frame_group or [((0, 1, 2, 3), (1, 1, 1, 1))])]
+    out = []
+    for k, L in enumerate(leaves):
+        for ca in acts:          # frame image: contact i takes eps * (sign vector of contact j)
+            t = {i: tuple(e * x for x in L['signs'][j]) for i, (j, e) in enumerate(ca)}
+            if any(all(act_sign(q, t[i]) == sig[i] for i in sig) for q in AMB):
+                out.append(k); break
+    return out
