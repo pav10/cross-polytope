@@ -21,4 +21,6 @@
 SID=${SID:-11}
 NT=${NTASKS:-$SLURM_ARRAY_TASK_COUNT}
 python3 -c 'import highspy' 2>/dev/null || echo "WARNING: highspy missing - scipy fallback, about 3x slower"
-python3 -u scripts/stageB_stratum.py $SID --task $SLURM_ARRAY_TASK_ID --ntasks $NT --seconds 41400 --heartbeat 5000
+# optional: SLACK_TOL=1e-6 (2x fewer nodes on zeta's S, same leaves; STATUS §4) - must stay fixed across resubmissions
+python3 -u scripts/stageB_stratum.py $SID --task $SLURM_ARRAY_TASK_ID --ntasks $NT --seconds 41400 --heartbeat 5000 \
+    ${SLACK_TOL:+--slack-tol $SLACK_TOL}

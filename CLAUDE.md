@@ -105,6 +105,9 @@ yet certified (THEORY_REVIEW §4).
     signs of det). Leaves of dim ≥ 4 are *pending (msolve)*.
   * **On ζ's own S, B2 finds no critical value in the window except ζ itself** (both orientations; gate G5S).
   * Estimated B1 cost ≈ 1.1·10⁹ nodes, ≈ 3–6·10³ CPU-h (Knuth, 24 sets).
+  * `--slack-tol 1e-6` (`SLACK_TOL=1e-6` for the sbatch) halves that, with the same leaves on ζ's S. Half the
+    accepted LP cells are float noise around the 10⁻⁹ threshold (STATUS §4). This is Pavlo's call; the exact
+    alternative is an exact LP for borderline cells.
 
 **Next work:**
 * Pavlo submits the stratum-11 B1 array.

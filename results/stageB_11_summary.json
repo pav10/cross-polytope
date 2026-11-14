@@ -28,6 +28,7 @@
   "ball": true,
   "contact_order": "static",
   "eutaxy": true,
+  "slack_tol": 1e-09,
   "setfile": "stageA_11.json"
  }
 }

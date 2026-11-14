@@ -8,7 +8,9 @@ Each set k of results/stageA_<sid>.json (or --sets F) with k = i (mod N), or eac
 complete supporting-facet B1 (STATUS §3 Thm B.1', Lemmas B.3-B.5): static frame-first order, frame symmetry,
 covector pre-filter, determine-then-check, half-open facet cells, ball rows and the eutaxy leaf prune (Lemma B.6;
 --no-eutaxy keeps every leaf).  --order filter (LP-free contact order) is available but measured no gain
-(DEAD_ENDS B20).  Checkpoint per set: results/stageB_<sid>/set_<k>.pkl (leaves, stats, options), rewritten
+(DEAD_ENDS B20).  --slack-tol t (default 1e-9, the campaign's strict-slack threshold): a cell is kept iff its max
+common slack exceeds t; 1e-6 halves the tree on zeta's S with the same leaves (STATUS §4) - the owner's call.
+Checkpoint per set: results/stageB_<sid>/set_<k>.pkl (leaves, stats, options), rewritten
 atomically at every heartbeat; an interrupted set resumes from its finished depth-3 subtrees; complete sets are
 skipped.  The run stops itself before T seconds (default: none), so a resubmission continues where it stopped.
 Never run two submissions for the same stratum at the same time (no locking).
@@ -32,6 +34,7 @@ ap.add_argument('--order', default='static', choices=('static', 'filter'))
 ap.add_argument('--sets')
 ap.add_argument('--summary', action='store_true')
 ap.add_argument('--no-eutaxy', action='store_true')
+ap.add_argument('--slack-tol', type=float, default=1e-9)
 a = ap.parse_args()
 st = json.load(open(os.path.join(root, 'data', 'strata.json')))[a.sid]
 p = st['p']
@@ -40,7 +43,9 @@ SETS = [[tuple(c) for c in S] for S in json.load(open(setfile))['contact_sets']]
 outdir = os.path.join(root, 'results', f'stageB_{a.sid}')
 os.makedirs(outdir, exist_ok=True)
 OPTS = dict(dynamic=False, determine=True, prefilter=True, frame_symmetry=True, supporting=True, ball=True,
-            contact_order=a.order, eutaxy=not a.no_eutaxy, setfile=os.path.basename(setfile))
+            contact_order=a.order, eutaxy=not a.no_eutaxy, slack_tol=a.slack_tol, setfile=os.path.basename(setfile))
+import cp4.faces as _faces
+_faces.SLACK_TOL = a.slack_tol
 path = lambda k: os.path.join(outdir, f'set_{k:05d}.pkl')
 
 
@@ -94,7 +99,8 @@ print(f'stratum {a.sid} (p={p}): task {a.task}/{a.ntasks}, {len(todo)} of {len(S
 for k in todo:
     R = load(k)
     if R is not None:
-        assert R['options'] == OPTS, f'set {k}: checkpoint options {R["options"]} differ from {OPTS}'
+        old = dict({'slack_tol': 1e-9}, **R['options'])          # checkpoints written before --slack-tol existed
+        assert old == OPTS, f'set {k}: checkpoint options {R["options"]} differ from {OPTS}'
         if R['stats'].get('complete'):
             continue
     left = deadline - time.time() if deadline else None

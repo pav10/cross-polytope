@@ -214,6 +214,10 @@ This is complete, because THEORY Thms 5.1–5.2 hold for every choice of support
    * certificates for the float LP prunes (B1 strict-slack LPs, ball rows, eutaxy);
    * LP warm start and B1 prefix sharing across contact sets: 42 distinct non-frame prefixes of length 4, 279 of
      length 6, among the 1 469 sets.
+   * **Strict-slack tolerance.** 42 % of the accepted cells on ζ's S have t < 10⁻⁷ (float noise on empty
+     degenerate cells), with a clean gap up to 10⁻⁵. `--slack-tol 1e-6` halves the tree with the same leaves
+     (STATUS §4). Either adopt it, or resolve borderline cells exactly (an exact LP for 10⁻⁹ < t < 10⁻⁵).
+     That would be rigorous and gives the same 2× speed-up.
 
 
 **B2** (`src/cp4/critical.py`, `scripts/stageB_critical_zeta.py`): `f = det(x0 + Σ t_k N_k)`
