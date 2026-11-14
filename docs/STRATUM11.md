@@ -1,7 +1,7 @@
 # Stratum 11 (ζ's stratum): a 7-point reformulation and a programme to settle it without search
 
-10 November 2026. §§1–2 are proved [P] (the finite facts are checked exactly by the script quoted in §1); §3 is
-numerical [Num]; §4 is the plan. Conventions as in `THEORY_REVIEW.md`.
+10 November 2026; §3 revised 13 November 2026. §§1–3 are proved [P] (the finite facts are checked exactly by the
+scripts quoted there); §4 is the plan. Conventions as in `THEORY_REVIEW.md`.
 
 Stratum 11 cannot be excluded, because Λ_ζ lies in it (STATUS 1.7). The goal is to prove that **every admissible
 realization of stratum 11 has det ≥ D*, with equality only at Λ_ζ**. If that is done by theory, stratum 11 needs
@@ -42,19 +42,26 @@ graph" is K₇ minus a triangle (on the X_r) and minus one disjoint edge (O–C)
   family, its 3-parameter cell, and the interior points near them. A proof must work with the cell, not with
   a neighbourhood of one point.
 
-## 3. Is the 7-point system already enough? [Num]
+## 3. Is the 7-point system already enough? No [P]
 
 Relaxation: keep only the 19 constraints ‖(p − q)‖₁ ≥ 2 for the 21 pairs of §1 (the 15 contacts, O–C, and the
 three X_r–X_s), plus ‖X_i‖₁ = 2. Then minimise |det X|.
-* 80 local searches (penalty Nelder–Mead) found nothing below 4D* = 3.23288, from random starts or from
-  perturbations of ζ.
-* The searcher is weak in this non-smooth landscape. Even from perturbations of size 0.02 it stalls at 3.2409
-  instead of returning to ζ. So this is mild evidence only.
-* **Conjecture 11.A.** The 19 constraints of the 7-point set already imply |det X| ≥ 4D*, with equality only at
-  ζ (up to symmetry).
 
-If 11.A holds, stratum 11 is a finite-dimensional semi-algebraic minimisation with 16 variables and 19
-reverse-convex constraints. That is hard, but it involves no enumeration of contact sets.
+**Conjecture 11.A (10 Nov 2026) is false (13 Nov 2026) [P].** The rational frame
+
+    X = [[−23/12, 1/12, 0, 0], [1/2, −1/4, −5/4, 0], [0, 2, 0, 0], [−1/3, −1/4, −3/4, −2/3]]
+
+satisfies all 19 constraints and ‖X_i‖₁ = 2, and has det = |det X|/4 = **115/144 = 0.7986 < D***. It even
+satisfies ‖cX‖₁ ≥ 2 for **all 68 candidates** of stratum 11 (every Γ₁₁ point of [−1,1]⁴ with ‖c‖₁ ≥ 1). It is
+not a lattice counterexample: c = (½, ¾, −¼, −5/4) = X_1 + X_2 − X_4 − A lies in Γ₁₁ *outside the cube* and has
+‖cX‖₁ = 4/3. (Exact: `verify/verify_stratum11.py`.)
+* So no relaxation by the vectors of the cube [−1,1]⁴ alone can prove det ≥ D* on stratum 11. Vectors outside
+  the cube can only be ignored *after* admissibility is known (they are then never minimal, by the max-det
+  property). A relaxation proof must include some of them, e.g. (½, ¾, −¼, −5/4).
+* Method [Num]: sequential polyhedral descent. Fix the facets σ_v = sign(vX), take the inner approximation
+  ⟨σ_v, vX⟩ ≥ 2 and the frame rows in the ℓ¹ ball, minimise det by SLSQP, update σ and repeat. From random
+  starts, 1–3 of every 25–60 runs end below D* (at 115/144 or 0.80787), whereas penalty Nelder–Mead in the original test
+  which never left 4D*. The earlier evidence for 11.A was an artefact of that weak searcher (DEAD_ENDS A14).
 
 ## 4. Programme (theory first; mirrors the exclusion of stratum 30, COMMON_FACET §3b–3c)
 
@@ -68,5 +75,6 @@ reverse-convex constraints. That is hard, but it involves no enumeration of cont
 3. **Configuration lemma.** Show that any admissible frame of stratum 11 with det < 0.81 either has ζ's face
    datum or has det ≥ D* by a budget argument (as COMMON_FACET §3c Steps 1–3). The 7-point picture suggests
    the structure step: the rhombus O, A, C, B and the three apexes X_r.
+   **Caveat (§3):** the 19 constraints are not enough; the configuration lemma must use vectors outside the cube.
 4. Consequence: stratum 11 settled without search. With stratum 0 (≈ 4·10⁴ B1 nodes, PLAN §3) this would leave
    only the strata not yet excluded by theory.

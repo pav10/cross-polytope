@@ -1,0 +1,34 @@
+{
+ "stratum": 11,
+ "sets": 1469,
+ "complete": 1,
+ "partial": 0,
+ "untouched": 1468,
+ "nodes": 51396,
+ "cpu_seconds": 1595,
+ "leaves_by_dim": {
+  "1": 3,
+  "2": 4,
+  "3": 2
+ },
+ "zeta": {
+  "set": 200,
+  "complete": true,
+  "hits": [
+   4,
+   6
+  ]
+ },
+ "options": {
+  "dynamic": false,
+  "determine": true,
+  "prefilter": true,
+  "frame_symmetry": true,
+  "supporting": true,
+  "ball": true,
+  "contact_order": "static",
+  "eutaxy": true,
+  "slack_tol": 1e-09,
+  "setfile": "stageA_11.json"
+ }
+}

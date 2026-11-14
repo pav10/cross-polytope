@@ -1,0 +1,41 @@
+{
+ "stratum": 11,
+ "p": 4,
+ "window": "[8/3, p*D*)",
+ "max_dim": 3,
+ "totals": {
+  "clear": 7,
+  "zeta": 2
+ },
+ "families": 9,
+ "seconds": 43,
+ "sets": [
+  {
+   "file": "set_00200.pkl",
+   "set": 200,
+   "leaves": 9,
+   "status": {
+    "clear": 7,
+    "zeta": 2
+   },
+   "flagged": [
+    {
+     "status": "zeta",
+     "values": [
+      "p*D* (64*D**3 - 1920*D**2 + 13584*D - 26011)"
+     ],
+     "leaf": 4,
+     "dim": 3
+    },
+    {
+     "status": "zeta",
+     "values": [
+      "p*D* (-64*D**3 + 1920*D**2 - 13584*D + 26011)"
+     ],
+     "leaf": 6,
+     "dim": 3
+    }
+   ]
+  }
+ ]
+}

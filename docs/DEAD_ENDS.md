@@ -15,6 +15,13 @@
 11. **Bantegnie's paper does not exclude types 2–6**; it confirms max clean index 5 and bounds the index of admissible superlattices of ℤ⁴ by 16 (cyclic) / 18 (non-cyclic) — consistent with our strata (max p = 18).
 12. **"The determinant minimum over a polytope is at a vertex."** False (ζ is a cubic irrational). Kills every vertex-LP approach.
 13. **"The three near-shell vectors (norm 10/9) of stratum 30 suffice."** FALSE (10 Nov 2026, [Num]). With only them, |det X| drops to ≈ 7.31 (det ≈ 0.812, at the threshold). In that frame the facet rows leak 0.24, 0.48, 0.44 onto X_1's main coordinate. The three norm-11/9 vectors v_s − e_j cut this off and are needed (COMMON_FACET §3b). Likewise, "a single facet-row leak onto t keeps |det X| = 8" holds only for the three-vector system. The summed six-vector constraint alone is far weaker still (|det X| ≈ 2).
+14. **"Conjecture 11.A: the 19 constraints of the 7-point system force det ≥ D* on stratum 11."** FALSE (13 Nov 2026, [P]).
+    The rational frame X = [[−23/12, 1/12, 0, 0], [1/2, −1/4, −5/4, 0], [0, 2, 0, 0], [−1/3, −1/4, −3/4, −2/3]]
+    satisfies them, and even ‖cX‖₁ ≥ 2 for all 68 cube candidates of Γ₁₁, with det = 115/144 < D*. Its short
+    vector (½, ¾, −¼, −5/4), of norm 4/3, lies outside the cube (`verify/verify_stratum11.py`). The 10 Nov
+    "evidence" came from penalty Nelder–Mead, which never left 4D*. Sequential polyhedral descent finds this point
+    in 1–3 of every 25–60 random starts (STRATUM11 §3). Any relaxation proof for stratum 11 must include vectors
+    outside [−1,1]⁴.
 
 ## B. Computational approaches that failed (measured)
 
@@ -48,6 +55,30 @@
     With the other two frame rows of norm 2, constrained searches reach det 0.853 (supports 2+2), 0.867 (1+3),
     0.922 (1+2) [Num], about 5 % above the target. The coordinate-section bound gives only det ≥ ¼‖u‖∞‖v‖∞
     here. Per-stratum residue structure, or the max-det condition, is needed instead.
+
+18. **Supporting-facet B1 with closed cells or a fixed tie side** (13 Nov 2026, scratchpad Knuth on stratum-11 sets,
+    60–400 probes). Theorem B.1′ (STATUS §3) lets non-frame contacts take facets only. But with **closed** cells
+    (σ_j(cX)_j ≥ 0 everywhere) every forced zero coordinate is explored on both sides, with duplicate
+    boundaries. Trees: ζ's S 1.3·10⁶ (8.6·10⁶ with ball rows); set #275 6.2·10⁸ (max 3.7·10¹⁰), against 2.5·10⁴
+    for the strict (incomplete) facet pass. With the **fixed** tie side ρ_j = sign of the first nonzero frame
+    entry of column j, cells pinned to (cX)_j = 0 survive whenever ρ_j is the infeasible side: 3.2·10⁵ (ζ's S),
+    1.6·10⁶ (#1165), 3.3·10⁶ (#129). Use the half-open cells with a per-node tie side (Lemma B.4): with ball rows,
+    5.4·10⁴ (ζ's S), 3.4·10⁵ (#1165), 2.1·10⁵ (#275), against 1.2·10⁶, 8.3·10⁶, 3.2·10⁶ for the original B1.
+
+19. **Eutaxy as an internal-node prune in B1** (13 Nov 2026; STATUS §3 Lemma B.6). The RLT relaxation of THEORY
+    Thm 5.2 relaxes the undecided contacts to a free `T_q` with `T_jj ≥ |(qZ_q)_j|`, `ΣT_jj = 2λ_q` and
+    `|T_ij| ≤ T_jj`. Checked at every node of depth ≥ 5, it killed 3/124, 2/326 and 3/286 nodes (sets #1468, #808,
+    #492) and 0/80 on ζ's S, at 8–14 ms/LP. That is inert: the undecided relaxation is too loose. The X-free sign
+    corollary (`0 ∈ conv` of the sign products) kills only ~5 % of leaves. Use the eutaxy LP **at leaves only**
+    (97 % of the leaves of #1468).
+
+20. **LP-free "fewest filter-allowed facets" contact order in supporting-facet B1** (`contact_order='filter'`; 13 Nov
+    2026). Any order is sound (Lemma B.4). A first Knuth test (4 sets, 120 probes) suggested 1.15–3.6× fewer nodes.
+    It did not hold up:
+    * the real complete-run comparison on ζ's S: the static order is complete in 55 613 nodes; the filter order was
+      at 62 000 nodes with only 580 of ~1 700 depth-3 subtrees finished, so roughly 3× worse;
+    * a 150-probe Knuth sample of 10 stratum-11 sets is mixed (0.4–3× either way).
+    The option stays in `faces.py`; the default and the stratum driver use the static order.
 
 ## C. Process rules learned the hard way
 

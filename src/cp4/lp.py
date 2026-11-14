@@ -26,24 +26,33 @@ def solve_scipy(c, A_ub=None, b_ub=None, A_eq=None, b_eq=None, bounds=None):
 
 def solve_highs(c, A_ub=None, b_ub=None, A_eq=None, b_eq=None, bounds=None):
     inf = highspy.kHighsInf
-    rows = []                                   # (indices, values, lower, upper)
-    for A, lo, hi in ((A_ub, None, b_ub), (A_eq, b_eq, b_eq)):
-        if A is None:
-            continue
-        for k, r in enumerate(np.asarray(A, float)):
-            nz = np.nonzero(r)[0]
-            rows.append((nz, r[nz], -inf if lo is None else lo[k], hi[k]))
+    mats, lows, ups = [], [], []                # rows: A_ub (lower -inf) first, then A_eq (lower = upper)
+    if A_ub is not None:
+        A_ub = np.asarray(A_ub, float)
+        mats.append(A_ub); lows.append(np.full(len(A_ub), -inf)); ups.append(np.asarray(b_ub, float))
+    if A_eq is not None:
+        A_eq = np.asarray(A_eq, float)
+        mats.append(A_eq); lows.append(np.asarray(b_eq, float)); ups.append(np.asarray(b_eq, float))
+    if mats:
+        A = np.vstack(mats); mask = A != 0
+        start = np.concatenate([[0], np.cumsum(mask.sum(axis=1))]).astype(np.int32)
+        rr, cc = np.nonzero(mask)
+        index, value = cc.astype(np.int32), A[rr, cc]
+        lo, up = np.concatenate(lows), np.concatenate(ups)
+    else:
+        start, index, value = np.zeros(1, np.int32), np.zeros(0, np.int32), np.zeros(0)
+        lo = up = np.zeros(0)
     lp = highspy.HighsLp()
-    lp.num_col_, lp.num_row_ = len(c), len(rows)
+    lp.num_col_, lp.num_row_ = len(c), len(lo)
     lp.col_cost_ = np.asarray(c, float)
     lp.col_lower_ = np.array([-inf if b[0] is None else b[0] for b in bounds], float)
     lp.col_upper_ = np.array([inf if b[1] is None else b[1] for b in bounds], float)
-    lp.row_lower_ = np.array([r[2] for r in rows], float)
-    lp.row_upper_ = np.array([r[3] for r in rows], float)
+    lp.row_lower_ = lo
+    lp.row_upper_ = up
     lp.a_matrix_.format_ = highspy.MatrixFormat.kRowwise
-    lp.a_matrix_.start_ = np.cumsum([0] + [len(r[0]) for r in rows]).astype(np.int32)
-    lp.a_matrix_.index_ = np.concatenate([r[0] for r in rows] or [[]]).astype(np.int32)
-    lp.a_matrix_.value_ = np.concatenate([r[1] for r in rows] or [[]]).astype(float)
+    lp.a_matrix_.start_ = start
+    lp.a_matrix_.index_ = index
+    lp.a_matrix_.value_ = value
     _h.clearModel()
     _h.passModel(lp)
     _h.run()

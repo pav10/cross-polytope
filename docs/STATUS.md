@@ -79,12 +79,28 @@ alone allow |det X| ≈ 7.31, so the 11/9 ones are essential. The steps:
   For x_t < 0 a weighted sum gives ≥ 196/25 (≥ 8 numerically), or a failure forces X_1 ≤ 0 on the row
   coordinates, which gives ≥ 8.
 
+**Frame-swap lemma, 13 November 2026 [P] / [P+C].** `docs/FRAME_SWAP.md`, exact check
+`verify/verify_frame_swap.py`. If four minimal vectors Q ⊆ S have |det Q| = 1 in frame coordinates, then QX is
+another max-det frame, with frame lattice ΓQ⁻¹. Consequences:
+* (a) Γ′ has no point of frame norm < 1. This is already implied by Stage A's hull-interior rule.
+* (b) If Γ′ is an excluded stratum, then det ≥ 0.81.
+* (c) Assign each critical lattice to the first remaining stratum, in a fixed order, among those of its max-det
+  frames. A stratum's search may then discard Q whose Γ′ lies in an earlier stratum.
+The rules are hereditary. Single-vector swaps shrink every remaining candidate pool except stratum 0's (table in
+the note); for stratum 11, 24 of 68 candidates go by (b)/(c). **[Num] Stage A for stratum 11 now completes:**
+* pool rules alone: 2 477 contact sets in 126 s;
+* pool rules plus the dynamic quadruple rule: **1 469 sets in 113 s**.
+Before, it stood at ≥ 9 800 sets after 25 min and was still growing. ζ's S survives, and every set passes the
+exact re-verification. This was a scratchpad prototype; it is not yet integrated into `src/cp4/contacts.py`.
+
 **Stratum 11, a 7-point reformulation, 10 November 2026 [P] / [Num] / [Conj].** `docs/STRATUM11.md`.
 Put A = (½,¼,¼,¼)X, B = (−½,¼,¼,¼)X and C = A + B. Then Λ = ℤ⟨A, B, X_2, X_3, X_4⟩ with the single relation
 X_2 + X_3 + X_4 = 2C, and det Λ = |det[A, B, X_2, X_3]|. ζ's 15 contacts are exactly the pairs at distance 2 in
 {O, A, B, C, X_2, X_3, X_4}: every pair except O–C and the X_r–X_s (exact check) [P].
-Conjecture 11.A: these 19 pair constraints alone imply det ≥ D*. [Num] 80 local searches found no point below
-4D*; the searcher is weak, so the evidence is mild. Programme to settle stratum 11 without search:
+Conjecture 11.A (these 19 pair constraints alone imply det ≥ D*) is **false** (13 Nov 2026) [P]: an exact rational
+frame satisfies them, and ‖cX‖₁ ≥ 2 for all 68 candidates of the cube, with det = 115/144 < D*. The lattice is not
+admissible, because the vector (½, ¾, −¼, −5/4), outside the cube, has norm 4/3 (`verify/verify_stratum11.py`,
+STRATUM11 §3, DEAD_ENDS A14). Programme to settle stratum 11 without search (it must use vectors outside the cube):
 * a local configuration theorem on ζ's face-datum region, extending audit Prop 3.2;
 * a budget configuration lemma, as for stratum 30.
 
@@ -249,6 +265,74 @@ flat (exact ranks), and for every flat `F` the number of listed covectors with z
 ζ's S: 117 flats (by rank 1, 15, 55, 45, 1), **1 705 faces, 372 topes**, 13 s (gate G8,
 `scripts/check_covectors_zeta.py`).
 
+
+**Theorem B.1′ (supporting facets) [P]** (13 Nov 2026). Let `X` be a critical frame with contact set `S` and face
+datum `(s_c)`. Fix any `T ⊆ S` (in B1: the four frame vectors) and keep `T` on its exact faces. For `c ∈ S∖T`
+choose any **supporting facet** `σ_c ∈ {±1}⁴`, i.e. `σ_cj = s_cj` whenever `s_cj ≠ 0` (free where `(cX)_j = 0`).
+Let `A′` be cut out by the equations of Theorem B.1 for `c ∈ T` and by `σ_c·(cY) = 2` for `c ∈ S∖T`. Then `X ∈ A′`,
+`X` is a local minimum of `|det|` on `A′`, and (ii), (iii) of B.1, Cor B.2 and `dim A′ ≤ 6` hold with `A′` in
+place of `A`.
+*Proof.* For `Y ∈ A′` near `X`: `c ∈ T` as in B.1; `c ∈ S∖T`: `‖cY‖₁ ≥ σ_c·(cY) = 2` (Hölder, `‖σ_c‖_∞ = 1`);
+the non-contacts by THEORY Lemma 5.0. So `ΓY` is admissible for all `Y ∈ A′` near `X`, in both directions of
+every line; the rest is the proof of B.1 and THEORY Thm 5.1 (which is already stated for every choice of
+supporting facets). ∎
+*Use.* Non-frame contacts need only the 16 facets, never the 64 lower-dimensional faces with zero coordinates.
+That was the dominant cost of B1: on ζ's S the facet-only pass is complete in 14 304 nodes (frame symmetry) while
+the full one was not, at ≥ 1.7·10⁶. The leaf families have one equation per non-frame contact (zero equations
+only for frame rows), so they can be larger than the B.1 families, but `dim ≤ 6` still holds.
+
+**Lemma B.4 (half-open facet cells) [P].** For a contact `c` and any `ρ ∈ {±1}⁴` (the *tie side*), the 16 cells
+`H_ρ(σ) = {Y : σ·(cY) = 2; σ_j(cY)_j ≥ 0 if σ_j = ρ_j, σ_j(cY)_j > 0 if σ_j ≠ ρ_j}`, `σ ∈ {±1}⁴`, partition
+`{Y : ‖cY‖₁ = 2}`. `Y` lies in the cell with `σ_j = sign((cY)_j)`, and `ρ_j` where `(cY)_j = 0`; that `σ` is a
+supporting facet of `cY`. Hence B1 may branch each non-frame contact over the 16 cells with any `ρ`, chosen
+afresh at each node, and every critical `X` reaches exactly one leaf. That leaf's affine space is an `A′` of
+Theorem B.1′.
+* *Symmetry.* Below the frame no orbit reduction is applied (trivial group), so no compatibility of `ρ` with the
+  ambient group is needed; the frame rows keep the exact faces, the stabiliser chain and the frame-symmetry
+  isomorph rejection unchanged.
+* *Pre-filter.* Lemma B.3 extends: a decided entry `σ_j = ρ_j` allows the true sign `σ_j` **or 0**
+  (`ColumnFilter.allowed(..., zero_ok)`).
+* *Choice of ρ* (efficiency only): `ρ_j = +1` iff `(cY)_j > 0` is possible on the node's cell (covector filter,
+  else two closure LPs). This avoids spurious cells pinned to `(cY)_j = 0`. With a fixed `ρ` (frame-derived), or
+  with closed cells and no tie rule, the trees are 2–20× (fixed `ρ`) and up to 10²–10⁴× (closed, duplicated
+  boundaries, heavy tails) larger (scratchpad Knuth, DEAD_ENDS B18).
+* *Determine-then-check.* At rank 16, decided non-frame contacts are checked against their half-open cells, and
+  an undecided one only needs `‖cX‖₁ = 2` exactly.
+
+**Lemma B.5 (ball rows) [P].** At a critical `X`, `‖cX‖₁ = 2` for every `c ∈ S`. So the rows
+`−2 ≤ τ·(cY) ≤ 2` (`τ ∈ {1}×{±1}³`), i.e. `‖cY‖₁ ≤ 2`, may be added for **every** `c ∈ S` to every LP of B1
+(decided or not) without losing `X`. *Not* DEAD_ENDS B14 (look-ahead LPs per undecided contact) or B12 (the same
+inequality as a Stage-A prune, inert there). Inside the B1 LPs it is the convex half of the undecided contacts'
+`F = 2`. Measured, B1 (Knuth, 400 probes): 2–20× fewer nodes at 1.4–2× the LP cost.
+
+**Lemma B.6 (eutaxy leaf prune) [P]** (13 Nov 2026). Let `X` be a critical frame lying in a B1 leaf: contacts
+`v_q = qX`, supporting facets `σ_q`, and a cell `P`. The cell is a polyhedron given by the leaf's equations and its
+sign rows.
+* By THEORY Thm 5.2 (any supporting facets) there are `λ ≥ 0` with `Σλ_q = 2` and `Σ_q λ_q σ_qᵀ v_q = I`.
+* Put `Z_q = λ_q X`. Then each `Z_q` lies in the cone over `P`: `r·Z_q = b λ_q` for every equation `(r, b)`,
+  `g·Z_q ≥ 0` for every sign row `g`, and `|Z_q| ≤ 2λ_q`.
+* Also `Σ_q σ_qᵀ (q Z_q) = I`.
+* So if this LP in `(λ, Z)` is infeasible, the leaf contains no critical frame. It is an RLT relaxation of the
+  bilinear eutaxy system.
+* *Implementation.* `faces.eutaxy_residual` minimises the max-norm residual of the identity. A leaf is dropped iff
+  the residual is > 10⁻⁷ (`enumerate_face_data(..., eutaxy=True)`). This is a float prune, like the other B1 LPs,
+  and needs a certificate later.
+* *Measured:*
+  * set #1468 of stratum 11 (|S| = 10, |G_S| = 24): 389 of 400 sampled leaves dropped, with residuals clearly
+    positive (5 % quantile 0.033, median 0.23);
+  * ζ's S: 5 of 15 leaves dropped, and both ζ leaves have residual 0.
+* *Not useful at internal nodes.* With undecided contacts relaxed (`T_q` with `T_jj ≥ |(qZ_q)_j|`, `ΣT_jj = 2λ_q`,
+  `|T_ij| ≤ T_jj`) it killed 2–3 of ~300 nodes (DEAD_ENDS B19).
+* *X-free corollary* (weak, ~5 %): for every column `j`, `0 ∈ conv{(σ_{q,i}σ_{q,j})_{i≠j}}`.
+
+**B2 sign convention.** The window concerns `|det X|`, and `det` may be negative on a leaf family (ζ's two leaves
+on its own S have `det = ±4D*`). So the B2 driver tests the real roots of `R(D)` **and** of `R(−D)`.
+`cp4.critical.roots_in_window` checks `R(D)` only, which is correct for G5 (ζ's own orientation).
+
+Implementation: `enumerate_face_data` / `estimate_face_data(..., supporting=True, ball=True)` (static order, frame
+first); witness gate G6s (`scripts/stageB_witness_supporting.py`: ζ, and D4 with the frame (e₁±e₂, e₃±e₄), whose
+non-frame contacts have 28 zero coordinates); complete run on ζ's S, gate G6S. Defaults are unchanged: the
+facet-only frame-symmetry pass reproduces 14 304 nodes and the same LP-dead, filter-dead and symmetry-dead counts.
 ---
 
 ## §4 Computations already done, with their exact outcomes
@@ -272,10 +356,18 @@ flat (exact ranks), and for every flat `F` the number of listed covectors with z
 | Facet-class layer prune inside B1 (ζ's S) | facet-only 65 148 → 64 094 nodes (−1.6 %), same 6 leaves; full static tree: same 25 depth-3 subtrees in 90 708 vs 90 819 nodes over 900 s; 0 of 46 + 6 known leaves killed — inert (DEAD_ENDS B16) | `scripts/measure_layer_prune.py`, `results/layer_prune_zeta.json` |
 | B1 frame symmetry (ζ's S, stratum 0) | facet-only exact: 14 304 vs 82 069 nodes, leaves agree up to G_S×AMB, ζ found; Knuth (full): ζ 3.5·10⁶ → 3.8·10⁵, star-A4 1.8·10⁶ → 3.7·10⁴ | `scripts/check_frame_symmetry.py`, `results/frame_symmetry_*.json` |
 | Structural verifiers | `verify_support_reduction.py` (15 strata), `verify_structural_exclusions.py` (BLOCK_COUPLING, FACET_LAYERS: 7 strata), `verify_coordinate_sections.py` (strata 6, 7, 25): all PASS, exact | `verify/` |
-| Stage B1 full run on ζ's S (G6) | **incomplete; to be finished on the cluster** (`scripts/slurm_stageB_zeta.sbatch`, resumes from the committed checkpoint `results/stageB_faces_zeta.pkl`). Run here 16 Oct 2026 (`--static --determine --prefilter --resume`, ≈ 100–120 nodes/s): ≈ 1.73 M nodes in two long legs (2 h 10 min, 2 h 9 min), **46 leaves, ζ's face datum among them**; 288 of the **1 633 depth-3 subtrees** finished, all in the first depth-1 branch (contact 0 in a facet, 381 subtrees); every rank-16 read-off dead. The session container is reclaimed a few minutes after the session goes idle, so later legs (≈ 5 min) could not finish subtree 289 (> 50 000 nodes); local resumption stopped. **The Knuth estimate (5.6·10⁵) is ≥ 3× too low** (heavy tail: probe maxima 10⁷–10⁸). Per-branch Knuth (150 probes; contact 0 = facet / 1 zero / 2 zeros / 3 zeros): 1.1·10⁶ / 9.1·10⁴ / 1.0·10⁵ / 6.6·10³; the first branch dominates and already exceeds its estimate. Remaining work, roughly 1–3 M nodes (3–8 h single-core), is a guess | `scripts/knuth_G6_by_branch.py`, `scripts/stageB_faces_zeta.py`, `scripts/slurm_stageB_zeta.sbatch`, `results/stageB_faces_zeta_full.log` |
+| Stage B1 full run on ζ's S (G6) | **superseded by G6S** (supporting facets, complete in 55 613 nodes; Thm B.1′). Original note: **incomplete; to be finished on the cluster** (`scripts/slurm_stageB_zeta.sbatch`, resumes from the committed checkpoint `results/stageB_faces_zeta.pkl`). Run here 16 Oct 2026 (`--static --determine --prefilter --resume`, ≈ 100–120 nodes/s): ≈ 1.73 M nodes in two long legs (2 h 10 min, 2 h 9 min), **46 leaves, ζ's face datum among them**; 288 of the **1 633 depth-3 subtrees** finished, all in the first depth-1 branch (contact 0 in a facet, 381 subtrees); every rank-16 read-off dead. The session container is reclaimed a few minutes after the session goes idle, so later legs (≈ 5 min) could not finish subtree 289 (> 50 000 nodes); local resumption stopped. **The Knuth estimate (5.6·10⁵) is ≥ 3× too low** (heavy tail: probe maxima 10⁷–10⁸). Per-branch Knuth (150 probes; contact 0 = facet / 1 zero / 2 zeros / 3 zeros): 1.1·10⁶ / 9.1·10⁴ / 1.0·10⁵ / 6.6·10³; the first branch dominates and already exceeds its estimate. Remaining work, roughly 1–3 M nodes (3–8 h single-core), is a guess | `scripts/knuth_G6_by_branch.py`, `scripts/stageB_faces_zeta.py`, `scripts/slurm_stageB_zeta.sbatch`, `results/stageB_faces_zeta_full.log` |
 | Column-wise ("covector") B1 on ζ's S, cost | arrangement `{c^⊥}`: 1 705 covectors, N = 852 classes mod ±, T = 186 topes (ζ's columns among them); partial LP never prunes (1 000/1 000 at levels 1–3) ⇒ C(N+3,4) = 2.2·10¹⁰ leaf LPs (5.2·10⁷ facet-only), ~10²–10³× row-wise B1 (DEAD_ENDS B15) | `scripts/estimate_covector_B1.py`, `results/covector_B1_estimate.json` |
 | Covector pre-filter in row-wise B1 (ζ's S, static order) | facet-only complete pass **319 s vs 1 420 s** (4.5×), identical tree (65 148 nodes) and 6 leaves, 213 807 vs 1 030 938 LPs; full run **93 vs 9.6 nodes/s** (9.7×) over 600 s; LP-subsumed: 0 of 20 031 rejected candidates LP-feasible | `scripts/measure_covector_prefilter.py`, `results/covector_prefilter_*.{json,log}` |
 | **Covector pre-filter built into B1** (`enumerate_face_data(prefilter=True)`, Lemma B.3 + certificate) | validated against the search without it on ζ's S: facet-only complete pass through the real code path **337 s vs 1 404 s**, identical per-depth counts (65 148 nodes) and **identical leaf set** (6 leaves, ζ hit); static full order, first 2 000 nodes: identical tree, 33 s vs 209 s (incl. the 13 s certificate); dynamic order, first 1 000 nodes: identical tree, no speed-up (closure LPs dominate). In all three, LP-dead without the filter = LP-dead with it + filter rejections **exactly** (965 791 = 148 660 + 817 131; 150 015 = 11 395 + 138 620; 5 953 = 2 392 + 3 561) | `scripts/compare_prefilter_zeta.py`, `results/covector_prefilter_validation.{json,log}`, `results/stageB_faces_zeta_facet_prefilter.{pkl,log}` |
+| **Stage B1 supporting-facet run on ζ's S (G6S)** (Thm B.1′, Lemmas B.4–B.5; `--static --determine --prefilter --frame-symmetry --supporting --ball`) | **complete: 55 613 nodes, 2 254 s** (one core, loaded machine; before the float-row cache), **15 leaves** (dim 0: 3, 1: 5, 2: 5, 3: 2), **ζ's datum among them** (leaves 4, 6). The original full B1 (G6) was still incomplete at 1.73·10⁶ nodes. The facet-only leaf (ζ's datum) is among the leaves, as it must be (a strict cell lies inside its half-open cell) | `results/stageB_faces_zeta_supporting_ball.{pkl,log}` |
+| Supporting-facet B1, witnesses (G6s) | ζ (all facets) and D4 with frame (e₁±e₂, e₃±e₄) (16 contacts, **28 zero coordinates** on non-frame contacts) keep their own half-open path through the real branching code, with and without ball rows and the covector pre-filter; D4's leaf is dim 0 and equals X exactly | `scripts/stageB_witness_supporting.py` |
+| Stratum-11 B1 cost, supporting + ball (Knuth through `estimate_face_data`, 150 probes, 24 random sets of the 1 469 frame-swap Stage-A sets) | per-set means 7.6·10⁴ – 4.0·10⁶ nodes (mean 7.4·10⁵, heavy tails); ⇒ ≈ 1.1·10⁹ nodes for the stratum, i.e. **~6·10³ CPU-h** at ~50 nodes/s. An LP-free contact order (fewest filter-allowed facets first) cuts 1.15–3.6× more (4 sets, 120 probes) | scratchpad `knuth11s.py`, `order_test.py` (prototype sets; Stage-A integration pending) |
+| **Stage A, stratum 11, with the frame-swap rule (A6) (G4)** | `scripts/stageA_run.py 11` (`cp4.frameswap` + `enumerate_contact_sets(swap=...)`): **1 469 sets in 102 s**, 168 523 nodes, 38 root exclusions, 19 349 quadruple-rule cuts; identical to the scratchpad prototype; every set re-verified exactly; ζ's S = set #200. `verify_frame_swap.py` checks the root exclusions against its own classification in all 13 remaining strata | `results/stageA_11.json` |
+| **Stratum pipeline on ζ's set (G6Z, G5S)** | `stageB_stratum.py 11 --only 200` (supporting + ball + pre-filter + frame symmetry + determine + eutaxy leaf prune, static order): **complete, 51 396 nodes, 9 leaves** (dim 1: 3, 2: 4, 3: 2), ζ found. `stageB2_stratum.py 11`: 7 leaves clear, 2 at exactly p·D* (ζ, both orientations), **0 roots in [8/3, 4D*)**. The same holds on the 15 G6S leaves without the eutaxy prune (10 clear, 3 above, 2 ζ). So on ζ's own contact set ζ is the only critical lattice with det ≤ D* — modulo the float LP prunes of B1 (not yet certified) | `results/stageB_11/set_00200.pkl`, `results/stageB2_11.json`, `results/stageB2_zeta_G6S.json` |
+| Stratum-11 B1 cost, second Knuth sample (static, eutaxy; the same 24 sets, 150 probes) | mean of the per-set means 6.1·10⁵ nodes (median 4.4·10⁵, max 2.0·10⁶), consistent with the first sample (7.4·10⁵) ⇒ ≈ 0.9–1.1·10⁹ nodes for the stratum; at 40–70 nodes/s ≈ 4–7·10³ CPU-h | scratchpad `knuth11e.py` |
+| Leaf counts of small contact sets | set #1468 (\|S\| = 10, \|G_S\| = 24): 10 698 distinct leaf families (dim 3–6) after 36 k nodes without the eutaxy prune; with it ~3 % remain (Lemma B.6) | `scripts/stageB_stratum.py --no-eutaxy` (smoke test) |
+| Strict-slack tolerance of the B1 LPs (ζ's S, supporting + ball + eutaxy, static) | Along the run, 42 % of the accepted child cells (1 138 of 2 718) have max slack t < 10⁻⁷ and **none has 10⁻⁷ ≤ t < 10⁻⁵**. They are degenerate cells, almost surely empty in exact arithmetic, kept by float noise around the default threshold 10⁻⁹; 6.6 % of the verdicts flip when redundant rows are added. These cells are why the node counts of G6S (55 613) and G6Z (51 396) differ. With threshold 10⁻⁶ the run is **complete in 24 610 nodes (2.1× fewer) with the same 9 leaves (count and dimensions), ζ found**. `stageB_stratum.py --slack-tol` (recorded in the checkpoints) — the default stays 10⁻⁹; switching is the owner's call. Rigorous route: decide borderline cells (10⁻⁹ < t < 10⁻⁵) by an exact LP | scratchpad `ballcmp.py`, `tol_run.py` |
 
 ## §5 Numerical evidence (never cite as proof)
 

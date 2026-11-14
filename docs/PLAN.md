@@ -35,11 +35,15 @@ occurs only on leaves of Λ_ζ (stratum 11). Leaves violating this go to Stage C
 | G1 strata | 39 orbits / 1040 superlattices / p-set; strict Lee: 6 / 54 | passed |
 | G2 ζ located | stratum 11, p = 4, 15 contacts | passed |
 | G3 Stage A, p = 1 | exactly 3 sets, all = A₄ (size 10) | passed (13 s) |
-| G4 Stage A, stratum 11 contains ζ's S | ζ's canonical S ∈ output | see STATUS §4 |
+| G4 Stage A, stratum 11 contains ζ's S | ζ's canonical S ∈ output | **passed**: `stageA_run.py 11` with the frame-swap rule, 1 469 sets in ~2 min, ζ's S = set #200 |
 | G5 Stage B2 on ζ's face datum | eliminant contains `64D³−1920D²+13584D−26011` with root `4·D*` | **passed** (21 s, sympy grevlex+FGLM); other factors `D−6`, `D³+62D²+8D+200` — no root in `[8/3, 4D*)` |
 | G6a B1 witness | ζ's datum survives every prune contact by contact | **passed** |
 | G6f Stage B1 facet-only pass on ζ's S | ζ's face datum among the facet-only leaves | **passed** (65 148 nodes, 23 min; 6 leaves, all dim 3) |
-| G6 Stage B1 on ζ's S (complete run) | ζ's face datum among leaves (up to ambient group) | **ζ's datum found** (≈ 1.73 M nodes, 46 leaves; 288 / 1 633 depth-3 subtrees); not complete: finish on the cluster from the committed checkpoint, `scripts/slurm_stageB_zeta.sbatch` (STATUS §4) |
+| G6 Stage B1 on ζ's S (complete run, original faces) | ζ's face datum among leaves (up to ambient group) | **ζ's datum found** (≈ 1.73 M nodes, 46 leaves; 288 / 1 633 depth-3 subtrees); not complete. **Superseded by G6S** (supporting facets, complete) — no need to finish it |
+| G6s supporting-facet B1 witness | ζ and D4 (frame e₁±e₂, e₃±e₄; 28 zero coordinates on non-frame contacts) keep their own half-open path through the real branching code, with/without ball rows and the pre-filter | **passed** (`scripts/stageB_witness_supporting.py`) |
+| G6S supporting-facet B1 on ζ's S (complete run) | ζ's datum among the leaves (`--supporting --ball --static --determine --prefilter --frame-symmetry`) | **passed** (complete: 55 613 nodes, 38 min, 15 leaves, ζ hit) |
+| G5S B2 on the complete G6S leaves | no critical value in [8/3, 4D*) except ζ's own p·D* (both orientations) | **passed** (`results/stageB2_zeta_G6S.json`) |
+| G6Z stratum-wide B1 driver on ζ's set | `stageB_stratum.py 11 --only 200` complete, ζ's datum among the leaves (eutaxy prune on) | see STATUS §4 |
 | G8 covector pre-filter (ζ's S) | covector list certified exactly (1 705 faces, 372 topes, Zaslavsky per flat); ζ's datum passes the column filter on its static path and 20 random orders | **passed** (13 s, `scripts/check_covectors_zeta.py`) |
 | G9 structural exclusions | `verify_support_reduction.py`, `verify_structural_exclusions.py`, `verify_coordinate_sections.py` all PASS (25 strata excluded, exact) | **passed** (~20 s) |
 | G7a merged-search witness | ζ's labels (15 in, 53 out) survive every prune of `src/cp4/merged.py`; leaf dim A = 3 | **passed** (4 s) |
@@ -157,6 +161,64 @@ to G_S × AMB. Validated on ζ's S (`scripts/check_frame_symmetry.py`, `results/
 * stratum 0's star-frame A4 set: 1.8·10⁶ → 3.7·10⁴ (|G_S| = 48).
 **Stratum 0 needs only the star embedding** (STATUS §3), so its whole B1 is now ≈ 4·10⁴ nodes. For contact
 sets with a small G_S (the other two A4 embeddings have |G_S| = 4) the gain is 1–2×.
+
+*Supporting facets and ball rows (13 November 2026; STATUS §3 Theorem B.1′, Lemmas B.4–B.5).* **The new default
+for every B1 run.** `enumerate_face_data(..., supporting=True, ball=True)` (static order, frame first; `--supporting
+--ball` in `scripts/stageB_faces_zeta.py`). The frame rows keep the 80 exact faces (stabiliser chain, frame
+symmetry). Every other contact takes one of the 16 facets, in a half-open cell whose tie side ρ is chosen per node.
+This is complete, because THEORY Thms 5.1–5.2 hold for every choice of supporting facets. Every LP also carries
+`‖cY‖₁ ≤ 2` for the undecided contacts.
+* Measured B1 on stratum-11 contact sets (Knuth, 400 probes, scratchpad prototype; same order and symmetry):
+
+  | set | original B1 | supporting + ball |
+  |---|---|---|
+  | ζ's S | 1.2·10⁶ | 5.4·10⁴ |
+  | #1165 | 8.3·10⁶ | 3.4·10⁵ |
+  | #275 | 3.2·10⁶ | 2.1·10⁵ |
+
+  LPs per node are 17 against ~35.
+* Rejected variants (closed cells, fixed tie side): DEAD_ENDS B18.
+* Engineering, same verdicts (`scripts/check_lp_backend.py`; the facet-only frame-symmetry pass reproduces 14 304
+  nodes and every count): floats cached per row (`faces._Row`) and a vectorised HiGHS matrix build.
+  1.7× more nodes/s.
+* **Stratum-11 cost.** Real-code Knuth sample of 24 of the 1 469 frame-swap Stage-A sets (`--supporting --ball
+  --prefilter --frame-symmetry --determine`): per-set means 7.6·10⁴–4·10⁶ nodes (mean 7.4·10⁵), heavy-tailed,
+  so ≈ 1.1·10⁹ nodes for the stratum. Real enumeration runs at 25–50 nodes/s on one core. ζ's S is **complete in
+  55 613 nodes (38 min)** with 15 leaves, ζ's datum among them (G6S). So the total is ≈ 6·10³ CPU-hours: a
+  cluster array, no longer out of reach.
+* An LP-free contact order (fewest covector-allowed facets first) is sound but gave **no gain** in the real run on
+  ζ's S (≈ 3× worse): DEAD_ENDS B20. The static order stays.
+* **Eutaxy leaf prune** (STATUS §3 Lemma B.6, `eutaxy=True`). Small contact sets have very many leaves: set #1468
+  (|S| = 10) gave 10 698 leaves of dim 3–6 after only 36 k nodes, all distinct affine families. The RLT eutaxy LP
+  drops 97 % of them (12 ms per leaf) and keeps both ζ leaves. It is inert at internal nodes (B19).
+* Stage C on a supporting leaf checks the leaf's half-open cells (`signs`, `rho`), not exact faces.
+
+### The stratum pipeline (13 November 2026)
+1. **Stage A** with the frame-swap rule (A6), `python3 scripts/stageA_run.py 11` → `results/stageA_11.json`:
+   1 469 sets in ~2 min (G4).
+2. **B1 on every set**: `SID=11 sbatch --array=0-299 --export=ALL scripts/slurm_stageB_stratum.sbatch`.
+   * Options: supporting facets, ball rows, covector pre-filter, frame symmetry, determine-then-check, eutaxy leaf
+     prune, static order.
+   * There is one checkpoint per set (`results/stageB_11/set_<k>.pkl`); tasks stop after 11.5 h.
+   * Resubmit until `python3 scripts/stageB_stratum.py 11 --summary` shows no partial or untouched set.
+   * ζ's set alone (`--only 200`) is gate G6Z.
+3. **B2**: `python3 scripts/stageB2_stratum.py 11` → `results/stageB2_11.json`.
+   * Dim 0: exact |det x0|. Dim 1–3: sympy eliminant. Dim ≥ 4: *pending* (msolve).
+   * The window [2p/3, p·D*) is checked exactly, by isolating intervals, against the CRootOf p·D*, for the roots of
+     R(D) **and** R(−D), since det may be negative on a family.
+   * Roots in the window are listed for Stage C. On ζ's own S: 10 leaves clear, 3 above, 2 = p·D* (ζ in both
+     orientations), 0 in the window (gate G5S).
+4. **Stage C** for listed window roots: not automated yet.
+5. **Still open:**
+   * msolve for B2 dims 4–6 (sympy is too slow beyond dim 3);
+   * certificates for the float LP prunes (B1 strict-slack LPs, ball rows, eutaxy);
+   * LP warm start and B1 prefix sharing across contact sets: 42 distinct non-frame prefixes of length 4, 279 of
+     length 6, among the 1 469 sets.
+   * **Strict-slack tolerance.** 42 % of the accepted cells on ζ's S have t < 10⁻⁷ (float noise on empty
+     degenerate cells), with a clean gap up to 10⁻⁵. `--slack-tol 1e-6` halves the tree with the same leaves
+     (STATUS §4). Either adopt it, or resolve borderline cells exactly (an exact LP for 10⁻⁹ < t < 10⁻⁵).
+     That would be rigorous and gives the same 2× speed-up.
+
 
 **B2** (`src/cp4/critical.py`, `scripts/stageB_critical_zeta.py`): `f = det(x0 + Σ t_k N_k)`
 (degree 4, `d = dim A ≤ 6` variables); eliminant of `{∂f/∂t_k = 0, D − f = 0}` by sympy grevlex +
