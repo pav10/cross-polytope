@@ -92,9 +92,32 @@ The next exact question is the structure of J, rather than independent
 admissibility analyses for each choice of basis. A classification or analytic
 bound for J could replace much of the original single-basis test. Its size,
 and whether it contains essential vectors of affine mass greater than two,
-have not been determined here. No claimed reduction from 1156 to 15 is justified.
+were not determined in the first version of this note; they are now (§4 below).
 
 This result is independent of local optimality and of the facet obstruction;
 it applies to any affinely independent equilateral five-point configuration.
 It leaves the desired determinant lower bound and the count of 17 remaining
 strata unchanged.
+
+## 4. The common test set J: 45 pairs, i.e. 35 extra inequalities [P+C]
+
+(23 November 2026.) Transporting the single-basis set of THEORY 1.7 for Gamma = Z^4 (1 160 pairs including the four
+basis vectors; 1 156 without them - two different counts, both correct) through all 125 labelled spanning trees and
+intersecting gives exactly **45 pairs up to sign**:
+
+| type (up to permutation and sign) | number | meaning |
+|---|---:|---|
+| (-1, 0, 0, 0, 1) | 10 | the prescribed edges x_i - x_j (F = 2) |
+| (-1, -1, 0, 1, 1) | 15 | disjoint-edge midpoints x_i + x_j - x_k - x_l (§3) |
+| (-2, -1, 1, 1, 1) | 20 | 2x_i + x_j - x_k - x_l - x_m |
+
+So an affinely independent equilateral five-point configuration is admissible (F >= 2 on all of L) iff the 35
+inequalities of the last two types hold. Exact check: `verify/verify_common_descent.py` (gate G9).
+
+*Shorter proof sketch (not needed given the check).* A common minimal witness has affine mass <= 5. Sort its
+coefficients and test it in the tree basis of the path 2-1-3-5-4: of the 15 absolute patterns of the single-basis
+set only five types survive. The star centred at vertex 3 then removes (-4,1,1,1,1) and (-2,-2,1,1,2), leaving the
+three types above.
+
+This is a finite admissibility criterion for index one (stratum 0), not a determinant bound.
+

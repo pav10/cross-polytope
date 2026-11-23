@@ -329,6 +329,29 @@ sign rows.
 on its own S have `det = ±4D*`). So the B2 driver tests the real roots of `R(D)` **and** of `R(−D)`.
 `cp4.critical.roots_in_window` checks `R(D)` only, which is correct for G5 (ζ's own orientation).
 
+**B2 for positive-dimensional critical sets [P].** The complex critical locus of `f = det` on a leaf family has
+finitely many irreducible components, and `f` is constant on each (its differential vanishes there). So the
+critical values form a finite set, and the elimination ideal `(∇f, D − f) ∩ ℚ[D]` is nonzero. Its generator
+vanishes at every critical value, real or complex. `cp4.critical.critical_value_polynomial_any` computes it with a
+lex Gröbner basis when the ideal is not zero-dimensional. The earlier code raised an error there, which would have
+left such leaves undecided. These values are algebraic numbers.
+
+**Equality classification at a leaf [P+C].** A root equal to `p·D*` gives the lower bound, but uniqueness needs the
+whole fibre. `cp4.critical.fibre_point_count` counts the complex critical points over an irreducible factor. If the
+count equals the factor's degree, there is exactly one critical point over each root, in particular over `p·D*`.
+For ζ's two leaves on its own S (dim 3, cubic factor) the count is 3, so the only critical point at `4D*` in each
+family is ζ's frame (gate G5S). Stratum-wide equality classification needs this for every leaf that reports
+`zeta` (`stageB2_stratum.py` records it as `zeta_fibre`), plus the certificates below.
+
+**Certificate status of the search (audit of 23 November 2026).** The following accept/reject decisions are float
+prunes, not yet exact certificates:
+* Stage A: hull classification (A3), volume (A4) and the quadruple-determinant screen (A2; exact recheck only of
+  the outputs);
+* B1: the strict-slack LPs, ball rows and the eutaxy leaf LP.
+
+`verify_contact_set` re-verifies only (A1), (A2) and (A5) of the output sets. The `verify/test_regression.py` it used
+to cite does not exist; the docstring is corrected. The covector pre-filter (Lemma B.3) is already certified exactly.
+
 Implementation: `enumerate_face_data` / `estimate_face_data(..., supporting=True, ball=True)` (static order, frame
 first); witness gate G6s (`scripts/stageB_witness_supporting.py`: ζ, and D4 with the frame (e₁±e₂, e₃±e₄), whose
 non-frame contacts have 28 zero coordinates); complete run on ζ's S, gate G6S. Defaults are unchanged: the
@@ -368,6 +391,10 @@ facet-only frame-symmetry pass reproduces 14 304 nodes and the same LP-dead, fil
 | Stratum-11 B1 cost, second Knuth sample (static, eutaxy; the same 24 sets, 150 probes) | mean of the per-set means 6.1·10⁵ nodes (median 4.4·10⁵, max 2.0·10⁶), consistent with the first sample (7.4·10⁵) ⇒ ≈ 0.9–1.1·10⁹ nodes for the stratum; at 40–70 nodes/s ≈ 4–7·10³ CPU-h | scratchpad `knuth11e.py` |
 | Leaf counts of small contact sets | set #1468 (\|S\| = 10, \|G_S\| = 24): 10 698 distinct leaf families (dim 3–6) after 36 k nodes without the eutaxy prune; with it ~3 % remain (Lemma B.6) | `scripts/stageB_stratum.py --no-eutaxy` (smoke test) |
 | Strict-slack tolerance of the B1 LPs (ζ's S, supporting + ball + eutaxy, static) | Along the run, 42 % of the accepted child cells (1 138 of 2 718) have max slack t < 10⁻⁷ and **none has 10⁻⁷ ≤ t < 10⁻⁵**. They are degenerate cells, almost surely empty in exact arithmetic, kept by float noise around the default threshold 10⁻⁹; 6.6 % of the verdicts flip when redundant rows are added. These cells are why the node counts of G6S (55 613) and G6Z (51 396) differ. With threshold 10⁻⁶ the run is **complete in 24 610 nodes (2.1× fewer) with the same 9 leaves (count and dimensions), ζ found**. `stageB_stratum.py --slack-tol` (recorded in the checkpoints) — the default stays 10⁻⁹; switching is the owner's call. Rigorous route: decide borderline cells (10⁻⁹ < t < 10⁻⁵) by an exact LP | scratchpad `ballcmp.py`, `tol_run.py` |
+| **Stage B1, all of stratum 11 (Pavlo's cluster, November 2026)** | `stageB_stratum.py 11` (supporting + ball + pre-filter + frame symmetry + determine + eutaxy, static, slack 10⁻⁹): **all 1 469 sets complete**, 989 216 806 nodes, 10 767 566 CPU-s (≈ 3 000 CPU-h). **637 555 leaves**: dim 0: 78, 1: 547, 2: 6 029, 3: 41 176, 4: 146 743, 5: 253 868, 6: 189 114. ζ's set #200 has ζ's datum at leaves 4 and 6. Float prunes not yet certified | summary on the cluster (`results/stageB_11_summary.json`); the per-set checkpoints stay on the cluster |
+| B2 on ζ's G6S leaves with equality fibres (G5S) | 10 clear, 3 above, 2 at p·D*; in both ζ leaves the cubic factor has exactly 3 complex critical points over its 3 roots, so ζ's frame is the only critical point at 4D* in each family | `results/stageB2_zeta_G6S.json` |
+| Common test set at index one | J = 45 pairs over all 125 spanning trees: 10 edges + **35 inequalities** (COMMON_DESCENT §4) | `verify/verify_common_descent.py` (G9) |
+| Stratum 31 bound | 9/10 strengthened to **10/9** (BLOCK_COUPLING §3) | — |
 
 ## §5 Numerical evidence (never cite as proof)
 

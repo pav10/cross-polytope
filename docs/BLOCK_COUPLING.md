@@ -114,6 +114,12 @@ Together with delta,epsilon <= 2, these yield delta,epsilon >= 3/2. Hence
 This deliberately sufficient bound avoids solving any auxiliary minimization
 problem. As in §2, it holds for every admissible realization of the frame.
 
+*Sharper (23 November 2026) [P].* The feasible polygon delta+2 epsilon >= 5,
+2 delta+epsilon >= 5, delta, epsilon <= 2 has vertices (3/2,2), (5/3,5/3),
+(2,3/2), (2,2). The product delta epsilon has convex superlevel sets on the
+positive quadrant, so its minimum over the polygon is at a vertex: 25/9, at
+(5/3,5/3). Hence det(Gamma X) >= (4/10)(25/9) = **10/9**.
+
 ## 4. Consequence and scope
 
 **Subsequent result:** `FACET_LAYERS.md` excludes five additional strata,
