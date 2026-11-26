@@ -202,7 +202,12 @@ This is complete, because THEORY Thms 5.1–5.2 hold for every choice of support
    * There is one checkpoint per set (`results/stageB_11/set_<k>.pkl`); tasks stop after 11.5 h.
    * Resubmit until `python3 scripts/stageB_stratum.py 11 --summary` shows no partial or untouched set.
    * ζ's set alone (`--only 200`) is gate G6Z.
-3. **B2**: `python3 scripts/stageB2_stratum.py 11` → `results/stageB2_11.json`.
+3. **B2**, also a job array (`SID=11 sbatch --array=0-199 --export=ALL scripts/slurm_stageB2_stratum.sbatch`,
+   resubmit until complete, then `python3 scripts/stageB2_stratum.py 11 --merge` → `results/stageB2_11.json`).
+   Status: **B1 is complete for all 1 469 sets** (Pavlo's cluster: ≈ 3 000 CPU-h, 637 555 leaves; STATUS §4). Of
+   the leaves, 47 830 have dim ≤ 3 (sympy, a few hundred CPU-h) and 589 725 have dim 4–6.
+   * Positive-dimensional critical ideals are handled by lex elimination (STATUS §3); they no longer stop B2.
+   * Every `zeta` leaf records its equality fibre (`zeta_fibre`: one critical point over p·D* or not).
    * Dim 0: exact |det x0|. Dim 1–3: sympy eliminant. Dim ≥ 4: *pending* (msolve).
    * The window [2p/3, p·D*) is checked exactly, by isolating intervals, against the CRootOf p·D*, for the roots of
      R(D) **and** R(−D), since det may be negative on a family.
@@ -210,7 +215,13 @@ This is complete, because THEORY Thms 5.1–5.2 hold for every choice of support
      orientations), 0 in the window (gate G5S).
 4. **Stage C** for listed window roots: not automated yet.
 5. **Still open:**
-   * msolve for B2 dims 4–6 (sympy is too slow beyond dim 3);
+   * **the 589 725 leaves of dim 4–6**: too many for msolve one by one. First look for a cheaper exact or LP leaf
+     prune, such as a stronger eutaxy relaxation or a lower bound on |det| over the leaf cell; then msolve on the
+     cluster for what remains;
+   * **exact certificates for Stage A** (hull classification, volume, quadruple screen are float; STATUS §3
+     certificate status) as well as for B1;
+   * **equality classification**: every leaf reporting `zeta` needs a single-point fibre (or a classification
+     of its fibre) before uniqueness of ζ can be claimed;
    * certificates for the float LP prunes (B1 strict-slack LPs, ball rows, eutaxy);
    * LP warm start and B1 prefix sharing across contact sets: 42 distinct non-frame prefixes of length 4, 279 of
      length 6, among the 1 469 sets.

@@ -1,0 +1,9 @@
+{
+ "stratum": 11,
+ "p": 4,
+ "window": "[8/3, p*D*)",
+ "max_dim": 3,
+ "totals": {},
+ "seconds": 0,
+ "sets": []
+}

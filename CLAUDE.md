@@ -45,12 +45,14 @@ scripts/              make_strata, zeta_frame, stageA_run, stageB_faces_zeta, st
                       check_covectors_zeta (G8), compare_prefilter_zeta (pre-filter vs none),
                       stageB_witness_supporting (G6s: zeta and D4 paths in supporting mode),
                       stageB_stratum (stratum-wide B1 driver, per-set checkpoints; --summary),
-                      stageB2_stratum (B2 window check over B1 leaves), slurm_stageB_stratum.sbatch (job array)
+                      stageB2_stratum (B2 window check over B1 leaves; job-array task, --merge),
+                      slurm_stageB_stratum.sbatch / slurm_stageB2_stratum.sbatch (job arrays)
 data/                 strata.json, zeta.json, audit_certificate.json, wolff test sets, catalog
 results/              outputs + logs of runs
 verify/               verify_audit.py (external), run_all.py (regression gates), verify_support_reduction /
                       verify_structural_exclusions / verify_coordinate_sections (exact stratum exclusions, gate G9),
-                      verify_frame_swap (FRAME_SWAP counts), verify_stratum11 (11.A counterexample) - both in G9
+                      verify_frame_swap (FRAME_SWAP counts), verify_stratum11 (11.A counterexample),
+                      verify_common_descent (index one: 35 admissibility tests) - all in G9
 ```
 
 ## Commands
@@ -65,7 +67,8 @@ python3 scripts/stageB_faces_zeta.py [seconds] [--facet-only] [--static] [--dete
 python3 scripts/stageB_critical_zeta.py          # Stage B2 gate (zeta cubic, 21 s)
 SID=11 sbatch --array=0-299 --export=ALL scripts/slurm_stageB_stratum.sbatch   # B1 over all sets (resubmit until done)
 python3 scripts/stageB_stratum.py 11 --summary   # B1 progress; --only k runs one set locally
-python3 scripts/stageB2_stratum.py 11            # B2 on the complete sets' leaves -> results/stageB2_11.json
+SID=11 sbatch --array=0-199 --export=ALL scripts/slurm_stageB2_stratum.sbatch  # B2 over the leaves (resubmit until done)
+python3 scripts/stageB2_stratum.py 11 --merge    # combine B2 results -> results/stageB2_11.json
 ```
 Dependencies: python3, numpy, scipy (HiGHS via linprog), sympy ≥ 1.12, and `highspy` (used by `cp4.lp` when
 installed: ~3× faster LPs, same verdicts — `scripts/check_lp_backend.py`). Recommended to add: `msolve`
@@ -77,7 +80,7 @@ installed: ~3× faster LPs, same verdicts — `scripts/check_lp_backend.py`). Re
 * The claude.ai Project "Cross-polytopes" holds the literature PDFs and older scripts (several superseded —
   see DEAD_ENDS A1–A4 before using any of them).
 
-## Where we are (13 Nov 2026)
+## Where we are (23 Nov 2026)
 **Theory first:** 26 of the 39 strata are excluded by proofs with exact certificates — THEORY_REVIEW (15),
 BLOCK_COUPLING + FACET_LAYERS (7), COORDINATE_SECTIONS (6, 7, 25), COMMON_FACET §3c (30, det ≥ 196/225).
 **13 remain: 0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 14, 15, 17** (STATUS §3). Search rejections by float LPs are not
@@ -110,10 +113,12 @@ yet certified (THEORY_REVIEW §4).
     alternative is an exact LP for borderline cells.
 
 **Next work:**
-* Pavlo submits the stratum-11 B1 array.
-* Install msolve on the cluster for dim 4–6 B2 leaves.
+* **Stratum-11 B1 is complete** (Pavlo's cluster: 1 469 sets, 9.9·10⁸ nodes, ≈ 3 000 CPU-h, 637 555 leaves; ζ
+  found). Next: the B2 array for the 47 830 leaves of dim ≤ 3 (`slurm_stageB2_stratum.sbatch`).
+* The 589 725 leaves of dim 4–6: find a stronger leaf prune before msolve (PLAN §3).
+* Equality classification: one critical point over p·D* in every `zeta` leaf (shown for ζ's own S, G5S).
 * Stage C for any window root.
-* Certificates for the float LP prunes.
+* Certificates for the float prunes of Stage A (hull, volume, quadruples) and B1 (STATUS §3).
 * Faster LPs (warm start) and prefix sharing across sets (PLAN §3).
 * Theory: stratum 17 (COMMON_FACET §6.3) and the fiber-offset argument for strata 1, 8, 9, 10, 15.
 

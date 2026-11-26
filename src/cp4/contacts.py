@@ -169,8 +169,9 @@ def enumerate_contact_sets(stratum, stab, max_size=20, min_size=10, node_limit=N
     return results, stats
 
 def verify_contact_set(S_num, stratum):
-    """Exact re-verification of (A1),(A2),(A5) for an output set (hull conditions are
-    re-checked with exact rational facet arithmetic by verify/test_regression.py)."""
+    """Exact re-verification of (A1),(A2),(A5) for an OUTPUT set.  The hull conditions (A3), (A4) are float
+    tests (scipy ConvexHull, tolerance 1e-9) and are not re-checked exactly here; nor are discarded branches.
+    Exact certificates for the Stage-A prunes are open (PLAN §3; THEORY_REVIEW §4)."""
     p = stratum['p']
     S = [tuple(c) for c in S_num]
     assert set(map(tuple, stratum['forced'])) <= set(S)

@@ -5,15 +5,18 @@
  "max_dim": 3,
  "totals": {
   "clear": 7,
-  "zeta": 2
+  "zeta": 2,
+  "sets_done": 1,
+  "sets_total": 1
  },
- "families": 9,
- "seconds": 43,
+ "seconds": 0,
  "sets": [
   {
    "file": "set_00200.pkl",
    "set": 200,
    "leaves": 9,
+   "complete": true,
+   "skipped": null,
    "status": {
     "clear": 7,
     "zeta": 2
@@ -24,6 +27,13 @@
      "values": [
       "p*D* (64*D**3 - 1920*D**2 + 13584*D - 26011)"
      ],
+     "zero_dimensional": true,
+     "zeta_fibre": [
+      {
+       "factor_degree": 3,
+       "points": 3
+      }
+     ],
      "leaf": 4,
      "dim": 3
     },
@@ -31,6 +41,13 @@
      "status": "zeta",
      "values": [
       "p*D* (-64*D**3 + 1920*D**2 - 13584*D + 26011)"
+     ],
+     "zero_dimensional": true,
+     "zeta_fibre": [
+      {
+       "factor_degree": 3,
+       "points": 3
+      }
      ],
      "leaf": 6,
      "dim": 3

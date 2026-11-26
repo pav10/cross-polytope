@@ -104,7 +104,9 @@ def g5s():
     t = R['totals']
     assert t.get('window', 0) == 0 and t.get('error', 0) == 0 and t.get('pending', 0) == 0, t
     assert t.get('zeta', 0) >= 1, 'zeta value p*D* not recovered'
-    return f"B2 on the complete G6S leaves of zeta's S: {t} - no critical value in [8/3, 4D*) except zeta's"
+    fib = [f for s_ in R['sets'] for r in s_['flagged'] if r['status'] == 'zeta' for f in r.get('zeta_fibre', [])]
+    assert fib and all(f['points'] == f['factor_degree'] for f in fib), f'equality fibre not a single point: {fib}'
+    return f"B2 on the complete G6S leaves of zeta's S: {t} - no critical value in [8/3, 4D*) except zeta's; one critical point over 4D* in each zeta leaf"
 
 def g6z():
     f = 'results/stageB_11/set_00200.pkl'
@@ -126,7 +128,8 @@ def g9():
                         ('verify/verify_structural_exclusions.py', 'STRUCTURAL PASS'),
                         ('verify/verify_coordinate_sections.py', 'COORDINATE SECTIONS PASS'),
                         ('verify/verify_frame_swap.py', 'FRAME SWAP PASS'),
-                        ('verify/verify_stratum11.py', 'STRATUM11 PASS')):
+                        ('verify/verify_stratum11.py', 'STRATUM11 PASS'),
+                        ('verify/verify_common_descent.py', 'COMMON DESCENT PASS')):
         out = run([script])
         assert tag in out, (script, out[-400:])
     from cp4.strata import EXCLUDED, REMAINING

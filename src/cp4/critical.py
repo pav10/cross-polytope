@@ -52,3 +52,53 @@ def roots_in_window(R, lo, hi):
             if sp.Rational(lo) <= r and r < hi:
                 out.append(r)
     return out
+
+
+def critical_value_polynomial_any(x0, basis):
+    """As critical_value_polynomial, but also for a POSITIVE-DIMENSIONAL critical ideal.
+
+    Justification (STATUS §3, remark after Lemma B.6): the complex critical locus of f is a variety with finitely
+    many irreducible components, and f is constant on each (algebraic Sard; f restricted to a component has zero
+    differential).  So the set of critical values is finite, the elimination ideal (grad f, D - f) ∩ Q[D] is
+    nonzero, and its generator R(D) vanishes at every critical value, real or complex.  It is computed with a lex
+    Groebner basis (D last) - slower than grevlex + FGLM, so only used when the ideal is not zero-dimensional.
+    Returns (factor list of R, f, t, zero_dimensional flag)."""
+    try:
+        R, f, t = critical_value_polynomial(x0, basis)
+        return R, f, t, True
+    except ValueError:
+        pass
+    f, t = det_poly(x0, basis)
+    D = sp.Symbol('D')
+    G = sp.groebner([sp.diff(f, v) for v in t] + [D - f], *t, D, order='lex')
+    uni = [g for g in G.exprs if g.free_symbols <= {D}]
+    if not uni:
+        raise ValueError('no univariate eliminant (impossible by algebraic Sard: check the input)')
+    return sp.factor_list(uni[0], D), f, t, False
+
+
+def fibre_point_count(x0, basis, factor):
+    """Number of complex critical points (with multiplicity of the quotient) of f = det on the family lying over
+    the roots of the irreducible polynomial `factor` in D, or None if that fibre is not zero-dimensional.  For an
+    irreducible factor of degree k, a count of k means exactly one critical point over each root - used to show
+    that the equality value p*D* is attained at a single point of a leaf family (equality classification)."""
+    f, t = det_poly(x0, basis)
+    D = sp.Symbol('D')
+    G = sp.groebner([sp.diff(f, v) for v in t] + [D - f, factor], *t, D, order='grevlex')
+    if not G.is_zero_dimensional:
+        return None
+    # vector-space dimension of the quotient = number of standard monomials
+    from sympy.polys.orderings import grevlex
+    gens = list(t) + [D]
+    lead = [sp.Poly(g, *gens).monoms(order='grevlex')[0] for g in G.exprs]
+    n = len(gens); count = 0; frontier = [(0,) * n]; seen = set(frontier)
+    while frontier:
+        m = frontier.pop()
+        if any(all(m[i] >= l[i] for i in range(n)) for l in lead):
+            continue
+        count += 1
+        for i in range(n):
+            m2 = tuple(m[j] + (j == i) for j in range(n))
+            if m2 not in seen:
+                seen.add(m2); frontier.append(m2)
+    return count
