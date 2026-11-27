@@ -4,11 +4,11 @@
  "window": "[8/3, p*D*)",
  "max_dim": 3,
  "totals": {
-  "clear": 10,
+  "clear": 8,
   "zeta": 2,
-  "above": 3
+  "eutaxy2": 5
  },
- "seconds": 51,
+ "seconds": 45,
  "sets": [
   {
    "file": "stageB_faces_zeta_supporting_ball.pkl",
@@ -17,9 +17,9 @@
    "complete": true,
    "skipped": null,
    "status": {
-    "clear": 10,
+    "clear": 8,
     "zeta": 2,
-    "above": 3
+    "eutaxy2": 5
    },
    "flagged": [
     {
