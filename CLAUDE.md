@@ -115,7 +115,8 @@ yet certified (THEORY_REVIEW §4).
 **Next work:**
 * **Stratum-11 B1 is complete** (Pavlo's cluster: 1 469 sets, 9.9·10⁸ nodes, ≈ 3 000 CPU-h, 637 555 leaves; ζ
   found). Next: the B2 array for the 47 830 leaves of dim ≤ 3 (`slurm_stageB2_stratum.sbatch`).
-* The 589 725 leaves of dim 4–6: find a stronger leaf prune before msolve (PLAN §3).
+* The 589 725 leaves of dim 4–6: the two-sided eutaxy pre-filter in B2 (Lemma B.6′) dropped 97 % of them on set
+  #1468; the B2 array now reports how many survive as `pending`; msolve for those (PLAN §3).
 * Equality classification: one critical point over p·D* in every `zeta` leaf (shown for ζ's own S, G5S).
 * Stage C for any window root.
 * Certificates for the float prunes of Stage A (hull, volume, quadruples) and B1 (STATUS §3).

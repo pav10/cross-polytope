@@ -215,9 +215,9 @@ This is complete, because THEORY Thms 5.1–5.2 hold for every choice of support
      orientations), 0 in the window (gate G5S).
 4. **Stage C** for listed window roots: not automated yet.
 5. **Still open:**
-   * **the 589 725 leaves of dim 4–6**: too many for msolve one by one. First look for a cheaper exact or LP leaf
-     prune, such as a stronger eutaxy relaxation or a lower bound on |det| over the leaf cell; then msolve on the
-     cluster for what remains;
+   * **the 589 725 leaves of dim 4–6**: the two-sided eutaxy pre-filter in B2 (Lemma B.6′) dropped 97 % of the
+     post-B1 leaves of set #1468, so expect ≈ 2·10⁴ to remain (one set only). The filter runs before the dimension check, so the default B2
+     array (`MAXDIM=3`) already reports how many dim 4–6 leaves survive, as `pending`; then msolve for those;
    * **exact certificates for Stage A** (hull classification, volume, quadruple screen are float; STATUS §3
      certificate status) as well as for B1;
    * **equality classification**: every leaf reporting `zeta` needs a single-point fibre (or a classification

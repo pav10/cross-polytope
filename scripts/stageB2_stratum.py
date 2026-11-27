@@ -12,6 +12,8 @@ For every leaf (affine family x0 + span(basis), dim d):
                       a positive-dimensional critical ideal is handled by a lex elimination (f is constant on
                       each component of the critical locus, so R is still nonzero; STATUS §3);
   d > max_dim         'pending' (needs msolve; PLAN §3).
+Before that, every leaf goes through the two-sided eutaxy LP (STATUS §3 Lemma B.6'; status 'eutaxy2' = no critical
+point in the leaf; --no-eutaxy2 to skip it).
 Every real root of R(D) and of R(-D) (the window concerns |det X|; det may be negative on the family) and
 |det x0| is compared EXACTLY with the window [2p/3, p*D*), by exact isolating intervals against the CRootOf p*D*
 (64 D^3 - 1920 D^2 + 13584 D - 26011 for p = 4, rescaled for other p).  A root equal to p*D* is reported as
@@ -25,6 +27,7 @@ import sympy as sp
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from cp4.exact import det as exact_det, rref
 from cp4.critical import critical_value_polynomial_any, fibre_point_count
+from cp4.faces import leaf_cell, eutaxy_residual, EUTAXY_TOL
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 ap = argparse.ArgumentParser()
 ap.add_argument('sid', type=int)
@@ -35,6 +38,7 @@ ap.add_argument('--task', type=int, default=0)
 ap.add_argument('--ntasks', type=int, default=1)
 ap.add_argument('--seconds', type=float)
 ap.add_argument('--merge', action='store_true')
+ap.add_argument('--no-eutaxy2', action='store_true')
 a = ap.parse_args()
 p = json.load(open(os.path.join(root, 'data', 'strata.json')))[a.sid]['p']
 D = sp.Symbol('D')
@@ -123,10 +127,17 @@ def run_file(f, cache, prev=None, save=None, deadline=None):
     if not R['stats'].get('complete'):
         return {'file': os.path.basename(f), 'skipped': 'B1 incomplete'}
     res = list(prev['results']) if prev else []
+    S = R.get('S') or [tuple(c) for c in json.load(open(os.path.join(root, 'data', 'zeta.json')))[
+        'S_frame_numerators_over_p_canonical_stratum_coords']]          # G6S pickles predate the 'S' field
     for k in range(len(res), len(R['leaves'])):
         if deadline and time.time() > deadline:
             break
         L = R['leaves'][k]
+        if not a.no_eutaxy2:      # Lemma B.6': two-sided eutaxy relaxation; no critical X in the leaf if infeasible
+            C, sig, eqs, ineqs = leaf_cell(S, p, L)
+            if eutaxy_residual(C, sig, eqs, ineqs, two_sided=True) > EUTAXY_TOL:
+                res.append({'status': 'eutaxy2', 'values': [], 'leaf': k, 'dim': L['dim']})
+                continue
         key = family_key(L)
         if key not in cache:
             cache[key] = b2_leaf(L)
@@ -173,13 +184,15 @@ else:                                        # job-array task: sets k = task (mo
         prev = json.load(open(dst1)) if os.path.exists(dst1) else None
         if prev and prev.get('complete'):
             continue
+        if prev and prev.get('eutaxy2', True) != (not a.no_eutaxy2):
+            sys.exit(f'{dst1}: written with a different --no-eutaxy2 setting')
         if prev and prev.get('max_dim', a.max_dim) != a.max_dim:
             sys.exit(f'{dst1}: written with --max-dim {prev["max_dim"]}, not {a.max_dim}')
         if deadline and time.time() > deadline:
             print('time budget used up; resubmit to continue', flush=True); break
 
         def save(r, dst1=dst1):
-            r = dict(r, max_dim=a.max_dim)
+            r = dict(r, max_dim=a.max_dim, eutaxy2=not a.no_eutaxy2)
             json.dump(r, open(dst1 + '.tmp', 'w')); os.replace(dst1 + '.tmp', dst1)
         r = run_file(f, cache, prev, save, deadline)
         if 'skipped' not in r:

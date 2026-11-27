@@ -325,6 +325,22 @@ sign rows.
   `|T_ij| ≤ T_jj`) it killed 2–3 of ~300 nodes (DEAD_ENDS B19).
 * *X-free corollary* (weak, ~5 %): for every column `j`, `0 ∈ conv{(σ_{q,i}σ_{q,j})_{i≠j}}`.
 
+**Lemma B.6′ (two-sided eutaxy) [P]** (27 Nov 2026).
+* In Lemma B.6 the identity reads `M(λ)·X = I` with `M(λ) = Σ_q λ_q σ_qᵀ q`.
+* Square matrices satisfy `M X = I ⟹ X M = I`, so also `Σ_q (Z_q σ_qᵀ) q = I`. In the variables `Z_q = λ_q X` this
+  is a different linear system, and adding it to the RLT LP is sound.
+* `faces.eutaxy_residual(..., two_sided=True)`; `faces.leaf_cell` rebuilds a leaf's cell from its `signs`/`rho`.
+* *Measured* on the leaves that survived the one-sided prune in a local run of set #1468 (|S| = 10, 117 925 nodes,
+  1 161 leaves):
+  * it drops **1 129 (97 %)**, including 1 119 of the 1 151 leaves of dim 4–6;
+  * the residuals have a clean gap (none in (10⁻⁹, 10⁻⁴));
+  * adding an explicit `X` with `ΣZ_q = 2X` and McCormick envelopes drops nothing more.
+* On ζ's S both ζ leaves have residual 0.
+* It runs as a pre-filter in `stageB2_stratum.py` (status `eutaxy2`), so it applies to the existing B1 checkpoints
+  without rerunning B1.
+* If set #1468 is representative, the 589 725 leaves of dim 4–6 shrink to ≈ 2·10⁴. This is one set only; to be
+  measured on the cluster.
+
 **B2 sign convention.** The window concerns `|det X|`, and `det` may be negative on a leaf family (ζ's two leaves
 on its own S have `det = ±4D*`). So the B2 driver tests the real roots of `R(D)` **and** of `R(−D)`.
 `cp4.critical.roots_in_window` checks `R(D)` only, which is correct for G5 (ζ's own orientation).

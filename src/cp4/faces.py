@@ -375,12 +375,28 @@ def _frame_filter(kids, ci, signs, group, cache, stats):
             stats['frame_sym_dead'] = stats.get('frame_sym_dead', 0) + 1
     return keep
 
-def eutaxy_residual(C, signs, eqs, ineqs):
+def leaf_cell(S, p, leaf):
+    """Rebuild a supporting-mode B1 leaf's cell in internal (frame-first) order: (C, signs, eqs, ineqs)."""
+    order = _frame_order(S, p)
+    C = [tuple(F(x, p) for x in S[i]) for i in order]
+    rho = leaf.get('rho', {})
+    eqs, ineqs, sig = [], [], {}
+    for k in range(len(C)):
+        o = order[k]; s = leaf['signs'][o]; sig[k] = s
+        if o in rho:
+            e, a, b = _rows_half(C[k], s, rho[o]); eqs += e; ineqs += a + b
+        else:
+            e, a = _rows_for(C[k], s); eqs += e; ineqs += a
+    return C, sig, eqs, ineqs
+
+def eutaxy_residual(C, signs, eqs, ineqs, two_sided=False):
     """Leaf prune by l1-eutaxy (THEORY Thm 5.2; STATUS §3 Lemma B.6), RLT relaxation.  At a critical X with
     contacts v_q = qX and ANY supporting facets sigma_q there are lambda >= 0, sum lambda = 2, with
     sum_q lambda_q sigma_q^T v_q = I.  Put Z_q = lambda_q X: then Z_q lies in lambda_q * (the leaf's cell closure),
     i.e. r.Z_q = b lambda_q for every equation (r, b) of the leaf, g.Z_q >= 0 for every sign row g, |Z_q| <= 2 lambda_q,
-    and sum_q sigma_q^T (q Z_q) = I.  Returns the minimal max-norm residual of that identity over the relaxation
+    and sum_q sigma_q^T (q Z_q) = I.  two_sided=True also imposes the RIGHT identity sum_q (Z_q sigma_q^T) q = I:
+    M(lambda) X = I with M = sum lambda_q sigma_q^T q forces X M(lambda) = I (square matrices), and in Z this is a
+    different linear system (Lemma B.6'; ~97 % more leaves of dim 4-6 die).  Returns the minimal max-norm residual of that identity over the relaxation
     (0 if some lambda, Z satisfy it); a leaf with residual > 1e-7 contains no critical X.  C, signs: internal order,
     every contact decided; ineqs: the leaf's strict and nonstrict rows (closure)."""
     n = len(C)
@@ -397,6 +413,13 @@ def eutaxy_residual(C, signs, eqs, ineqs):
             d = 1.0 if a == b else 0.0
             r1 = r.copy(); r1[sv] = -1.0; Aub.append(r1); bub.append(d)
             r2 = -r; r2[sv] = -1.0; Aub.append(r2); bub.append(-d)
+            if two_sided:
+                r = np.zeros(nv)
+                for q in range(n):
+                    for j in range(4):
+                        r[17 * q + 1 + 4 * a + j] += signs[q][j] * Cf[q][b]
+                r1 = r.copy(); r1[sv] = -1.0; Aub.append(r1); bub.append(d)
+                r2 = -r; r2[sv] = -1.0; Aub.append(r2); bub.append(-d)
     r = np.zeros(nv)
     r[[17 * q for q in range(n)]] = 1.0
     Aeq.append(r); beq.append(2.0)
